@@ -16,6 +16,7 @@ import avatar2 from "assets/img/avatars/avatar2.png";
 import avatar3 from "assets/img/avatars/avatar3.png";
 // Custom Icons
 import { ArgonLogoDark, ArgonLogoLight, ChakraLogoDark, ChakraLogoLight, ProfileIcon, SettingsIcon } from "components/Icons/Icons";
+import appLogoLight from "../../assets/img/logo.png"; 
 // Custom Components
 import { ItemContent } from "components/Menu/ItemContent";
 import { SearchBar } from "components/Navbars/SearchBar/SearchBar";
@@ -53,7 +54,7 @@ export default function HeaderLinks(props) {
       alignItems='center'
       flexDirection='row'>
       <SearchBar me='18px' />
-      <NavLink to='/auth/signin'>
+      {/* <NavLink to='/auth/signin'>
         <Button
           ms='0px'
           px='0px'
@@ -76,17 +77,19 @@ export default function HeaderLinks(props) {
           }>
           <Text display={{ sm: "none", md: "flex" }}>Sign In</Text>
         </Button>
-      </NavLink>
+      </NavLink> */}
       <SidebarResponsive
         hamburgerColor={"white"}
         logo={
           <Stack direction='row' spacing='12px' align='center' justify='center'>
-            {colorMode === "dark" ? (
-              <ArgonLogoLight w='74px' h='27px' />
-            ) : (
-              <ArgonLogoDark w='74px' h='27px' />
-            )}
             <Box
+              as='img'
+              src={appLogoLight}
+              alt='App Logo'
+              w='74px'
+              h='27px'
+            />
+            {/* <Box
               w='1px'
               h='20px'
               bg={colorMode === "dark" ? "white" : "gray.700"}
@@ -95,7 +98,7 @@ export default function HeaderLinks(props) {
               <ChakraLogoLight w='82px' h='21px' />
             ) : (
               <ChakraLogoDark w='82px' h='21px' />
-            )}
+            )} */}
           </Stack>
         }
         colorMode={colorMode}
@@ -103,7 +106,7 @@ export default function HeaderLinks(props) {
         routes={routes}
         {...rest}
       />
-      <SettingsIcon
+      {/* <SettingsIcon
         cursor='pointer'
         ms={{ base: "16px", xl: "0px" }}
         me='16px'
@@ -111,7 +114,7 @@ export default function HeaderLinks(props) {
         color={navbarIcon}
         w='18px'
         h='18px'
-      />
+      /> */}
       <Menu>
         <MenuButton>
           <BellIcon color={navbarIcon} w='18px' h='18px' />

@@ -192,7 +192,7 @@ export default function Dashboard() {
                   color='gray.400'
                   fontWeight='bold'
                   textTransform='uppercase'>
-                  Total Sales
+                  Mes actions
                 </StatLabel>
                 <Flex>
                   <StatNumber fontSize='lg' color={textColor} fontWeight='bold'>
@@ -263,10 +263,10 @@ export default function Dashboard() {
           <Flex direction='column'>
             <Flex align='center' justify='space-between' p='22px'>
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Page visits
+                Incident par categories
               </Text>
               <Button variant='primary' maxH='30px'>
-                SEE ALL
+                Voir tout
               </Button>
             </Flex>
             <Box overflow={{ sm: "scroll", lg: "hidden" }}>
@@ -274,17 +274,12 @@ export default function Dashboard() {
                 <Thead>
                   <Tr bg={tableRowColor}>
                     <Th color='gray.400' borderColor={borderColor}>
-                      Page name
+                      Categories
                     </Th>
                     <Th color='gray.400' borderColor={borderColor}>
-                      Visitors
+                      Pourcentages
                     </Th>
-                    <Th color='gray.400' borderColor={borderColor}>
-                      Unique users
-                    </Th>
-                    <Th color='gray.400' borderColor={borderColor}>
-                      Bounce rate
-                    </Th>
+                    
                   </Tr>
                 </Thead>
                 <Tbody>
@@ -306,20 +301,7 @@ export default function Dashboard() {
                           borderColor={borderColor}>
                           {el.visitors}
                         </Td>
-                        <Td
-                          color={textTableColor}
-                          fontSize='sm'
-                          border={index === arr.length - 1 ? "none" : null}
-                          borderColor={borderColor}>
-                          {el.uniqueUsers}
-                        </Td>
-                        <Td
-                          color={textTableColor}
-                          fontSize='sm'
-                          border={index === arr.length - 1 ? "none" : null}
-                          borderColor={borderColor}>
-                          {el.bounceRate}
-                        </Td>
+                        
                       </Tr>
                     );
                   })}
@@ -332,70 +314,11 @@ export default function Dashboard() {
           <Flex direction='column'>
             <Flex align='center' justify='space-between' p='22px'>
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Social traffic
+                Incidents par Zone
               </Text>
-              <Button variant='primary' maxH='30px'>
-                SEE ALL
-              </Button>
             </Flex>
           </Flex>
-          <Box overflow={{ sm: "scroll", lg: "hidden" }}>
-            <Table>
-              <Thead>
-                <Tr bg={tableRowColor}>
-                  <Th color='gray.400' borderColor={borderColor}>
-                    Referral
-                  </Th>
-                  <Th color='gray.400' borderColor={borderColor}>
-                    Visitors
-                  </Th>
-                  <Th color='gray.400' borderColor={borderColor}></Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {socialTraffic.map((el, index, arr) => {
-                  return (
-                    <Tr key={index}>
-                      <Td
-                        color={textTableColor}
-                        fontSize='sm'
-                        fontWeight='bold'
-                        borderColor={borderColor}
-                        border={index === arr.length - 1 ? "none" : null}>
-                        {el.referral}
-                      </Td>
-                      <Td
-                        color={textTableColor}
-                        fontSize='sm'
-                        borderColor={borderColor}
-                        border={index === arr.length - 1 ? "none" : null}>
-                        {el.visitors}
-                      </Td>
-                      <Td
-                        color={textTableColor}
-                        fontSize='sm'
-                        borderColor={borderColor}
-                        border={index === arr.length - 1 ? "none" : null}>
-                        <Flex align='center'>
-                          <Text
-                            color={textTableColor}
-                            fontWeight='bold'
-                            fontSize='sm'
-                            me='12px'>{`${el.percentage}%`}</Text>
-                          <Progress
-                            size='xs'
-                            colorScheme={el.color}
-                            value={el.percentage}
-                            minW='120px'
-                          />
-                        </Flex>
-                      </Td>
-                    </Tr>
-                  );
-                })}
-              </Tbody>
-            </Table>
-          </Box>
+          
         </Card>
       </Grid>
     </Flex>
