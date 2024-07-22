@@ -15,6 +15,7 @@ import {
   PersonIcon,
   RocketIcon
 } from "components/Icons/Icons";
+import appLogoLight from "../../assets/img/logo.png"; 
 import { SidebarResponsive } from "components/Sidebar/Sidebar";
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -163,21 +164,7 @@ export default function AuthNavbar(props) {
                 align="center"
                 justify="center"
               >
-                {colorMode === "dark" ? (
-                  <ArgonLogoLight w="74px" h="27px" />
-                ) : (
-                  <ArgonLogoDark w="74px" h="27px" />
-                )}
-                <Box
-                  w="1px"
-                  h="20px"
-                  bg={colorMode === "dark" ? "white" : "gray.700"}
-                />
-                {colorMode === "dark" ? (
-                  <ChakraLogoLight w="82px" h="21px" />
-                ) : (
-                  <ChakraLogoDark w="82px" h="21px" />
-                )}
+                <appLogoLight w="82px" h="21px" />
               </Stack>
             }
             {...rest}
