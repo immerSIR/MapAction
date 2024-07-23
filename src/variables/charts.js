@@ -1,6 +1,6 @@
 export const barChartData = [
   {
-    name: ["Ananymes","Inscrits"],
+    name: ["Anonymes","Inscrits"],
     data: [44, 55, 41, 17, 15],
   },
 ];
@@ -152,3 +152,4 @@ export const lineChartOptions = {
   },
   colors: ["#fff", "#3182CE"],
 };
+
