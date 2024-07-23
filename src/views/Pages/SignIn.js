@@ -1,30 +1,84 @@
-import React from "react";
-// Chakra imports
+import React, { useState } from "react";
 import {
   Box,
   Flex,
   Button,
   FormControl,
   FormLabel,
-  HStack,
   Input,
-  Icon,
-  Link,
-  Switch,
   Text,
   useColorModeValue,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
-// Assets
+import axios from "axios";
 import signInImage from "assets/img/signInImage.png";
+import { config } from "../../config";
 
 function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   // Chakra color mode
   const textColor = useColorModeValue("gray.700", "white");
   const bgForm = useColorModeValue("white", "navy.800");
-  const titleColor = useColorModeValue("gray.700", "blue.500");
-  const colorIcons = useColorModeValue("gray.700", "white");
-  const bgIcons = useColorModeValue("trasnparent", "navy.700");
-  const bgIconsHover = useColorModeValue("gray.50", "whiteAlpha.100");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    const user = { email, password };
+
+    try {
+      // Authentification
+      const authResponse = await axios.post(config.url + "/MapApi/login/", user);
+      sessionStorage.setItem("token", authResponse.data.access);
+
+      // Récupération des informations de l'utilisateur
+      const userResponse = await axios.get(config.url + "/MapApi/user_retrieve/", {
+        headers: { Authorization: `Bearer ${authResponse.data.access}` },
+      });
+
+      const userData = userResponse.data.data;
+      sessionStorage.setItem("user", JSON.stringify(userData));
+      sessionStorage.setItem("user_id", userData.id);
+      sessionStorage.setItem("first_name", userData.first_name);
+      sessionStorage.setItem("zone", userData.adress);
+      sessionStorage.setItem("user_type", userData.user_type);
+
+      // Redirection basée sur le type d'utilisateur
+      if (userData.user_type === "admin") {
+        window.location.href = "/dashboardAdmin";
+      } else if (userData.user_type === "elu") {
+        if (userData.password_reset_count === "0") {
+          setChangepwd(true);
+        } else {
+          window.location.href = "/dashboard";
+        }
+      } else {
+        Swal.fire(
+          "Attention",
+          "Vous ne pouvez pas accéder au dashboard, veuillez contacter l'administrateur",
+          "warning"
+        );
+      }
+    } catch (err) {
+      setError("Login ou mot de passe incorrect! Veuillez réessayer.");
+      console.error(err);
+      Swal.fire(
+        "Erreur",
+        "Login ou mot de passe incorrect! Veuillez réessayer",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
   return (
     <Flex position='relative' mb='40px'>
       <Flex
@@ -65,6 +119,12 @@ function SignIn() {
               mb='22px'>
               S'authentifier
             </Text>
+            {error && (
+              <Alert status='error' mb='24px'>
+                <AlertIcon />
+                {error}
+              </Alert>
+            )}
             <FormControl>
               <FormLabel ms='4px' fontSize='sm' fontWeight='normal'>
                 Email
@@ -77,6 +137,8 @@ function SignIn() {
                 placeholder='Votre email'
                 mb='24px'
                 size='lg'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               <FormLabel ms='4px' fontSize='sm' fontWeight='normal'>
                 Mot de passe
@@ -86,27 +148,25 @@ function SignIn() {
                 fontSize='sm'
                 ms='4px'
                 type='password'
-                placeholder='votre mot de passe'
+                placeholder='Votre mot de passe'
                 mb='24px'
                 size='lg'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
-              <FormControl display='flex' alignItems='center' mb='24px'>
-                <Switch id='remember-login' colorScheme='blue' me='10px' />
-                <FormLabel htmlFor='remember-login' mb='0' fontWeight='normal'>
-                  Se souvenir de moi
-                </FormLabel>
-              </FormControl>
               <Button
                 fontSize='10px'
                 variant='dark'
                 fontWeight='bold'
                 w='100%'
                 h='45'
-                mb='24px'>
+                mb='24px'
+                isLoading={isLoading}
+                loadingText='Chargement'
+                onClick={handleSubmit}>
                 Se connecter
               </Button>
             </FormControl>
-            
           </Flex>
         </Flex>
         <Box
