@@ -7,6 +7,8 @@ import RTLPage from "views/RTL/RTLPage.js";
 import Profile from "views/Dashboard/Profile.js";
 import SignIn from "views/Pages/SignIn.js";
 import SignUp from "views/Pages/SignUp.js";
+import GlobalView from 'views/Dashboard/globalView';
+import Analyze from 'views/Dashboard/analyze';
 
 import {
   HomeIcon,
@@ -21,7 +23,7 @@ import {
 var dashRoutes = [
   {
     path: "/dashboard",
-    name: "Dashboard",
+    name: "Tableau de bord",
     rtlName: "لوحة القيادة",
     icon: <HomeIcon color='inherit' />,
     component: Dashboard,
@@ -29,7 +31,7 @@ var dashRoutes = [
   },
   {
     path: "/tables",
-    name: "Tables",
+    name: "Utilisateurs",
     rtlName: "لوحة القيادة",
     icon: <StatsIcon color='inherit' />,
     component: Tables,
@@ -43,13 +45,20 @@ var dashRoutes = [
     component: Billing,
     layout: "/admin",
   },
+ 
   {
-    path: "/rtl-support-page",
-    name: "RTL",
-    rtlName: "آرتيإل",
+    path: "/incident_view/:incidentId",
+    name: "Vue d'ensemble",
     icon: <SupportIcon color='inherit' />,
-    component: RTLPage,
-    layout: "/rtl",
+    component: GlobalView,
+    layout: "/admin",
+  },
+  {
+    path: "/analyze/:incidentId/:userId",
+    name: "Analyse avancé",
+    icon: <SupportIcon color='inherit' />,
+    component: Analyze,
+    layout: "/admin",
   },
   {
     name: "ACCOUNT PAGES",
