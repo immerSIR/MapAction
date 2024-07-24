@@ -40,14 +40,13 @@ import { useIncidentData } from "Fonctions/Dash_fonction";
 
 const positions = [16.2833, -3.0833]
 
-const onShowIncident = (id) => {
-  // Votre fonction pour afficher l'incident ici
-};
+
 
 export default function Dashboard() {
   const [percentageAnonymous, setAnonymousPercentage] = useState(0);
   // const [countIncidents, setCountIncidents] = useState('');
   const {
+    onShowIncident,
     selectedMonth,
     setSelectedMonth,
     anonymousPercentage,

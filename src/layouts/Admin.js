@@ -8,12 +8,6 @@ import {
 } from "@chakra-ui/react";
 import Configurator from "components/Configurator/Configurator";
 import Footer from "components/Footer/Footer.js";
-import {
-  ArgonLogoDark,
-  ArgonLogoLight,
-  ChakraLogoDark,
-  ChakraLogoLight,
-} from "components/Icons/Icons";
 // Layout components
 import AdminNavbar from "components/Navbars/AdminNavbar.js";
 import Sidebar from "components/Sidebar/Sidebar.js";
@@ -27,6 +21,7 @@ import MainPanel from "../components/Layout/MainPanel";
 import PanelContainer from "../components/Layout/PanelContainer";
 import PanelContent from "../components/Layout/PanelContent";
 import bgAdmin from "assets/img/admin-background.png";
+import logo from "assets/img/logo.png"
 
 export default function Dashboard(props) {
   const { ...rest } = props;
@@ -121,21 +116,13 @@ export default function Dashboard(props) {
         routes={routes}
         logo={
           <Stack direction='row' spacing='12px' align='center' justify='center'>
-            {/* {colorMode === "dark" ? (
-              <ArgonLogoLight w='74px' h='27px' />
-            ) : (
-              <ArgonLogoDark w='74px' h='27px' />
-            )} */}
             <Box
-              w='1px'
-              h='20px'
-              bg={colorMode === "dark" ? "white" : "gray.700"}
+              as='img'
+              src={logo}
+              alt='App Logo'
+              w='80px'
+              h='30px'
             />
-            {/* {colorMode === "dark" ? (
-              <ChakraLogoLight w='82px' h='21px' />
-            ) : (
-              <ChakraLogoDark w='82px' h='21px' />
-            )} */}
           </Stack>
         }
         display='none'

@@ -1,6 +1,7 @@
 import React, { useState, useRef,useEffect } from "react";
 import axios from 'axios';
 import { config } from '../config';
+import {  useParams, useHistory } from 'react-router-dom';
 // import Chart from 'chart.js/auto';
 import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
@@ -21,6 +22,7 @@ const monthsOptions = [
 ];
 
 export const useIncidentData = () => {
+    const navigate = useHistory();
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
     const [anonymousPercentage, setAnonymousPercentage] = useState(0);
     const [registeredPercentage, setRegisteredPercentage] = useState(0);
@@ -39,7 +41,7 @@ export const useIncidentData = () => {
     const [showOnlyDeclared, setShowOnlyDeclared] = useState(false);
     const [preduct, setPreduct] = useState([])
     const [countCategory, setCountCategory] = useState('');
-
+    const [data, setData] = useState([]);
     const handleMonthChange = (selectedOption) => {
         const monthValue = selectedOption.value;
         if (monthValue >= 1 && monthValue <= 12) {
@@ -178,19 +180,19 @@ export const useIncidentData = () => {
       setShowOnlyTakenIntoAccount(!showOnlyTakenIntoAccount);
       setShowOnlyResolved(false);
       setShowOnlyDeclared(false)
-  }
+    }
 
-  const ResolvedOnMap = async () => {
-      setShowOnlyResolved(!showOnlyResolved);
-      setShowOnlyDeclared(false)
-      setShowOnlyTakenIntoAccount(false);
-  }
+    const ResolvedOnMap = async () => {
+        setShowOnlyResolved(!showOnlyResolved);
+        setShowOnlyDeclared(false)
+        setShowOnlyTakenIntoAccount(false);
+    }
 
-  const DeclaredOnMap = async () => {
-      setShowOnlyDeclared(!showOnlyDeclared);
-      setShowOnlyTakenIntoAccount(false);
-      setShowOnlyResolved(false);
-  }
+    const DeclaredOnMap = async () => {
+        setShowOnlyDeclared(!showOnlyDeclared);
+        setShowOnlyTakenIntoAccount(false);
+        setShowOnlyResolved(false);
+    }
     const _getPercentageVsResolved = async () => {
         try {
             const currentMonth = selectedMonth;
@@ -279,6 +281,29 @@ export const useIncidentData = () => {
         console.log(error.message);
       }
     };
+
+    const onShowIncident = (id) => {
+        const item = getIncidentById(id)
+        console.log("Données d'incident dans onShowIncident :", item); 
+        navigate.push(`/admin/incident_view/${id}`, { incident: item }, () => {
+          console.log('State updated:', location.state); 
+          setIncident(item);
+        });
+        if (item) {
+            console.log('element à afficher ', item)
+            setIncident(item);
+        }
+    }
+    const getIncidentById = (id) => {
+        let incident = ''
+        for (let index = 0; index < data.length; index++) {
+            const element = data[index]
+            if (element.id === id) {
+                incident = element
+            }
+        }
+        return incident
+    }
 
     const filterIncidents = (incidents) => {
         let filteredIncidents = incidents;
@@ -415,6 +440,7 @@ export const useIncidentData = () => {
         IndicateurChart,
         TakenOnMap,
         DeclaredOnMap,
-        ResolvedOnMap
+        ResolvedOnMap,
+        onShowIncident
     };
 };
