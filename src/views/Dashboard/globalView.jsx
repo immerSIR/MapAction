@@ -16,7 +16,7 @@ import { Player } from "video-react";
 import { MapContainer, TileLayer, useMap, Popup, Marker, Circle } from 'react-leaflet'
 import { FaMapMarkerAlt, FaEye } from "react-icons/fa";
 import ReactDOMServer from 'react-dom/server';
-
+import Select from 'react-select'
 export default function GlobalView() {
   const {
     optionstype,
@@ -32,7 +32,10 @@ export default function GlobalView() {
     handleNavigate,
     videoIsLoading,
     setVideoIsLoading,
-    incident
+    incident,
+    EditIncident,
+    handleSelectChange,
+    handleChangeStatus
   } = IncidentData();
 
   const { colorMode } = useColorMode();
@@ -185,7 +188,32 @@ export default function GlobalView() {
                 Actions
               </Text>
             </Flex>
-            <Box minH='300px'>
+            <Box minH='100px'>
+              <Select
+                className="basic-single"
+                classNamePrefix="select"
+                value={
+                optionstype.filter(
+                (option) => option.value === EditIncident.etat,
+                )[0]
+                }
+                name="etat"
+                options={optionstype}
+                onChange={handleSelectChange}
+                styles={{
+                control: (provided, state) => ({
+                ...provided,
+                border: '1px solid #ccc',
+                borderRadius: '15px',
+                boxShadow: state.isFocused ? '0 0 0 1px #2684FF' : null,
+                margin:'15px'
+                }),
+                }}
+              />
+             
+            </Box>
+            <Box p="10px">
+              <Button className='etat' onClick={handleChangeStatus} colorScheme='teal' w="200px">Valider</Button>
             </Box>
           </Flex>
         </Card>
