@@ -8,8 +8,23 @@ import Swal from 'sweetalert2';
 export const IncidentData = () =>{
     const { incidentId } = useParams();
     const navigate = useHistory();
+    const [user, setUser] = useState({});
+    const fetchUserData = async () => {
+        try {
+          const response = await axios.get(`${config.url}/MapApi/user_retrieve/`, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.token}`,
+            },
+          });
+          console.log("User information", response.data.data)
+          setUser(response.data.data);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des informations utilisateur :', error.message);
+        }
+    };
 
     useEffect(() => {
+        fetchUserData();
         const fetchIncident = async () => {
             try {
                 const response = await axios.get(`${config.url}/MapApi/incident/${incidentId}`);
@@ -19,8 +34,19 @@ export const IncidentData = () =>{
                 console.error('Erreur lors de la récupération des détails de l\'incident :', error);
             }
         };
+        const fetchPredictions = async () => {
+            try {
+                const response = await axios.get(`${config.url}/MapApi/prediction/${predictionId}`);
+                console.log("les reponses du serveur", response.data)
+                setPredictions(response.data[0]);
+
+            } catch (error) {
+                console.error('Erreur lors de la récupération des prédictions :', error);
+            }
+        };
         if (incidentId) {
-            fetchIncident(); 
+            fetchIncident();
+            fetchPredictions 
         }
     }, [incidentId]);
 
@@ -44,6 +70,11 @@ export const IncidentData = () =>{
     const [inProgress, setProgress]= useState(false)
     const [changeState, setState] = useState(false)
     const data =[]
+    const [prediction, setPredictions] = useState([]);
+    const piste_solution = prediction ? prediction.piste_solution: '';
+    const context = prediction ? prediction.context: '';
+    const impact_potentiel = prediction ? prediction.impact_potentiel: '';
+    const type_incident =prediction ? prediction.incident_type: "";
     const [EditIncident, setEditIncident] = useState({
         title: '',
         zone: '',
@@ -153,9 +184,61 @@ export const IncidentData = () =>{
     };
     const handleNavigate = async () => {
         const userId = user.id;
-        navigate(`/analyze/${incident.id}/${userId}`);
+        navigate.push(`/admin/analyze/${incident.id}/${userId}`);
 
     };
+    
+    const sendPrediction = async (prediction, incident) => {
+        try {
+
+        const fastapiUrl = config.url2;
+
+        let sensitiveStructures = [];
+
+        for (let i = 0; i < nearbyPlaces.length; i++) {
+            if (nearbyPlaces[i].amenity == 'school') {
+                sensitiveStructures.push('ecole');
+            }else if (nearbyPlaces[i].amenity == 'clinic') {
+                sensitiveStructures.push('Clinique');
+            } else if (nearbyPlaces[i].amenity == 'river') {
+                sensitiveStructures.push('Rivière');
+            } else if (nearbyPlaces[i].amenity == 'marigot') {
+                sensitiveStructures.push('marigot');
+            }else{
+                sensitiveStructures.push(nearbyPlaces[i].amenity);
+            }
+            
+        }
+        console.log("prediction", Object.keys(prediction).length)
+
+        if (prediction && Object.keys(prediction).length != 0) {
+            console.log("session identique");
+        } else if(prediction || Object.keys(prediction).length === 0) {
+
+            const payload = {
+            image_name: incident.photo,
+            sensitive_structures: sensitiveStructures,
+            incident_id: incidentId,
+            user_id: userId,
+            };    
+
+            try {
+
+                console.log("payload", payload);
+                const response = await axios.post(fastapiUrl, payload);
+
+              } catch (error) {
+                throw new Error('Internal Server Error');
+              }
+
+        }
+
+    } catch (error) {
+        console.error('Error sending prediction:', error);
+        
+    }
+        
+    }
     return {
         handleChangeStatus,
         latitude,
@@ -171,7 +254,13 @@ export const IncidentData = () =>{
         videoIsLoading,
         handleNavigate,
         setVideoIsLoading,
-        incident
+        incident,
+        context,
+        piste_solution,
+        impact_potentiel,
+        type_incident,
+        EditIncident,
+        handleSelectChange
     }
 }    
     
