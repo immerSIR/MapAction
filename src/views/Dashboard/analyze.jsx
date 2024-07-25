@@ -32,7 +32,11 @@ export default function Analyze() {
     handleNavigate,
     videoIsLoading,
     setVideoIsLoading,
-    incident
+    incident,
+    context,
+    piste_solution,
+    impact_potentiel,
+    type_incident,
   } = IncidentData();
 
   const { colorMode } = useColorMode();
@@ -69,6 +73,24 @@ export default function Analyze() {
         }
         }, [lat, lon, map]);
         return null;
+    }
+    function ExpandableContent({ content }) {
+      const [expanded, setExpanded] = useState(false);
+  
+      const toggleExpanded = () => {
+          setExpanded(!expanded);
+      };
+  
+      return (
+          <Box>
+              <p>
+                  {expanded ? content : content.substring(0, 300)}
+                  {!expanded && content.length > 100 && (
+                      <Button onClick={toggleExpanded}>Voir plus</Button>
+                  )}
+              </p>
+          </Box>
+      );
     }
 
   return (
@@ -142,37 +164,25 @@ export default function Analyze() {
           <Flex direction='column'>
             <Box overflow={{ sm: "scroll", lg: "hidden" }} justify='space-between' p='22px'>
               <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Vidéo</Heading>
-                <Box position='relative'>
-                  <Player
-                    fluid={false}
-                    width={537}
-                    height={400}
-                    onLoadStart={() => setVideoIsLoading(true)}
-                    onLoadedData={() => setVideoIsLoading(false)}
-                    onError={() => setVideoIsLoading(false)}
-                    src={videoUrl}
-                  />
-                  {videoIsLoading && (
-                    <Flex justify='center' align='center' position='absolute' top='0' left='0' right='0' bottom='0' bg='rgba(0,0,0,0.5)'>
-                      <Spinner />
-                    </Flex>
-                  )}
+                <Heading as='h6' size='xs' mb='2'>Contexte & Description</Heading>
+                <Box minH='300px'>
+                  <ExpandableContent content={context || ""} />
                 </Box>
               </Box>
               <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Note Vocal</Heading>
-                <audio controls src={audioUrl}>
-                  Your browser does not support the
-                  <code>audio</code> element.
-                </audio>
+                <Heading as='h6' size='xs' mb='2'>Impacts Potentiels</Heading>
+                <Box minH='300px'>
+                  <ExpandableContent content={impact_potentiel || ""} />
+                </Box>
               </Box>
               <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Description</Heading>
-                <Text>{description}</Text>
+                <Heading as='h6' size='xs' mb='2'>Pistes de solutions envisageables</Heading>
+                <Box minH='300px'>
+                  <ExpandableContent content={piste_solution || ""} />
+                </Box>
               </Box>
               <Button onClick={handleNavigate} colorScheme='teal'>
-                Analyses Avancées
+                Discussion LLM
               </Button>
             </Box>
           </Flex>
@@ -182,11 +192,44 @@ export default function Analyze() {
           <Flex direction='column'>
             <Flex align='center' justify='space-between' p='22px'>
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Actions
+                Type d'incident
               </Text>
+              <Box>
+
+              </Box>
             </Flex>
-            <Box minH='300px'>
-            </Box>
+            <Flex align='center' justify='space-between' p='22px'>
+              <Text fontSize='lg' color={textColor} fontWeight='bold'>
+                Gravité d'incident
+              </Text>
+              <Box minH='200px'>
+                
+              </Box>
+            </Flex>
+            <Flex align='center' justify='space-between' p='22px'>
+              <Text fontSize='lg' color={textColor} fontWeight='bold'>
+                Code Couleur *
+              </Text>
+              <Box minH='100px'>
+                
+              </Box>
+            </Flex>
+            <Flex align='center' justify='space-between' p='22px'>
+              <Text color={textColor}>
+                * {''} L'évaluation de la gravité des incidents
+                  est réalisée par notre système d'intelligence
+                  artificielle qui analyse conjointement certains 
+                  éléments tels que la proximité des incidents aux zones sensibles, 
+                  les populations vulnérables, les données environnementales contextuelles 
+                  et les tendences historiques. 
+                  Cette estimation repose sur les données actuellement accessibles et, 
+                  bien que précise dans la majorité des cas, 
+                  peut parfois être sujette à erreur ou à mauvaise interprétation. 
+                  Nous recommandons toujours une vérification sur le terrain pour confirmer 
+                  les détails de chaque incident.
+              </Text>
+              
+            </Flex>
           </Flex>
         </Card>
       </Grid>
