@@ -9,6 +9,10 @@ import SignIn from "views/Pages/SignIn.js";
 import SignUp from "views/Pages/SignUp.js";
 import GlobalView from 'views/Dashboard/globalView';
 import Analyze from 'views/Dashboard/analyze';
+import Help from 'views/Pages/Help';
+import FAQ from 'views/Pages/FAQ';
+import NotFound from 'views/Pages/NotFound';
+import Incident from 'views/Dashboard/Incident';
 
 import {
   HomeIcon,
@@ -37,14 +41,14 @@ var dashRoutes = [
     component: Tables,
     layout: "/admin",
   },
-  {
-    path: "/billing",
-    name: "Billing",
-    rtlName: "لوحة القيادة",
-    icon: <CreditIcon color='inherit' />,
-    component: Billing,
-    layout: "/admin",
-  },
+  // {
+  //   path: "/billing",
+  //   name: "Billing",
+  //   rtlName: "لوحة القيادة",
+  //   icon: <CreditIcon color='inherit' />,
+  //   component: Billing,
+  //   layout: "/admin",
+  // },
  
   {
     path: "/incident_view/:incidentId",
@@ -58,6 +62,13 @@ var dashRoutes = [
     name: "Analyse avancé",
     icon: <SupportIcon color='inherit' />,
     component: Analyze,
+    layout: "/admin",
+  },
+  {
+    path: "/incident",
+    name: "Incident",
+    icon: <SupportIcon color='inherit' />,
+    component: Incident,
     layout: "/admin",
   },
   {
@@ -89,6 +100,30 @@ var dashRoutes = [
         rtlName: "لوحة القيادة",
         icon: <RocketIcon color='inherit' />,
         component: SignUp,
+        layout: "/auth",
+      },
+      {
+        path: "/help",
+        name: "Aide en Ligne",
+        rtlName: "لوحة القيادة",
+        icon: <RocketIcon color='inherit' />,
+        component: Help,
+        layout: "/auth",
+      },
+      {
+        path: "/NotFound",
+        name: "Error",
+        rtlName: "لوحة القيادة",
+        icon: <RocketIcon color='inherit' />,
+        component: NotFound,
+        layout: "/auth",
+      },
+      {
+        path: "/FAQ",
+        name: "FAQ",
+        rtlName: "لوحة القيادة",
+        icon: <RocketIcon color='inherit' />,
+        component: FAQ,
         layout: "/auth",
       },
     ],
