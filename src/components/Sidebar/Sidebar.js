@@ -56,7 +56,9 @@ function Sidebar(props) {
     let activeColor = useColorModeValue("gray.700", "white");
     let inactiveColor = useColorModeValue("gray.400", "gray.400");
     let sidebarActiveShadow = "0px 7px 11px rgba(0, 0, 0, 0.04)";
-    return routes.map((prop, key) => {
+    return routes
+    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up")
+    .map((prop, key) => {
       if (prop.redirect) {
         return null;
       }
@@ -290,7 +292,9 @@ export function SidebarResponsive(props) {
 
   // this function creates the links and collapses that appear in the sidebar (left menu)
   const createLinks = (routes) => {
-    return routes.map((prop, key) => {
+    return routes
+    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up")
+    .map((prop, key) => {
       if (prop.redirect) {
         return null;
       }
