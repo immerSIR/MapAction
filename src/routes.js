@@ -1,6 +1,7 @@
 // import
 import React, { Component }  from 'react';
 import Dashboard from "views/Dashboard/Dashboard.js";
+import Collaboration from "views/Dashboard/Collaboration";
 import Tables from "views/Dashboard/Tables.js";
 import Billing from "views/Dashboard/Billing.js";
 import RTLPage from "views/RTL/RTLPage.js";
@@ -8,6 +9,7 @@ import Profile from "views/Dashboard/Profile.js";
 import SignIn from "views/Pages/SignIn.js";
 import SignUp from "views/Pages/SignUp.js";
 import GlobalView from 'views/Dashboard/globalView';
+import GlobalViewCollaboration from 'views/Dashboard/globalViewCollaboration';
 import Analyze from 'views/Dashboard/analyze';
 
 import {
@@ -29,6 +31,14 @@ var dashRoutes = [
     component: Dashboard,
     layout: "/admin",
   },
+  {
+    path: "/collaboration",
+    name: "Collaboration",
+    rtlName: "التعاون",
+    icon: <PersonIcon color='inherit' />,
+    component: Collaboration,
+    layout: "/admin",
+},
   {
     path: "/tables",
     name: "Utilisateurs",
@@ -53,6 +63,15 @@ var dashRoutes = [
     component: GlobalView,
     layout: "/admin",
   },
+
+  {
+    path: "/incident_view_collaboration/:incidentId",
+    name: "Vue d'ensemble",
+    icon: <SupportIcon color='inherit' />,
+    component: GlobalViewCollaboration,
+    layout: "/admin",
+  },
+
   {
     path: "/analyze/:incidentId/:userId",
     name: "Analyse avancé",
