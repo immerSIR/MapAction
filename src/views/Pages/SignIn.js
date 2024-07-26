@@ -14,8 +14,11 @@ import {
 import axios from "axios";
 import signInImage from "assets/img/signInImage.png";
 import { config } from "../../config";
+import { useAuth } from 'context/AuthContext';
+import Swal from "sweetalert2";
 
 function SignIn() {
+  const {login} = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +51,7 @@ function SignIn() {
       sessionStorage.setItem("first_name", userData.first_name);
       sessionStorage.setItem("zone", userData.adress);
       sessionStorage.setItem("user_type", userData.user_type);
-
+      login();
       // Redirection basée sur le type d'utilisateur
       if (userData.user_type === "admin") {
         window.location.href = "/dashboardAdmin";
