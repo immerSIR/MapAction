@@ -36,6 +36,8 @@ import { NavLink, useLocation } from "react-router-dom";
 // FUNCTIONS
 
 function Sidebar(props) {
+
+  console.log(props, 'jjjjjjjjjjjjjjjjjjjjjjjjjj')
   // to check for active links and opened collapses
   let location = useLocation();
   // this is for the rest of the collapses

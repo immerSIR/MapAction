@@ -281,7 +281,7 @@ export const useIncidentData = () => {
         console.log(error.message);
       }
     };
-
+    
     const onShowIncident = (id) => {
         const item = getIncidentById(id)
         console.log("Données d'incident dans onShowIncident :", item); 
@@ -294,6 +294,21 @@ export const useIncidentData = () => {
             setIncident(item);
         }
     }
+
+
+    const onShowIncidentCollaboration = (id) => {
+        const item = getIncidentById(id)
+        console.log("Données d'incident dans onShowIncident :", item); 
+        navigate.push(`/admin/incident_view_collaboration/${id}`, { incident: item }, () => {
+          console.log('State updated:', location.state); 
+          setIncident(item);
+        });
+        if (item) {
+            console.log('element à afficher ', item)
+            setIncident(item);
+        }
+    }
+
     const getIncidentById = (id) => {
         let incident = ''
         for (let index = 0; index < data.length; index++) {
@@ -441,6 +456,7 @@ export const useIncidentData = () => {
         TakenOnMap,
         DeclaredOnMap,
         ResolvedOnMap,
-        onShowIncident
+        onShowIncident,
+        onShowIncidentCollaboration,
     };
 };
