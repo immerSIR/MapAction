@@ -25,6 +25,7 @@ import {
   RocketIcon,
   SupportIcon,
 } from "components/Icons/Icons";
+import EluDashboard from 'views/Dashboard/DashboardElu';
 
 var dashRoutes = [
   {
@@ -34,6 +35,16 @@ var dashRoutes = [
     icon: <HomeIcon color='inherit' />,
     component: Dashboard,
     layout: "/admin",
+    roles: ["admin"]
+  },
+  {
+    path: "/elu-dashboard",
+    name: "Tableau de bord",
+    rtlName: "لوحة القيادة",
+    icon: <HomeIcon color='inherit' />,
+    component: EluDashboard,
+    layout: "/admin",
+    roles: ["elu"]
   },
   {
     path: "/collaboration",
@@ -50,15 +61,9 @@ var dashRoutes = [
     icon: <StatsIcon color='inherit' />,
     component: Tables,
     layout: "/admin",
+    roles: ["admin"]
   },
-  // {
-  //   path: "/billing",
-  //   name: "Billing",
-  //   rtlName: "لوحة القيادة",
-  //   icon: <CreditIcon color='inherit' />,
-  //   component: Billing,
-  //   layout: "/admin",
-  // },
+
  
   {
     path: "/incident_view/:incidentId",
@@ -66,14 +71,16 @@ var dashRoutes = [
     icon: <SupportIcon color='inherit' />,
     component: GlobalView,
     layout: "/admin",
+    roles: ["admin", "elu"],
   },
 
   {
     path: "/incident_view_collaboration/:incidentId",
-    name: "Vue d'ensemble",
+    name: "Demande collaboration",
     icon: <SupportIcon color='inherit' />,
     component: GlobalViewCollaboration,
     layout: "/admin",
+    roles: ["admin", "elu"],
   },
 
   {
@@ -82,6 +89,7 @@ var dashRoutes = [
     icon: <SupportIcon color='inherit' />,
     component: Analyze,
     layout: "/admin",
+    roles: ["admin", "elu"],
   },
   {
     path: "/incident",
@@ -89,6 +97,7 @@ var dashRoutes = [
     icon: <SupportIcon color='inherit' />,
     component: Incident,
     layout: "/admin",
+    roles: ["admin", "elu"],
   },
   {
     name: "ACCOUNT PAGES",
@@ -104,6 +113,7 @@ var dashRoutes = [
         secondaryNavbar: true,
         component: Profile,
         layout: "/admin",
+        roles: ["admin", "elu"],
       },
       {
         path: "/signin",
@@ -112,6 +122,7 @@ var dashRoutes = [
         icon: <DocumentIcon color='inherit' />,
         component: SignIn,
         layout: "/auth",
+        roles: ["admin", "elu"],
       },
       {
         path: "/signup",
@@ -120,6 +131,7 @@ var dashRoutes = [
         icon: <RocketIcon color='inherit' />,
         component: SignUp,
         layout: "/auth",
+        roles: ["admin", "elu"],
       },
       {
         path: "/help",
@@ -127,7 +139,8 @@ var dashRoutes = [
         rtlName: "لوحة القيادة",
         icon: <RocketIcon color='inherit' />,
         component: Help,
-        layout: "/auth",
+        layout: "/admin",
+        roles: ["admin", "elu"],
       },
       {
         path: "/NotFound",
@@ -136,6 +149,7 @@ var dashRoutes = [
         icon: <RocketIcon color='inherit' />,
         component: NotFound,
         layout: "/auth",
+        roles: ["admin", "elu"],
       },
       {
         path: "/FAQ",
@@ -143,7 +157,8 @@ var dashRoutes = [
         rtlName: "لوحة القيادة",
         icon: <RocketIcon color='inherit' />,
         component: FAQ,
-        layout: "/auth",
+        layout: "/admin",
+        roles: ["admin", "elu"],
       },
     ],
   },
