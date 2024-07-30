@@ -29,7 +29,7 @@ export default function Analyze() {
     position,
     date,
     heure,
-    handleNavigate,
+    handleNavigateLLM,
     videoIsLoading,
     setVideoIsLoading,
     incident,
@@ -174,23 +174,23 @@ export default function Analyze() {
             <Box overflow={{ sm: "scroll", lg: "hidden" }} justify='space-between' p='22px'>
               <Box mb='4'>
                 <Heading as='h6' size='xs' mb='2'>Contexte & Description</Heading>
-                <Box minH='300px'>
+                <Box minH='200px'>
                   <ExpandableContent content={context || ""} />
                 </Box>
               </Box>
               <Box mb='4'>
                 <Heading as='h6' size='xs' mb='2'>Impacts Potentiels</Heading>
-                <Box minH='300px'>
+                <Box minH='200px'>
                   <ExpandableContent content={impact_potentiel || ""} />
                 </Box>
               </Box>
               <Box mb='4'>
                 <Heading as='h6' size='xs' mb='2'>Pistes de solutions envisageables</Heading>
-                <Box minH='300px'>
+                <Box minH='200px'>
                   <ExpandableContent content={piste_solution || ""} />
                 </Box>
               </Box>
-              <Button onClick={handleNavigate} colorScheme='teal'>
+              <Button onClick={handleNavigateLLM} colorScheme='teal'>
                 Discussion LLM
               </Button>
             </Box>
@@ -199,28 +199,54 @@ export default function Analyze() {
 
         <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
           <Flex direction='column'>
-            <Flex align='center' justify='space-between' p='22px'>
+            <Flex  justify='space-between' p='22px' direction='column'>
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
                 Type d'incident
               </Text>
-              <Box>
-
+              <Box 
+                bg='green'
+                width='100px'
+                height='100px'
+                m='2px'
+                borderRadius='10px'
+              >
+              
               </Box>
+              <Text color='#ccc' fontWeight='bold' mb='6px'>
+                {type_incident}
+              </Text>
             </Flex>
-            <Flex align='center' justify='space-between' p='22px'>
+            <Flex  justify='space-between' p='22px' direction="column">
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
                 Gravité d'incident
               </Text>
-              <Box minH='200px'>
+              <Box 
+                bg='green'
+                width='100px'
+                height='100px'
+                mt='2px'
+                borderRadius='10px'
+              >
                 
               </Box>
             </Flex>
-            <Flex align='center' justify='space-between' p='22px'>
+            <Flex  justify='space-between' p='22px' direction="column">
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
                 Code Couleur *
               </Text>
-              <Box minH='100px'>
-                
+              <Box minH='50px' display='flex' >
+                <Box textAlign='center' mr='1px'>
+                  <Box bg='yellow' width='100px' height='10px' mb='5px' />
+                  <Text>Faible Impact</Text>
+                </Box>
+                <Box textAlign='center' mr='-10px'>
+                  <Box bg='orange' width='100px' height='10px' mb='5px' />
+                  <Text>Potentiellement Grave</Text>
+                </Box>
+                <Box textAlign='center'>
+                  <Box bg='red' width='100px' height='10px' mb='5px' />
+                  <Text>Potentiellement Dangereux</Text>
+                </Box>
               </Box>
             </Flex>
             <Flex align='center' justify='space-between' p='22px'>
