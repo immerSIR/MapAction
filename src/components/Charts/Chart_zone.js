@@ -21,7 +21,8 @@ const ZoneChart = () => {
         'Mopti':'Mopti',
         'Zinder':'Zinder',
         'Kita':'Kita',
-        'Sikasso':'Sikasso'
+        'Sikasso':'Sikasso',
+        'Gadougou':'Kita',
 
     };
     const [chartOptions, setChartOptions] = useState({});

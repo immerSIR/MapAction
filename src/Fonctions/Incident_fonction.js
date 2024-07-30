@@ -197,6 +197,10 @@ export const IncidentData = () =>{
         navigate.push(`/admin/analyze/${incident.id}/${userId}`);
 
     };
+    const handleNavigateLLM = async () => {
+        const userId = user.id;
+        navigate.push(`/admin/llm_chat/${incident.id}/${userId}`);
+    };
     
     const sendPrediction = async (prediction, incident) => {
         try {
@@ -271,7 +275,8 @@ export const IncidentData = () =>{
         type_incident,
         EditIncident,
         handleSelectChange,
-        fetchPredictions
+        fetchPredictions,
+        handleNavigateLLM
     }
 }    
     

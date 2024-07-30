@@ -26,6 +26,7 @@ import {
   SupportIcon,
 } from "components/Icons/Icons";
 import EluDashboard from 'views/Dashboard/DashboardElu';
+import Chat from 'views/Dashboard/LLM_Chat';
 
 var dashRoutes = [
   {
@@ -139,6 +140,15 @@ var dashRoutes = [
         rtlName: "لوحة القيادة",
         icon: <RocketIcon color='inherit' />,
         component: Help,
+        layout: "/admin",
+        roles: ["admin", "elu"],
+      },
+      {
+        path: "/llm_chat/:incidentId/:userId",
+        name: "Chat",
+        rtlName: "لوحة القيادة",
+        icon: <RocketIcon color='inherit' />,
+        component: Chat,
         layout: "/admin",
         roles: ["admin", "elu"],
       },
