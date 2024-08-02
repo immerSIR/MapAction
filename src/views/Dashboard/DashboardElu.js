@@ -280,7 +280,7 @@ export default function EluDashboard() {
           }
           p='0px'
           maxW={{ sm: "320px", md: "100%" }}>
-          <Flex direction='column' mb='40px' p='28px 0px 0px 22px'>
+          <Flex direction='column' mb='40px' p='28px 0px 0px 22px' position="relative">
             <Text color='#fff' fontSize='lg' fontWeight='bold' mb='6px'>
               Carte interactive
             </Text>
@@ -288,8 +288,8 @@ export default function EluDashboard() {
               Carte interactive avec les points reportés par les utilisateurs de l'application mobile
             </Text>
           </Flex>
-          <Box minH='300px'>
-            <div id="map">
+          <Box minH='300px' position="relative" overflow="hidden">
+            <div id="map" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
               <Carte positions={positions} onShowIncident={onShowIncident} />
             </div>
           </Box>
