@@ -1,4 +1,4 @@
-import React, { useState, useRef,useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from 'axios';
 import { config } from '../config';
 import {  useParams, useHistory } from 'react-router-dom';
@@ -46,6 +46,7 @@ export const useIncidentData = () => {
     const [preduct, setPreduct] = useState([])
     const [countCategory, setCountCategory] = useState('');
     const [data, setData] = useState([]);
+
     const handleMonthChange = (selectedOption) => {
         const monthValue = selectedOption.value;
         if (monthValue >= 1 && monthValue <= 12) {
@@ -54,6 +55,23 @@ export const useIncidentData = () => {
             console.error("Invalid month value:", monthValue);
         }
     };
+    useEffect(() => {
+        const fetchData = async () => {
+            await _getAnonymous();
+            await _getRegistered();
+            // await _getIndicateur();
+            await _getPercentage();
+            await _getPercentageVsPreviousMonth();
+            await _getPercentageVsTaken();
+            await _getPercentageVsResolved();
+            await _getIncidents();
+            await _getIncidentsResolved();
+            await _getCategory();
+            await _getIncidentsCollabor();
+            await _getActions();
+        };
+        fetchData();
+    }, [selectedMonth]);
 
     const _getAnonymous = async () => {
         var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
@@ -526,6 +544,7 @@ export const useIncidentData = () => {
         countActions,
         PercentageIncrease,
         _getCollaboration,
-        collaboration
+        collaboration,
+        monthsOptions
     };
 };

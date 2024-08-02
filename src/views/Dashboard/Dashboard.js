@@ -291,8 +291,8 @@ export default function Dashboard() {
               Carte interactive avec les points reportés par les utilisateurs de l'application mobile
             </Text>
           </Flex>
-          <Box minH='300px'>
-            <div id="map">
+          <Box minH='300px' position="relative" overflow="hidden">
+            <div id="map" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
               <Carte positions={positions} onShowIncident={onShowIncident} />
             </div>
           </Box>
