@@ -35,6 +35,8 @@ import { RiMessage2Fill } from "react-icons/ri";
 import { IoStatsChart } from "react-icons/io5";
 
 import Carte from "variables/maps";
+import { useMonth } from "Fonctions/Month";
+
 // Fonctions
 import { useIncidentData } from "Fonctions/Dash_fonction";
 
@@ -44,11 +46,11 @@ const positions = [16.2833, -3.0833]
 
 export default function Dashboard() {
   const [percentageAnonymous, setAnonymousPercentage] = useState(0);
-  // const [countIncidents, setCountIncidents] = useState('');
+  const { selectedMonth } = useMonth();
   const {
     onShowIncident,
-    selectedMonth,
-    setSelectedMonth,
+    // selectedMonth,
+    // setSelectedMonth,
     anonymousPercentage,
     registeredPercentage,
     _getActions,

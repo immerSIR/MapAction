@@ -59,7 +59,7 @@ function Sidebar(props) {
     let inactiveColor = useColorModeValue("gray.400", "gray.400");
     let sidebarActiveShadow = "0px 7px 11px rgba(0, 0, 0, 0.04)";
     return routes
-    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
+    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Chat" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
     .filter(prop => !prop.roles || prop.roles.includes(userType))
     .map((prop, key) => {
       if (prop.redirect) {
@@ -271,6 +271,8 @@ function Sidebar(props) {
 // FUNCTIONS
 
 export function SidebarResponsive(props) {
+  const { userType } = useAuth();
+
   // to check for active links and opened collapses
   let location = useLocation();
   const { logo, routes, colorMode, hamburgerColor, ...rest } = props;
@@ -296,7 +298,8 @@ export function SidebarResponsive(props) {
   // this function creates the links and collapses that appear in the sidebar (left menu)
   const createLinks = (routes) => {
     return routes
-    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
+    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Chat" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
+    .filter(prop => !prop.roles || prop.roles.includes(userType))
     .map((prop, key) => {
       if (prop.redirect) {
         return null;
@@ -493,7 +496,7 @@ export function SidebarResponsive(props) {
               <Stack direction="column" mb="40px">
                 <Box>{links}</Box>
               </Stack>
-              <SidebarHelp />
+              {/* <SidebarHelp /> */}
             </Box>
           </DrawerBody>
         </DrawerContent>

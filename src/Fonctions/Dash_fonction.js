@@ -6,24 +6,28 @@ import {  useParams, useHistory } from 'react-router-dom';
 import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
 import ApexCharts from 'react-apexcharts';
-const monthsOptions = [
-    { value: 1, label: 'Janvier' },
-    { value: 2, label: 'Février' },
-    { value: 3, label: 'Mars' },
-    { value: 4, label: 'Avril' },
-    { value: 5, label: 'Mai' },
-    { value: 6, label: 'Juin' },
-    { value: 7, label: 'Juillet' },
-    { value: 8, label: 'Août' },
-    { value: 9, label: 'Septembre' },
-    { value: 10, label: 'Octobre' },
-    { value: 11, label: 'Novembre' },
-    { value: 12, label: 'Décembre' },
-];
+import { useMonth } from "./Month";
+
+
 
 export const useIncidentData = () => {
+    const {selectedMonth} = useMonth();
+    const monthsOptions = [
+        { value: 1, label: 'Janvier' },
+        { value: 2, label: 'Février' },
+        { value: 3, label: 'Mars' },
+        { value: 4, label: 'Avril' },
+        { value: 5, label: 'Mai' },
+        { value: 6, label: 'Juin' },
+        { value: 7, label: 'Juillet' },
+        { value: 8, label: 'Août' },
+        { value: 9, label: 'Septembre' },
+        { value: 10, label: 'Octobre' },
+        { value: 11, label: 'Novembre' },
+        { value: 12, label: 'Décembre' },
+    ];
     const navigate = useHistory();
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    // const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
     const [anonymousPercentage, setAnonymousPercentage] = useState(0);
     const [registeredPercentage, setRegisteredPercentage] = useState(0);
     const [percentageVs, setPercentageVs] = useState(0);
@@ -47,15 +51,17 @@ export const useIncidentData = () => {
     const [countCategory, setCountCategory] = useState('');
     const [data, setData] = useState([]);
 
-    const handleMonthChange = (selectedOption) => {
-        const monthValue = selectedOption.value;
-        if (monthValue >= 1 && monthValue <= 12) {
-            setSelectedMonth(monthValue);
-        } else {
-            console.error("Invalid month value:", monthValue);
-        }
-    };
+    // const handleMonthChange = (selectedOption) => {
+    //     const monthValue = selectedOption.value;
+    //     console.log("Selected month", monthValue)
+    //     if (monthValue >= 1 && monthValue <= 12) {
+    //         setSelectedMonth(monthValue);
+    //     } else {
+    //         console.error("Invalid month value:", monthValue);
+    //     }
+    // };
     useEffect(() => {
+        console.log("Selected month changed to:", selectedMonth);
         const fetchData = async () => {
             await _getAnonymous();
             await _getRegistered();
@@ -494,7 +500,7 @@ export const useIncidentData = () => {
 
     return {
         selectedMonth,
-        setSelectedMonth,
+        // setSelectedMonth,
         anonymousPercentage,
         registeredPercentage,
         percentageVs,
@@ -517,7 +523,7 @@ export const useIncidentData = () => {
         setShowOnlyResolved,
         showOnlyDeclared,
         setShowOnlyDeclared,
-        handleMonthChange,
+        // handleMonthChange,
         _getAnonymous,
         _getRegistered,
         _getIndicateur,

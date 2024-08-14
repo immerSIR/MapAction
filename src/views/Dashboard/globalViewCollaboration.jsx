@@ -61,7 +61,7 @@ export default function GlobalViewCollaboration() {
   const userId = sessionStorage.getItem('user_id');
   const { incidentId } = useParams(); 
   const { colorMode } = useColorMode();
-  const textColor = useColorModeValue("gray.700", "white");
+  const textColor = useColorModeValue("black.700", "white");
   const [selectedDate, setSelectedDate] = useState('');
   const [newCollaborationData, setNewCollaborationData] = useState({
     incident: incidentId,
