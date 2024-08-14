@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Chart from 'react-apexcharts';
 import {config} from '../../config'
+import { useMonth } from 'Fonctions/Month';
 
 const ZoneChart = () => {
     const zoneToRegionMap = {
@@ -27,7 +28,7 @@ const ZoneChart = () => {
     };
     const [chartOptions, setChartOptions] = useState({});
     const [chartSeries, setChartSeries] = useState([]);
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    const { selectedMonth } = useMonth();
 
 
     const _getZone = async () => {

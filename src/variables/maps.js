@@ -6,15 +6,18 @@ import ReactDOMServer from "react-dom/server";
 import { config } from "config";
 import L from "leaflet";
 import axios from "axios";
+import { useMonth } from "Fonctions/Month";
 
 const position = [16.2833, -3.0833];
+
 
 const Carte = ({ onShowIncident }) => {
   const [showOnlyTakenIntoAccount, setShowOnlyTakenIntoAccount] = useState(false);
   const [showOnlyResolved, setShowOnlyResolved] = useState(false);
   const [showOnlyDeclared, setShowOnlyDeclared] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  // const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [positions, setPositions] = useState([]);
+  const {selectedMonth} = useMonth();
 
   useEffect(() => {
     _getIncidents();

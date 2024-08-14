@@ -9,17 +9,21 @@ import theme from "theme/theme.js";
 import AuthLayout from "layouts/Auth.js";
 import AdminLayout from "layouts/Admin.js";
 import RTLLayout from "layouts/RTL.js";
+import { MonthProvider } from "Fonctions/Month";
 
 ReactDOM.render(
   <ChakraProvider theme={theme} resetCss={false} position="relative">
     <BrowserRouter>
       <AuthProvider>
-        <Switch>
-          <Route path={`/auth`} component={AuthLayout} />
-          <ProtectedRoute path={`/admin`} component={AdminLayout} roles={["admin", "elu"]} />
-          <Route path={`/rtl`} component={RTLLayout} />
-          <Redirect from={`/`} to="/admin/dashboard" />
-        </Switch>
+        <MonthProvider>
+          <Switch>
+            <Route path={`/auth`} component={AuthLayout} />
+            <ProtectedRoute path={`/admin`} component={AdminLayout} roles={["admin", "elu"]} />
+            <Route path={`/rtl`} component={RTLLayout} />
+            <Redirect from={`/`} to="/admin/dashboard" />
+          </Switch>
+        </MonthProvider>
+        
       </AuthProvider>
     </BrowserRouter>
   </ChakraProvider>,

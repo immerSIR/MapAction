@@ -24,16 +24,10 @@ import {
 import Card from "components/Card/Card.js";
 import ZoneChart from "components/Charts/Chart_zone";
 import IconBox from "components/Icons/IconBox";
-// Custom icons
-import {
-  CartIcon,
-  DocumentIcon,
-  GlobeIcon,
-  WalletIcon,
-} from "components/Icons/Icons.js";
+
 import { RiMessage2Fill } from "react-icons/ri";
 import { IoStatsChart } from "react-icons/io5";
-
+import { useMonth } from "Fonctions/Month";
 import Carte from "variables/maps";
 // Fonctions
 import { useIncidentData } from "Fonctions/Dash_fonction";
@@ -42,10 +36,10 @@ const positions = [16.2833, -3.0833]
 
 export default function EluDashboard() {
   const [percentageAnonymous, setAnonymousPercentage] = useState(0);
+  const { selectedMonth } = useMonth();
   const {
     onShowIncident,
-    selectedMonth,
-    setSelectedMonth,
+    // selectedMonth,
     anonymousPercentage,
     registeredPercentage,
     _getActions,
@@ -55,21 +49,12 @@ export default function EluDashboard() {
     percentageVsResolved,
     taken,
     incidents,
-    setCountIncidents,
-    setResolus,
-    setRegisteredPercentage,
-    setPercentageVs,
-    setPercentageVsResolved,
     countIncidents,
     resolus,
     categoryData,
-    zoneData,
     showOnlyTakenIntoAccount,
-    setShowOnlyTakenIntoAccount,
     showOnlyResolved,
-    setShowOnlyResolved,
     showOnlyDeclared,
-    setShowOnlyDeclared,
     handleMonthChange,
     _getAnonymous,
     _getRegistered,
@@ -81,10 +66,6 @@ export default function EluDashboard() {
     _getIncidents,
     _getIncidentsResolved,
     _getCategory,
-    _getZone,
-    filterIncidents,
-    displayIcon,
-    chartRef,
     IndicateurChart,
     preduct,
     TakenOnMap,
@@ -96,23 +77,22 @@ export default function EluDashboard() {
   // Chakra Color Mode
   const iconBlue = useColorModeValue("blue.500", "blue.500");
   const iconBoxInside = useColorModeValue("white", "white");
-  const textColor = useColorModeValue("gray.700", "white");
+  const textColor = useColorModeValue("black", "white");
   const tableRowColor = useColorModeValue("#F7FAFC", "navy.900");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const textTableColor = useColorModeValue("gray.500", "white");
 
   const { colorMode } = useColorMode();
-
+  console.log("voyons voir si on voit la selection du mois jusqu'ici", selectedMonth)
   useEffect(() => {
-    // Appel des fonctions pour récupérer les données
     async function fetchData() {
-      const incidents = await _getIncidents();
-      const incidentsResolved = await _getIncidentsResolved();
-      const anonymous = await _getAnonymous();
-      const registered = await _getRegistered();
-      const percentage = await _getPercentage();
-      const percentageVs = await _getPercentageVsPreviousMonth();
-      const percentageResolved = await _getPercentageVsResolved();
+      await _getIncidents();
+      await _getIncidentsResolved();
+      await _getAnonymous();
+      await _getRegistered();
+      await _getPercentage();
+      await _getPercentageVsPreviousMonth();
+      await _getPercentageVsResolved();
       await _getPercentageVsTaken()
       await _getCategory()
       await _getActions()
@@ -135,7 +115,7 @@ export default function EluDashboard() {
               <Stat me='auto'>
                 <StatLabel
                   fontSize='xs'
-                  color='gray.400'
+                  color='black'
                   fontWeight='bold'
                   textTransform='uppercase'>
                   Nombre d'incidents
@@ -170,7 +150,7 @@ export default function EluDashboard() {
               <Stat me='auto'>
                 <StatLabel
                   fontSize='xs'
-                  color='gray.400'
+                  color='black.400'
                   fontWeight='bold'
                   textTransform='uppercase'>
                   Pourcentage pris en compte
@@ -205,7 +185,7 @@ export default function EluDashboard() {
               <Stat me='auto'>
                 <StatLabel
                   fontSize='xs'
-                  color='gray.400'
+                  color='black.400'
                   fontWeight='bold'
                   textTransform='uppercase'>
                   Pourcentage résolu
@@ -241,7 +221,7 @@ export default function EluDashboard() {
                 <Stat me='auto'>
                   <StatLabel
                     fontSize='xs'
-                    color='gray.400'
+                  color='black.400'
                     fontWeight='bold'
                     textTransform='uppercase'>
                     Incidents pris en compte par moi
@@ -296,7 +276,7 @@ export default function EluDashboard() {
         </Card>
         <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
           <Flex direction='column' mb='40px' p='28px 0px 0px 22px'>
-            <Text color='gray.400' fontSize='sm' fontWeight='bold' mb='6px'>
+            <Text fontSize='lg' color={textColor} fontWeight='bold'>
               Incident par type d'utilisateur
             </Text>
           </Flex>
