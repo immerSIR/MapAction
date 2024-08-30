@@ -1,72 +1,93 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Popup, Marker } from "react-leaflet";
-import { IconContext } from "react-icons";
 import { FaMapMarkerAlt, FaEye } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import { config } from "config";
 import L from "leaflet";
 import axios from "axios";
 import { useMonth } from "Fonctions/Month";
+import { Button } from "@chakra-ui/react";
+import { useIncidentData } from "Fonctions/Dash_fonction";
 
-const position = [16.2833, -3.0833];
+const position = [17.570692, -3.996166];
 
-
-const Carte = ({ onShowIncident }) => {
-  const [showOnlyTakenIntoAccount, setShowOnlyTakenIntoAccount] = useState(false);
-  const [showOnlyResolved, setShowOnlyResolved] = useState(false);
-  const [showOnlyDeclared, setShowOnlyDeclared] = useState(false);
-  // const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, showOnlyDeclared  }) => {
+  // const [showOnlyTakenIntoAccount, setShowOnlyTakenIntoAccount] = useState(false);
+  // const [showOnlyResolved, setShowOnlyResolved] = useState(false);
+  // const [showOnlyDeclared, setShowOnlyDeclared] = useState(false);
   const [positions, setPositions] = useState([]);
-  const {selectedMonth} = useMonth();
+  const { selectedMonth } = useMonth();
+  const [mapType, setMapType] = useState('standard');
 
   useEffect(() => {
     _getIncidents();
   }, [selectedMonth]);
+  const {
+    DeclaredTakenOnMap,
+    DeclaredOnMap,
+    ResolvedOnMap,
+  }=useIncidentData();
+  const _getUserById = async (userId) => {
+    try {
+      const res = await axios.get(`${config.url}/MapApi/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.token}`,
+        },
+      });
+      console.log(res.data.data, "lesssssssssssssssssssssssssssssssssssssssss")
+      return res.data.data;
+    } catch (error) {
+      console.error(error.message);
+      return null;
+    }
+  };
 
   const _getIncidents = async () => {
     const url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
     try {
-        const res = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${sessionStorage.token}`,
-                "Content-Type": "application/json",
-            },
-        });
+      const res = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-        console.log('Les informations de la carte', res.data.data);
+      const incidents = res.data.data;
 
-        const incidents = res.data.data;
+      const validPositions = await Promise.all(
+        incidents
+          .filter(
+            (incident) =>
+              incident.lattitude !== null &&
+              incident.longitude !== null &&
+              !isNaN(incident.lattitude) &&
+              !isNaN(incident.longitude)
+          )
+          .map(async (incident) => {
+            const user = await _getUserById(incident.taken_by);
+            return {
+              id: incident.id,
+              lat: incident.lattitude,
+              lon: incident.longitude,
+              tooltip: incident.title,
+              desc: incident.description,
+              etat: incident.etat,
+              img: incident.photo,
+              orgPhoto: user?.avatar || "", 
+              video: config.url + incident.video,
+              audio: config.url + incident.audio,
+            };
+          })
+      );
 
-        const validPositions = incidents
-            .filter(
-                (incident) =>
-                    incident.lattitude !== null &&
-                    incident.longitude !== null &&
-                    !isNaN(incident.lattitude) &&
-                    !isNaN(incident.longitude)
-            )
-            .map((incident) => ({
-                id: incident.id,
-                lat: incident.lattitude,
-                lon: incident.longitude,
-                tooltip: incident.title,
-                desc: incident.description,
-                etat: incident.etat,
-                img: incident.photo,
-                video: config.url + incident.video,
-                audio: config.url + incident.audio
-            }));
-            console.log(validPositions)
-
-        setPositions(validPositions);
+      setPositions(validPositions);
     } catch (error) {
-        console.error(error.message);
+      console.error(error.message);
     }
-};
-
+  };
 
   const iconHTMLBlue = ReactDOMServer.renderToString(
-      <FaMapMarkerAlt color= "blue" size={20}/>
+    <FaMapMarkerAlt color="blue" size={20} />
   );
 
   const customMarkerIconBlue = new L.DivIcon({
@@ -74,7 +95,7 @@ const Carte = ({ onShowIncident }) => {
   });
 
   const iconHTMLRed = ReactDOMServer.renderToString(
-      <FaMapMarkerAlt color= "red" size={20}/>
+    <FaMapMarkerAlt color="red" size={20} />
   );
 
   const customMarkerIconRed = new L.DivIcon({
@@ -82,7 +103,7 @@ const Carte = ({ onShowIncident }) => {
   });
 
   const iconHTMLOrange = ReactDOMServer.renderToString(
-      <FaMapMarkerAlt color= "orange" size={20}/>
+    <FaMapMarkerAlt color="orange" size={20} />
   );
 
   const customMarkerIconOrange = new L.DivIcon({
@@ -90,105 +111,76 @@ const Carte = ({ onShowIncident }) => {
   });
 
   return (
-    <MapContainer center={position} zoom={5} style={{ height: '50vh', width: '100%' }}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {positions.map((mark, idx) => (
-        ((showOnlyTakenIntoAccount && mark.etat !== "taken_into_account") ||
-          (showOnlyResolved && mark.etat !== "resolved") ||
-          (showOnlyDeclared && mark.etat !== "declared")) ? null : (
-          <Marker
-            className="icon-marker"
-            key={`marker-${idx}`}
-            icon={
-              mark.etat === "resolved"
-                ? customMarkerIconBlue
-                : mark.etat === "taken_into_account"
-                  ? customMarkerIconOrange
-                  : customMarkerIconRed
-            }
-            position={[mark.lat, mark.lon]}
-          >
-            <Popup>
-              <span className="icon-marker-tooltip">
-                <ul>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <p>Voir l'incident</p>
-                    </div>
-                    <div className="col-md-6">
-                      <img src={mark.img} alt="" />
-                      <div>
-                        <button
-                          className="boutton button--round-l"
-                          onClick={() => onShowIncident(mark.id)}
-                        >
-                          <FaEye color="#ccc" />
-                        </button>
+    <>
+      <MapContainer center={position} zoom={6} style={{ height: '100%', width: '100%' }}>
+        {mapType === 'standard' ? (
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          />
+        ) : (
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            attribution='&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+          />
+        )}
+        {positions.map((mark, idx) => (
+          ((showOnlyTakenIntoAccount && mark.etat !== "taken_into_account") ||
+            (showOnlyResolved && mark.etat !== "resolved") ||
+            (showOnlyDeclared && mark.etat !== "declared")) ? null : (
+            <Marker
+              className="icon-marker"
+              key={`marker-${idx}`}
+              icon={
+                mark.etat === "resolved"
+                  ? customMarkerIconBlue
+                  : mark.etat === "taken_into_account"
+                    ? customMarkerIconOrange
+                    : customMarkerIconRed
+              }
+              position={[mark.lat, mark.lon]}
+            >
+              <Popup>
+                <span className="icon-marker-tooltip">
+                  <ul>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <p>Voir l'incident</p>
+                      </div>
+                      <div className="col-md-6">
+                        <img src={mark.img} alt="" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+                        <img src={mark.orgPhoto} alt="" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+                        <div>
+                          <button
+                            className="boutton button--round-l"
+                            onClick={() => onShowIncident(mark.id)}
+                          >
+                            <FaEye color="#ccc" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </ul>
-              </span>
-            </Popup>
-          </Marker>
-        )
-      ))}
-    </MapContainer>
+                  </ul>
+                </span>
+              </Popup>
+            </Marker>
+          )
+        ))}
+      </MapContainer>
+      <Button onClick={() => setMapType(mapType === 'standard' ? 'satellite' : 'standard')}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          zIndex: 1000,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          border: '2px solid black'
+        }}
+      >
+        {mapType === 'standard' ? 'Vue Satellite' : 'Vue Standard'}
+      </Button>
+    </>
   );
 };
 
 export default Carte;
-// import React from 'react';
-// import { MapContainer, TileLayer, Popup, Marker } from 'react-leaflet';
-// import L from 'leaflet';
-// import { IconContext } from 'react-icons';
-// import { FaMapMarkerAlt } from 'react-icons/fa';
-// import ReactDOMServer from 'react-dom/server';
-
-// const position = [16.2833, -3.0833]; // Position centrale de la carte
-
-// const iconHTMLBlue = ReactDOMServer.renderToString(
-//   <IconContext.Provider value={{ color: 'blue', className: 'global-class-name' }}>
-//     <FaMapMarkerAlt />
-//   </IconContext.Provider>
-// );
-
-// const customMarkerIconBlue = new L.DivIcon({
-//   html: iconHTMLBlue,
-// });
-
-// const dummyPositions = [
-//   { id: 1, lat: 16.5, lon: -3.5, tooltip: 'Marqueur 1', img: 'https://via.placeholder.com/50' },
-//   { id: 2, lat: 16.7, lon: -3.0, tooltip: 'Marqueur 2', img: 'https://via.placeholder.com/50' },
-//   { id: 3, lat: 16.3, lon: -3.2, tooltip: 'Marqueur 3', img: 'https://via.placeholder.com/50' },
-// ];
-
-// const Carte = () => {
-//   return (
-//     <MapContainer center={position} zoom={5} style={{ height: '50vh', width: '100%' }}>
-//       <TileLayer
-//         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-//       />
-//       {dummyPositions.map((mark, idx) => (
-//         <Marker
-//           key={`marker-${idx}`}
-//           icon={customMarkerIconBlue}
-//           position={[mark.lat, mark.lon]}
-//         >
-//           <Popup>
-//             <span className="icon-marker-tooltip">
-//               <p>{mark.tooltip}</p>
-//               <img src={mark.img} alt="" />
-//             </span>
-//           </Popup>
-//         </Marker>
-//       ))}
-//     </MapContainer>
-//   );
-// };
-
-// export default Carte;

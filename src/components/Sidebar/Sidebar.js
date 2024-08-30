@@ -31,13 +31,12 @@ import React from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "context/AuthContext";
+import { IoLogOutOutline } from "react-icons/io5";
 
 
 // FUNCTIONS
 
 function Sidebar(props) {
-
-  // to check for active links and opened collapses
   let location = useLocation();
   const { userType } = useAuth();
   // this is for the rest of the collapses
@@ -48,16 +47,22 @@ function Sidebar(props) {
   const activeRoute = (routeName) => {
     return location.pathname === routeName ? "active" : "";
   };
-  const { colorMode } = useColorMode;
+  const { colorMode } = useColorMode();
   // this function creates the links and collapses that appear in the sidebar (left menu)
   const { sidebarVariant } = props;
-  const createLinks = (routes) => {
-    // Chakra Color Mode
+  const { logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
+// Chakra Color Mode
     let activeBg = useColorModeValue("white", "navy.700");
     let inactiveBg = useColorModeValue("white", "navy.700");
     let activeColor = useColorModeValue("gray.700", "white");
     let inactiveColor = useColorModeValue("gray.400", "gray.400");
     let sidebarActiveShadow = "0px 7px 11px rgba(0, 0, 0, 0.04)";
+  const createLinks = (routes) => {
+    
     return routes
     .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Chat" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
     .filter(prop => !prop.roles || prop.roles.includes(userType))
@@ -259,8 +264,52 @@ function Sidebar(props) {
             <Box>{brand}</Box>
             <Stack direction="column" mb="40px">
               <Box>{links}</Box>
+              <Button
+                  boxSize="initial"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  bg="transparent"
+                  mb={{
+                    xl: "6px",
+                  }}
+                  mx={{
+                    xl: "auto",
+                  }}
+                  py="12px"
+                  ps={{
+                    sm: "10px",
+                    xl: "16px",
+                  }}
+                  borderRadius="15px"
+                  _hover="none"
+                  w="100%"
+                  _active={{
+                    bg: "inherit",
+                    transform: "none",
+                    borderColor: "transparent",
+                  }}
+                  _focus={{
+                    boxShadow: "none",
+                  }}
+                >
+                  <Flex>
+                    <IconBox
+                      bg={inactiveBg}
+                      color="blue.500"
+                      h="30px"
+                      w="30px"
+                      me="12px"
+                    >
+                      <IoLogOutOutline
+                        size={22}
+                        onClick={handleLogout}
+                        cursor='pointer'
+                      />
+                    </IconBox>
+                    <Text color={inactiveColor} my="auto" fontSize="sm">Se Déconnecter</Text>
+                  </Flex>
+                </Button>
             </Stack>
-            {/* <SidebarHelp sidebarVariant={sidebarVariant} /> */}
           </Scrollbars>
         </Box>
       </Box>
@@ -272,7 +321,11 @@ function Sidebar(props) {
 
 export function SidebarResponsive(props) {
   const { userType } = useAuth();
-
+  const { logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
   // to check for active links and opened collapses
   let location = useLocation();
   const { logo, routes, colorMode, hamburgerColor, ...rest } = props;
@@ -495,8 +548,53 @@ export function SidebarResponsive(props) {
               <Box>{brand}</Box>
               <Stack direction="column" mb="40px">
                 <Box>{links}</Box>
+                <Button
+                  boxSize="initial"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  bg={activeBg}
+                  boxShadow={sidebarActiveShadow}
+                  mb={{
+                    xl: "6px",
+                  }}
+                  mx={{
+                    xl: "auto",
+                  }}
+                  ps={{
+                    sm: "10px",
+                    xl: "16px",
+                  }}
+                  py="12px"
+                  borderRadius="15px"
+                  _hover="none"
+                  w="100%"
+                  _active={{
+                    bg: "inherit",
+                    transform: "none",
+                    borderColor: "transparent",
+                  }}
+                  _focus={{
+                    boxShadow: "none",
+                  }}
+                >
+                  <Flex>
+                    <IconBox
+                      bg={inactiveBg}
+                      color="blue.500"
+                      h="30px"
+                      w="30px"
+                      me="12px"
+                    >
+                      <IoLogOutOutline
+                        size={22}
+                        onClick={handleLogout}
+                        cursor='pointer'
+                      />
+                    </IconBox>
+                    <Text color={inactiveColor} my="auto" fontSize="sm">Se Déconnecter</Text>
+                  </Flex>
+                </Button>
               </Stack>
-              {/* <SidebarHelp /> */}
             </Box>
           </DrawerBody>
         </DrawerContent>

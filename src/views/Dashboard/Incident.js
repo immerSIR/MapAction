@@ -26,6 +26,7 @@ const Incident = () => {
   const navigate = useHistory();
   const [dataReady, setDataReady] = useState(false);
   const [data, setData] = useState([]);
+  const userType = sessionStorage.getItem("user_type")
   const [inProgress, setInProgress] = useState(false);
   const [newIncident, setNewIncident] = useState({
     title: "",
@@ -43,7 +44,14 @@ const Incident = () => {
   });
   const textColor = useColorModeValue("gray.700", "white");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-
+  const etatMapping = {
+    declared: "Déclaré",
+    taken_into_account: "Pris en compte",
+    resolved: "Résolu",
+  };
+  const getEtatLabel = (etat) => {
+    return etatMapping[etat] || "Indéfini"; 
+  };
   const fetchIncidents = async () => {
     const url = `${config.url}/MapApi/incident/`;
     try {
@@ -130,7 +138,7 @@ const Incident = () => {
                     <Td borderColor={borderColor} color="gray.400">{item.zone}</Td>
                     <Td borderColor={borderColor} color="gray.400">{item.description}</Td>
                     <Td borderColor={borderColor} color="gray.400">{userName}</Td>
-                    <Td borderColor={borderColor} color="gray.400">{item.etat}</Td>
+                    <Td borderColor={borderColor} color="gray.400">{getEtatLabel(item.etat)}</Td>
                     <Td borderColor={borderColor} color="gray.400">{formatDate(item.created_at)}</Td>
                     <Td borderColor={borderColor}>
                       <Button
@@ -140,15 +148,17 @@ const Incident = () => {
                       >
                         <FaEye />
                       </Button>
-                      <Button
-                        size="sm"
-                        colorScheme="red"
-                        ml="2"
-                        onClick={() => deleteIncident(item.id)}
-                        isLoading={inProgress}
-                      >
-                        <FaTrash />
-                      </Button>
+                      {userType === 'admin' && (
+                        <Button
+                          size="sm"
+                          colorScheme="red"
+                          ml="2"
+                          onClick={() => deleteIncident(item.id)}
+                          isLoading={inProgress}
+                        >
+                          <FaTrash />
+                        </Button>
+                      )}
                     </Td>
                   </Tr>
                 );

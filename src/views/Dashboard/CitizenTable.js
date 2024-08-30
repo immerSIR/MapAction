@@ -33,7 +33,7 @@ import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import CardHeader from "components/Card/CardHeader.js";
 
-export default function Tables(){
+export default function CitizenTable(){
   const [data, setData] = useState([]);
   const [dataReady, setDataReady] = useState(false);
   const [inProgress, setInProgress] = useState(false);
@@ -59,7 +59,7 @@ export default function Tables(){
           Authorization: `Bearer ${sessionStorage.token}`,
         },
       });
-      let donne = response.data.results.filter(user => user.user_type === "elu")
+      let donne = response.data.results.filter(user => user.user_type === "citizen")
       setData(donne);
       setDataReady(true);
     } catch (error) {
@@ -305,7 +305,6 @@ export default function Tables(){
                         <Th borderColor={borderColor}>Nom</Th>
                         <Th borderColor={borderColor}>Email</Th>
                         <Th borderColor={borderColor}>Téléphone</Th>
-                        <Th borderColor={borderColor}>Organisation</Th>
                         <Th borderColor={borderColor}>Actions</Th>
                     </Tr>
                     </Thead>
@@ -316,7 +315,6 @@ export default function Tables(){
                         <Td borderColor={borderColor} color="gray.400">{item.last_name}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.email}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
-                        <Td borderColor={borderColor} color="gray.400">{item.organisation}</Td>
                         <Td borderColor={borderColor} >
                             <Button size="sm" onClick={onEditUserModalOpen}>
                                 <FaEdit />
