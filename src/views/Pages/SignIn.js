@@ -51,6 +51,8 @@ function SignIn() {
       sessionStorage.setItem("first_name", userData.first_name);
       sessionStorage.setItem("zone", userData.adress);
       sessionStorage.setItem("user_type", userData.user_type);
+      sessionStorage.setItem("organisation", userData.organisation);
+
       login();
       // Redirection basée sur le type d'utilisateur
       if (userData.user_type === "admin") {
@@ -78,6 +80,11 @@ function SignIn() {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit(e);
     }
   };
   
@@ -142,6 +149,7 @@ function SignIn() {
                 size='lg'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
               <FormLabel ms='4px' fontSize='sm' fontWeight='normal'>
                 Mot de passe
@@ -156,6 +164,7 @@ function SignIn() {
                 size='lg'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
               <Button
                 fontSize='10px'

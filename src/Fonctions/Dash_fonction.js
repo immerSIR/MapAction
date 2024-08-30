@@ -51,15 +51,6 @@ export const useIncidentData = () => {
     const [countCategory, setCountCategory] = useState('');
     const [data, setData] = useState([]);
 
-    // const handleMonthChange = (selectedOption) => {
-    //     const monthValue = selectedOption.value;
-    //     console.log("Selected month", monthValue)
-    //     if (monthValue >= 1 && monthValue <= 12) {
-    //         setSelectedMonth(monthValue);
-    //     } else {
-    //         console.error("Invalid month value:", monthValue);
-    //     }
-    // };
     useEffect(() => {
         console.log("Selected month changed to:", selectedMonth);
         const fetchData = async () => {

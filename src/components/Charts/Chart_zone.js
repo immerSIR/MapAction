@@ -40,7 +40,7 @@ const ZoneChart = () => {
             const aggregatedData = {};
             incidents.forEach(incident => {
                 const zone = incident.zone; 
-                const region = zoneToRegionMap[zone] || 'Unknown Region'; 
+                const region = zoneToRegionMap[zone] || 'Region inconnue'; 
                 const userType = incident.user_id ? 'Inscrit' : 'Anonyme'; 
                 if (!aggregatedData[region]) {
                     aggregatedData[region] = { Anonyme: 0, Inscrit: 0 };
@@ -82,12 +82,13 @@ const ZoneChart = () => {
             ]);
         } catch (error) {
             console.error(error.message);
+            console.log("on voit pas le mois selectionné")
         }
     };
 
     useEffect(() => {
         _getZone();
-    }, []);
+    }, [selectedMonth]);
 
     return (
         <div id="chart">

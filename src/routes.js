@@ -27,6 +27,8 @@ import {
 } from "components/Icons/Icons";
 import EluDashboard from 'views/Dashboard/DashboardElu';
 import Chat from 'views/Dashboard/LLM_Chat';
+import CitizenTable from 'views/Dashboard/CitizenTable';
+import DataExport from 'views/Dashboard/DataExport';
 
 var dashRoutes = [
   {
@@ -57,10 +59,28 @@ var dashRoutes = [
 },
   {
     path: "/tables",
-    name: "Utilisateurs",
+    name: "Organisations",
     rtlName: "لوحة القيادة",
     icon: <StatsIcon color='inherit' />,
     component: Tables,
+    layout: "/admin",
+    roles: ["admin"]
+  },
+  {
+    path: "/export",
+    name: "Exportation des données",
+    rtlName: "لوحة القيادة",
+    icon: <StatsIcon color='inherit' />,
+    component: DataExport,
+    layout: "/admin",
+    roles: ["admin", "elu"]
+  },
+  {
+    path: "/citizen",
+    name: "Utilisateurs de l'application Mobile",
+    rtlName: "لوحة القيادة",
+    icon: <StatsIcon color='inherit' />,
+    component: CitizenTable,
     layout: "/admin",
     roles: ["admin"]
   },
@@ -101,14 +121,14 @@ var dashRoutes = [
     roles: ["admin", "elu"],
   },
   {
-    name: "ACCOUNT PAGES",
+    name: "Paramètres",
     category: "account",
     rtlName: "صفحات",
     state: "pageCollapse",
     views: [
       {
         path: "/profile",
-        name: "Profile",
+        name: "Profil",
         rtlName: "لوحة القيادة",
         icon: <PersonIcon color='inherit' />,
         secondaryNavbar: true,

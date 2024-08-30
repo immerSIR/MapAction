@@ -35,6 +35,7 @@ import { useIncidentData } from "Fonctions/Dash_fonction";
 const positions = [16.2833, -3.0833]
 
 export default function EluDashboard() {
+  const organisation = sessionStorage.getItem("organisation")
   const [percentageAnonymous, setAnonymousPercentage] = useState(0);
   const { selectedMonth } = useMonth();
   const {
@@ -224,7 +225,7 @@ export default function EluDashboard() {
                   color='black.400'
                     fontWeight='bold'
                     textTransform='uppercase'>
-                    Incidents pris en compte par moi
+                    Incidents pris en compte par {organisation}
                   </StatLabel>
                   <Flex>
                     <StatNumber fontSize='lg' color={textColor} fontWeight='bold'>
@@ -268,83 +269,37 @@ export default function EluDashboard() {
               Carte interactive avec les points reportés par les utilisateurs de l'application mobile
             </Text>
           </Flex>
-          <Box minH='300px' position="relative" overflow="hidden">
-            <div id="map" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+          <Box minH='400px' height='100%' width='100%' position="relative" overflow="hidden">
+            <div id="map" style={{ position: 'absolute', top: 0, left: 10, right: 10, bottom: 0,}}>
               <Carte positions={positions} onShowIncident={onShowIncident} />
             </div>
           </Box>
         </Card>
-        <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
-          <Flex direction='column' mb='40px' p='28px 0px 0px 22px'>
-            <Text fontSize='lg' color={textColor} fontWeight='bold'>
-              Incident par type d'utilisateur
-            </Text>
-          </Flex>
-          <Box minH='300px'>
-            <IndicateurChart />
-          </Box>
-        </Card>
-        <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
-          <Flex direction='column'>
-            <Flex align='center' justify='space-between' p='22px'>
+        <Flex direction="column" gap="20px">
+          <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
+            <Flex direction='column' mb='40px' p='28px 0px 0px 22px'>
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Incident par categories
-              </Text>
-              <Button variant='primary' maxH='30px'>
-                Voir tout
-              </Button>
-            </Flex>
-            <Box overflow={{ sm: "scroll", lg: "hidden" }}>
-              <Table>
-                <Thead>
-                  <Tr bg={tableRowColor}>
-                    <Th color='gray.400' borderColor={borderColor}>
-                      Categories
-                    </Th>
-                    <Th color='gray.400' borderColor={borderColor}>
-                      Pourcentages
-                    </Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {preduct.map((incident, index, arr) => {
-                    return (
-                      <Tr key={index}>
-                        <Td
-                          color={textTableColor}
-                          fontSize='sm'
-                          fontWeight='bold'
-                          borderColor={borderColor}
-                          border={index === arr.length - 1 ? "none" : null}>
-                          {incident.type}
-                        </Td>
-                        <Td
-                          color={textTableColor}
-                          fontSize='sm'
-                          border={index === arr.length - 1 ? "none" : null}
-                          borderColor={borderColor}>
-                          {incident.percentage}
-                        </Td>
-                      </Tr>
-                    );
-                  })}
-                </Tbody>
-              </Table>
-            </Box>
-          </Flex>
-        </Card>
-        <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
-          <Flex direction='column'>
-            <Flex align='center' justify='space-between' p='22px'>
-              <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Incidents par Zone
+                Incident par type d'utilisateur
               </Text>
             </Flex>
             <Box minH='300px'>
-              <ZoneChart />
+              <IndicateurChart />
             </Box>
-          </Flex>
-        </Card>
+          </Card>
+          
+          <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
+            <Flex direction='column'>
+              <Flex align='center' justify='space-between' p='22px'>
+                <Text fontSize='lg' color={textColor} fontWeight='bold'>
+                  Incidents par Zone
+                </Text>
+              </Flex>
+              <Box minH='300px'>
+                <ZoneChart />
+              </Box>
+            </Flex>
+          </Card>
+        </Flex>
       </Grid>
     </Flex>
   );

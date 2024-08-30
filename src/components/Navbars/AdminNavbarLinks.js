@@ -1,4 +1,3 @@
-
 // Chakra Icons
 import { BellIcon } from "@chakra-ui/icons";
 // Chakra Imports
@@ -25,7 +24,6 @@ import {
 } from "@chakra-ui/react";
 import { useMonth } from "Fonctions/Month";
 // Custom Icons
-import { ArgonLogoDark, ArgonLogoLight, ChakraLogoDark, ChakraLogoLight, ProfileIcon, SettingsIcon } from "components/Icons/Icons";
 import appLogoLight from "../../assets/img/logo.png"; 
 // Custom Components
 import { ItemContent } from "components/Menu/ItemContent";
@@ -39,7 +37,7 @@ import axios from "axios";
 import { config } from "config";
 import { useAuth } from "context/AuthContext";
 import Swal from "sweetalert2";
-
+import { IoLogOutOutline } from "react-icons/io5";
 import { components } from 'react-select';
 import Select from 'react-select';
 import { useIncidentData } from "Fonctions/Dash_fonction";
@@ -65,18 +63,13 @@ export default function HeaderLinks(props) {
     onOpen : onOpenProp,
     ...rest
   } = props;
-
   const { colorMode } = useColorMode();
   const [notifications, setNotifications] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedNotification, setSelectedNotification] = useState(null);
   const {
-    // selectedMonth,
-    setSelectedMonth,
-    // handleMonthChange,
     monthsOptions
   } = useIncidentData();
-  
 
   const handleClick = (notification) => {
     setSelectedNotification(notification);
@@ -125,8 +118,6 @@ export default function HeaderLinks(props) {
     navbarIcon = "white";
   }
 
-  
-
   return (
     <Flex
       pe={{ sm: "0px", md: "16px" }}
@@ -138,13 +129,16 @@ export default function HeaderLinks(props) {
         hamburgerColor={"white"}
         logo={
           <Stack direction='row' spacing='12px' align='center' justify='center'>
-            <Box
-              as='img'
-              src={appLogoLight}
-              alt='App Logo'
-              w='74px'
-              h='27px'
-            />
+            <NavLink to="/admin/dashboard"> 
+              <Box
+                as='img'
+                src={appLogoLight}
+                alt='App Logo'
+                w='74px'
+                h='27px'
+                cursor="pointer"
+              />
+            </NavLink>
           </Stack>
         }
         colorMode={colorMode}
@@ -152,18 +146,10 @@ export default function HeaderLinks(props) {
         routes={routes}
         {...rest}
       />
-      <SettingsIcon
-        cursor='pointer'
-        ms={{ base: "16px", xl: "0px" }}
-        me='16px'
-        onClick={handleLogout}
-        color={navbarIcon}
-        w='18px'
-        h='18px'
-      />
+      
       <Menu>
         <MenuButton>
-          <BellIcon color={navbarIcon} w='18px' h='18px' />
+          <BellIcon color={navbarIcon} w='18px' h='18px' ms="12px"/>
         </MenuButton>
         <MenuList p="16px 8px" bg={menuBg}>
           <Flex flexDirection="column">
@@ -224,7 +210,6 @@ export default function HeaderLinks(props) {
             height: '40px',
             justifyContent: 'space-around',
             marginLeft: '16px',
-            marginRight: '-35px',
           }),
           indicatorSeparator: (provided, state) => ({
             ...provided,
@@ -232,6 +217,16 @@ export default function HeaderLinks(props) {
           }),
         }}
       />
+      
+      <Flex me='16px' ms={{ base: "16px", xl: "0px" }}>
+        <IoLogOutOutline
+          color={navbarIcon}
+          size={22}
+          onClick={handleLogout}
+          cursor='pointer'
+        />
+      </Flex>
+      
     </Flex>
   );
 }
