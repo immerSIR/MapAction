@@ -35,8 +35,6 @@ const ZoneChart = () => {
         try {
             const response = await axios.get(`${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`);
             const incidents = response.data.data;
-            console.log("Est-ce vrai affaire d'incident là",incidents);
-
             const aggregatedData = {};
             incidents.forEach(incident => {
                 const zone = incident.zone; 

@@ -19,25 +19,20 @@ import ReactDOMServer from 'react-dom/server';
 
 export default function Analyze() {
   const {
-    optionstype,
     latitude,
     longitude,
-    videoUrl,
     imgUrl,
-    audioUrl,
-    description,
     position,
     date,
     heure,
     handleNavigateLLM,
-    videoIsLoading,
-    setVideoIsLoading,
     incident,
     context,
     piste_solution,
     impact_potentiel,
     type_incident,
-    fetchPredictions
+    fetchPredictions,
+    sendPrediction
   } = IncidentData();
   
   useEffect ( () => {
@@ -45,6 +40,7 @@ export default function Analyze() {
       await fetchPredictions()
     }
     fetchData();
+    sendPrediction();
     
   }, [])
 
@@ -109,6 +105,33 @@ export default function Analyze() {
         templateRows={{ lg: "repeat(2, auto)" }}
         gap='20px'>
         
+        <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
+          <Flex direction='column'>
+            <Box overflow={{ sm: "scroll", lg: "hidden" }} justify='space-between' p='22px'>
+              <Box mb='4'>
+                <Heading as='h6' size='xs' mb='2'>Contexte & Description</Heading>
+                <Box minH='200px'>
+                  <ExpandableContent content={context || ""} />
+                </Box>
+              </Box>
+              <Box mb='4'>
+                <Heading as='h6' size='xs' mb='2'>Impacts Potentiels</Heading>
+                <Box minH='200px'>
+                  <ExpandableContent content={impact_potentiel || ""} />
+                </Box>
+              </Box>
+              <Box mb='4'>
+                <Heading as='h6' size='xs' mb='2'>Pistes de solutions envisageables</Heading>
+                <Box minH='200px'>
+                  <ExpandableContent content={piste_solution || ""} />
+                </Box>
+              </Box>
+              <Button onClick={handleNavigateLLM} colorScheme='teal'>
+                Discussion LLM
+              </Button>
+            </Box>
+          </Flex>
+        </Card>
         <Card
           bg={colorMode === "dark" ? "navy.800" : "linear-gradient(81.62deg, #313860 2.25%, #151928 79.87%)"}
           p='0px'
@@ -165,39 +188,13 @@ export default function Analyze() {
             <Text color='#ccc' fontWeight='bold' mb='6px'>
                 Heure : {heure}
             </Text>
+            {type_incident}
            </Flex>
-
         </Card>
 
-        <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
-          <Flex direction='column'>
-            <Box overflow={{ sm: "scroll", lg: "hidden" }} justify='space-between' p='22px'>
-              <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Contexte & Description</Heading>
-                <Box minH='200px'>
-                  <ExpandableContent content={context || ""} />
-                </Box>
-              </Box>
-              <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Impacts Potentiels</Heading>
-                <Box minH='200px'>
-                  <ExpandableContent content={impact_potentiel || ""} />
-                </Box>
-              </Box>
-              <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Pistes de solutions envisageables</Heading>
-                <Box minH='200px'>
-                  <ExpandableContent content={piste_solution || ""} />
-                </Box>
-              </Box>
-              <Button onClick={handleNavigateLLM} colorScheme='teal'>
-                Discussion LLM
-              </Button>
-            </Box>
-          </Flex>
-        </Card>
+        
 
-        <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
+        {/* <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
           <Flex direction='column'>
             <Flex  justify='space-between' p='22px' direction='column'>
               <Text fontSize='lg' color={textColor} fontWeight='bold'>
@@ -213,7 +210,7 @@ export default function Analyze() {
               
               </Box>
               <Text color='#ccc' fontWeight='bold' mb='6px'>
-                {type_incident}
+                
               </Text>
             </Flex>
             <Flex  justify='space-between' p='22px' direction="column">
@@ -266,7 +263,7 @@ export default function Analyze() {
               
             </Flex>
           </Flex>
-        </Card>
+        </Card> */}
       </Grid>
     </Flex>
   );

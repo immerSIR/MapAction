@@ -52,7 +52,7 @@ export const useIncidentData = () => {
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        console.log("Selected month changed to:", selectedMonth);
+        // console.log("Selected month changed to:", selectedMonth);
         const fetchData = async () => {
             await _getAnonymous();
             await _getRegistered();
@@ -146,7 +146,7 @@ export const useIncidentData = () => {
             let taken = res.data.data.filter(incident => incident.etat === "taken_into_account").length;
             let percentageTaken = totalIncidents !== 0 ? ((taken / totalIncidents) * 100).toFixed(2) : 0;
             setTaken(percentageTaken);
-            console.log("Incidents pris en comptes", percentageTaken);
+            // console.log("Incidents pris en comptes", percentageTaken);
         } catch (error) {
             console.log(error.message);
         }
@@ -168,7 +168,7 @@ export const useIncidentData = () => {
             const previousCount = responsePrevious.data.data.length;
             const percentageVs = previousCount !== 0 ? (((currentCount - previousCount) / previousCount) * 100).toFixed(2) : 0;
             setPercentageVs(percentageVs);
-            console.log("Variation en pourcentage par rapport au mois précédent:", percentageVs);
+            // console.log("Variation en pourcentage par rapport au mois précédent:", percentageVs);
         } catch (error) {
             console.log(error.message);
         }
@@ -190,7 +190,7 @@ export const useIncidentData = () => {
             const previousTaken = responsePrevious.data.data.filter(incident => incident.etat === "taken_into_account").length;
             const percentageVsPreviousMonth = previousTaken !== 0 ? ((currentTaken / previousTaken) * 100).toFixed(2) : 0;
             setPercentageVsTaken(percentageVsPreviousMonth);
-            console.log("Variation en pourcentage des incidents pris en compte par rapport au mois précédent:", percentageVsPreviousMonth);
+            // console.log("Variation en pourcentage des incidents pris en compte par rapport au mois précédent:", percentageVsPreviousMonth);
         } catch (error) {
             console.log(error.message);
         }
@@ -228,13 +228,13 @@ export const useIncidentData = () => {
             const previousResolved = responsePrevious.data.data.filter(incident => incident.etat === "resolved").length;
             const percentageVsResolved = previousResolved !== 0 ? (((currentResolved - previousResolved) / previousResolved) * 100).toFixed(2) : 0;
             setPercentageVsResolved(percentageVsResolved);
-            console.log("Variation en pourcentage des incidents résolus par rapport au mois précédent:", percentageVsResolved);
+            // console.log("Variation en pourcentage des incidents résolus par rapport au mois précédent:", percentageVsResolved);
         } catch (error) {
             console.log(error.message);
         }
     };
     const userId = sessionStorage.getItem('user_id');
-    console.log('useeeeer', userId)
+    // console.log('useeeeer', userId)
 
     const _getIncidents = async () => {
         var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
@@ -302,7 +302,7 @@ export const useIncidentData = () => {
                 },
             })
             setCollaboration(res.data.length)
-            console.log("Les collaboration", res.data.length)
+            // console.log("Les collaboration", res.data.length)
         } catch (error) {
             console.log(error.message)
         }
@@ -331,7 +331,7 @@ export const useIncidentData = () => {
               Authorization: `Bearer ${sessionStorage.token}`,
             },
           });
-        console.log("Ici log", res.data);
+        // console.log("Ici log", res.data);
         let predictions = res.data;
 
         let incidentCounts = predictions.reduce((acc, prediction) => {
@@ -349,8 +349,8 @@ export const useIncidentData = () => {
             };
         });
 
-        console.log('Nombre total d\'incidents:', totalIncidents);
-        console.log('Détails des incidents:', incidentPercentages);
+        // console.log('Nombre total d\'incidents:', totalIncidents);
+        // console.log('Détails des incidents:', incidentPercentages);
 
         setCountCategory(totalIncidents);
         setPreduct(incidentPercentages);
@@ -361,9 +361,9 @@ export const useIncidentData = () => {
     
     const onShowIncident = (id) => {
         const item = getIncidentById(id)
-        console.log("Données d'incident dans onShowIncident :", item); 
+        // console.log("Données d'incident dans onShowIncident :", item); 
         navigate.push(`/admin/incident_view/${id}`, { incident: item }, () => {
-          console.log('State updated:', location.state); 
+        //   console.log('State updated:', location.state); 
           setIncident(item);
         });
         if (item) {

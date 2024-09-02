@@ -10,9 +10,23 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import AdminNavbarLinks from "./AdminNavbarLinks";
+import { useHistory} from "react-router-dom";
 
 export default function AdminNavbar(props) {
   const [scrolled, setScrolled] = useState(false);
+  const history = useHistory();
+  const [previousPage, setPreviousPage] = useState("");
+
+  useEffect(() => {
+    const unlisten = history.listen((location, action) => {
+      if (action === "PUSH") {
+        setPreviousPage(history.location.pathname);
+      }
+    });
+    return () => {
+      unlisten();
+    };
+  }, [history]);
 
   useEffect(() => {
     window.addEventListener("scroll", changeNavbar);
@@ -123,8 +137,8 @@ export default function AdminNavbar(props) {
         <Box mb={{ sm: "8px", md: "0px" }}>
           <Breadcrumb>
             <BreadcrumbItem color={mainText}>
-              <BreadcrumbLink href="#" color={secondaryText}>
-                Pages
+              <BreadcrumbLink href={previousPage} color={secondaryText}>
+                Page précédente
               </BreadcrumbLink>
             </BreadcrumbItem>
 

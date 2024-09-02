@@ -60,6 +60,7 @@ export default function CitizenTable(){
         },
       });
       let donne = response.data.results.filter(user => user.user_type === "citizen")
+      console.log("citizen data", donne)
       setData(donne);
       setDataReady(true);
     } catch (error) {
@@ -70,6 +71,7 @@ export default function CitizenTable(){
   useEffect(() => {
     fetchUserData();
   }, []);
+
   const handleFileChange = (e) => {
     setNewUser({ ...newUser, avatar: e.target.files[0] });
   };
@@ -214,7 +216,7 @@ export default function CitizenTable(){
           </FormControl>
           <FormControl>
             <FormLabel>Type Utilisateur</FormLabel>
-            <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange}>
+            <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
               <option value="elu">Organisation</option>
               <option value="citizen">Utilisateur de l'application mobile</option>
             </Select>

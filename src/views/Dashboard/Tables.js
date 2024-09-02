@@ -60,6 +60,7 @@ export default function Tables(){
         },
       });
       let donne = response.data.results.filter(user => user.user_type === "elu")
+      console.log(donne)
       setData(donne);
       setDataReady(true);
     } catch (error) {
@@ -77,7 +78,7 @@ export default function Tables(){
   const addUser = async (e) => {
     e.preventDefault();
     setInProgress(true);
-  
+    console.log("User Type before submit: ", newUser.user_type);
     const formData = new FormData();
     formData.append("first_name", newUser.first_name);
     formData.append("last_name", newUser.last_name);
@@ -140,7 +141,9 @@ export default function Tables(){
 
   const handleSelectChange = (e) => {
     setNewUser({ ...newUser, user_type: e.target.value });
+    console.log("User Type selected: ", e.target.value);
   };
+
   const onUpdateUser = async (e) => {
     e.preventDefault();
     setInProgress(true);
@@ -214,7 +217,7 @@ export default function Tables(){
           </FormControl>
           <FormControl>
             <FormLabel>Type Utilisateur</FormLabel>
-            <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange}>
+            <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
               <option value="elu">Organisation</option>
               <option value="citizen">Utilisateur de l'application mobile</option>
             </Select>

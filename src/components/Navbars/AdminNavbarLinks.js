@@ -78,7 +78,7 @@ export default function HeaderLinks(props) {
 
   const handleAccept = () => {
     Swal.fire("Demande de collaboration acceptée");
-    console.log("Demande de collaboration acceptée");
+    // console.log("Demande de collaboration acceptée");
     setNotifications(notifications.filter(n => n !== selectedNotification));
     onClose();
   };
@@ -91,7 +91,7 @@ export default function HeaderLinks(props) {
           'Content-Type': 'application/json',
         },
       });
-      console.log('Notifications response:', response.data);
+      // console.log('Notifications response:', response.data);
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
