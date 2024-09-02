@@ -12,9 +12,6 @@ import { useIncidentData } from "Fonctions/Dash_fonction";
 const position = [17.570692, -3.996166];
 
 const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, showOnlyDeclared  }) => {
-  // const [showOnlyTakenIntoAccount, setShowOnlyTakenIntoAccount] = useState(false);
-  // const [showOnlyResolved, setShowOnlyResolved] = useState(false);
-  // const [showOnlyDeclared, setShowOnlyDeclared] = useState(false);
   const [positions, setPositions] = useState([]);
   const { selectedMonth } = useMonth();
   const [mapType, setMapType] = useState('standard');
@@ -22,11 +19,7 @@ const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, sho
   useEffect(() => {
     _getIncidents();
   }, [selectedMonth]);
-  const {
-    DeclaredTakenOnMap,
-    DeclaredOnMap,
-    ResolvedOnMap,
-  }=useIncidentData();
+  
   const _getUserById = async (userId) => {
     try {
       const res = await axios.get(`${config.url}/MapApi/user/${userId}`, {

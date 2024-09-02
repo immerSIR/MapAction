@@ -1,14 +1,20 @@
 import React, {useState, useEffect} from "react";
 import { config } from "config";
-import {  useParams, useHistory } from 'react-router-dom';
+import {  useParams, useHistory, useLocation } from 'react-router-dom';
 import "../../node_modules/video-react/dist/video-react.css";
 import axios from 'axios'; 
 import Swal from 'sweetalert2';
 
 export const IncidentData = () =>{
-    const { incidentId } = useParams();
+    const { incidentId, userId } = useParams();
+    // const predictionId = userId+incidentId;
     const navigate = useHistory();
     const [user, setUser] = useState({});
+    const [nearbyPlaces, setNearbyPlaces] = useState([]);
+    const predictionId = userId+incidentId;
+    const location = useLocation();
+    const pictUrl = location.state ? location.state.pictUrl : '';
+const nearbyPlacesDic = location.state ? location.state.nearbyPlaces : [];
     const fetchUserData = async () => {
         try {
           const response = await axios.get(`${config.url}/MapApi/user_retrieve/`, {
@@ -36,23 +42,23 @@ export const IncidentData = () =>{
         };
         const fetchPredictions = async () => {
             try {
-                console.log("incident", incidentId)
-                const response = await axios.get(`${config.url}/MapApi/Incidentprediction/${incidentId}`);
+                const response = await axios.get(`${config.url}/MapApi/prediction/${predictionId}`);
                 console.log("les reponses du serveur", response.data)
                 setPredictions(response.data[0]);
-
+    
             } catch (error) {
                 console.error('Erreur lors de la récupération des prédictions :', error);
             }
         };
         if (incidentId) {
             fetchIncident();
-            fetchPredictions() 
+            // fetchPredictions() 
         }
+        // sendPrediction();
     }, [incidentId]);
     const fetchPredictions = async () => {
         try {
-            const response = await axios.get(`${config.url}/MapApi/prediction/${incidentId}`);
+            const response = await axios.get(`${config.url}/MapApi/prediction/${predictionId}`);
             console.log("les reponses du serveur", response.data)
             setPredictions(response.data[0]);
 
@@ -193,65 +199,46 @@ export const IncidentData = () =>{
         }
     };
     const handleNavigate = async () => {
-        const userId = user.id;
+        const userId=user.id
         navigate.push(`/admin/analyze/${incident.id}/${userId}`);
 
     };
     const handleNavigateLLM = async () => {
-        const userId = user.id;
         navigate.push(`/admin/llm_chat/${incident.id}/${userId}`);
     };
     
-    const sendPrediction = async (prediction, incident) => {
+    const sendPrediction = async () => {
         try {
-
-        const fastapiUrl = config.url2;
-
-        let sensitiveStructures = [];
-
-        for (let i = 0; i < nearbyPlaces.length; i++) {
-            if (nearbyPlaces[i].amenity == 'school') {
-                sensitiveStructures.push('ecole');
-            }else if (nearbyPlaces[i].amenity == 'clinic') {
-                sensitiveStructures.push('Clinique');
-            } else if (nearbyPlaces[i].amenity == 'river') {
-                sensitiveStructures.push('Rivière');
-            } else if (nearbyPlaces[i].amenity == 'marigot') {
-                sensitiveStructures.push('marigot');
-            }else{
-                sensitiveStructures.push(nearbyPlaces[i].amenity);
+            const fastapiUrl = config.url2;
+            let sensitiveStructures = [];
+            for (let i = 0; i < nearbyPlacesDic.length; i++) {
+                if (nearbyPlacesDic[i].amenity == 'school') {
+                    sensitiveStructures.push('ecole');
+                }else if (nearbyPlacesDic[i].amenity == 'clinic') {
+                    sensitiveStructures.push('Clinique');
+                } else if (nearbyPlacesDic[i].amenity == 'river') {
+                    sensitiveStructures.push('Rivière');
+                } else if (nearbyPlacesDic[i].amenity == 'marigot') {
+                    sensitiveStructures.push('marigot');
+                }else{
+                    sensitiveStructures.push(nearbyPlacesDic[i].amenity);
+                }
             }
-            
-        }
-        console.log("prediction", Object.keys(prediction).length)
-
-        if (prediction && Object.keys(prediction).length != 0) {
-            console.log("session identique");
-        } else if(prediction || Object.keys(prediction).length === 0) {
-
             const payload = {
-            image_name: incident.photo,
-            sensitive_structures: sensitiveStructures,
-            incident_id: incidentId,
-            user_id: userId,
+                image_name: pictUrl,
+                sensitive_structures: sensitiveStructures,
+                incident_id: incidentId,
+                user_id: userId,
             };    
-
             try {
-
                 console.log("payload", payload);
                 const response = await axios.post(fastapiUrl, payload);
-
-              } catch (error) {
+            } catch (error) {
                 throw new Error('Internal Server Error');
-              }
-
+            }
+        } catch (error) {
+            console.error('Error sending prediction:', error);
         }
-
-    } catch (error) {
-        console.error('Error sending prediction:', error);
-        
-    }
-        
     }
     return {
         handleChangeStatus,
@@ -276,7 +263,8 @@ export const IncidentData = () =>{
         EditIncident,
         handleSelectChange,
         fetchPredictions,
-        handleNavigateLLM
+        handleNavigateLLM,
+        sendPrediction
     }
 }    
     

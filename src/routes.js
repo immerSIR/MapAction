@@ -53,19 +53,11 @@ var dashRoutes = [
     path: "/collaboration",
     name: "Collaboration",
     rtlName: "التعاون",
-    icon: <PersonIcon color='inherit' />,
+    icon: <CreditIcon color='inherit' />,
     component: Collaboration,
     layout: "/admin",
-},
-  {
-    path: "/tables",
-    name: "Organisations",
-    rtlName: "لوحة القيادة",
-    icon: <StatsIcon color='inherit' />,
-    component: Tables,
-    layout: "/admin",
-    roles: ["admin"]
   },
+  
   {
     path: "/export",
     name: "Exportation des données",
@@ -75,11 +67,21 @@ var dashRoutes = [
     layout: "/admin",
     roles: ["admin", "elu"]
   },
+
+  {
+    path: "/tables",
+    name: "Organisations",
+    rtlName: "لوحة القيادة",
+    icon: <PersonIcon color='inherit' />,
+    component: Tables,
+    layout: "/admin",
+    roles: ["admin"]
+  },
   {
     path: "/citizen",
     name: "Utilisateurs de l'application Mobile",
     rtlName: "لوحة القيادة",
-    icon: <StatsIcon color='inherit' />,
+    icon: <PersonIcon color='inherit' />,
     component: CitizenTable,
     layout: "/admin",
     roles: ["admin"]
