@@ -37,6 +37,8 @@ export default function GlobalView() {
     handleSelectChange,
     handleChangeStatus
   } = IncidentData();
+  console.log(videoUrl)
+  console.log(audioUrl)
 
   const { colorMode } = useColorMode();
   const textColor = useColorModeValue("gray.700", "white");
@@ -144,9 +146,9 @@ export default function GlobalView() {
         <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
           <Flex direction='column'>
             <Box overflow={{ sm: "scroll", lg: "hidden" }} justify='space-between' p='22px'>
-              <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Vidéo</Heading>
-                <Box position='relative'>
+              {videoUrl && !videoUrl.includes('null') && (
+                <Box mb='4' position='relative'>
+                  <Heading as='h6' size='xs' mb='2'>Vidéo</Heading>
                   <Player
                     fluid={false}
                     width={537}
@@ -157,29 +159,45 @@ export default function GlobalView() {
                     src={videoUrl}
                   />
                   {videoIsLoading && (
-                    <Flex justify='center' align='center' position='absolute' top='0' left='0' right='0' bottom='0' bg='rgba(0,0,0,0.5)'>
+                    <Flex
+                      justify='center'
+                      align='center'
+                      position='absolute'
+                      top='0'
+                      left='0'
+                      right='0'
+                      bottom='0'
+                      bg='rgba(0,0,0,0.5)'
+                    >
                       <Spinner />
                     </Flex>
                   )}
                 </Box>
-              </Box>
-              <Box mb='4'>
-                <Heading as='h6' size='xs' mb='2'>Note Vocal</Heading>
-                <audio controls src={audioUrl}>
-                  Your browser does not support the
-                  <code>audio</code> element.
-                </audio>
-              </Box>
+              )}
+
+              {audioUrl && !audioUrl.includes('null') && (
+                <Box mb='4'>
+                  <Heading as='h6' size='xs' mb='2'>Note Vocal</Heading>
+                  <audio controls src={audioUrl}>
+                    Your browser does not support the
+                    <code>audio</code> element.
+                  </audio>
+                </Box>
+              )}
+              
               <Box mb='4'>
                 <Heading as='h6' size='xs' mb='2'>Description</Heading>
                 <Text>{description}</Text>
               </Box>
+              
               <Button onClick={handleNavigate} colorScheme='teal'>
                 Analyses Avancées
               </Button>
             </Box>
           </Flex>
         </Card>
+
+
 
         <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
           <Flex direction='column'>

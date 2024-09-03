@@ -40,8 +40,8 @@ export default function Analyze() {
       await fetchPredictions()
     }
     fetchData();
-    sendPrediction();
-    
+    // sendPrediction();
+
   }, [])
 
   const { colorMode } = useColorMode();
@@ -188,8 +188,8 @@ export default function Analyze() {
             <Text color='#ccc' fontWeight='bold' mb='6px'>
                 Heure : {heure}
             </Text>
-            {type_incident}
            </Flex>
+           <Text color='#000' fontWeight='bold' mb='6px' p="8px">Type d'incident : {type_incident}</Text>
         </Card>
 
         
