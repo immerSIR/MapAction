@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 
 export const IncidentData = () =>{
     const { incidentId, userId } = useParams();
-    // const predictionId = userId+incidentId;
     const navigate = useHistory();
     const [user, setUser] = useState({});
     const [nearbyPlaces, setNearbyPlaces] = useState([]);
@@ -42,8 +41,8 @@ const nearbyPlacesDic = location.state ? location.state.nearbyPlaces : [];
         };
         const fetchPredictions = async () => {
             try {
-                const response = await axios.get(`${config.url}/MapApi/prediction/${predictionId}`);
-                console.log("les reponses du serveur", response.data)
+                const response = await axios.get(`${config.url}/MapApi/Incidentprediction/${incidentId}`);
+                console.log("les reponses du serveur", response)
                 setPredictions(response.data[0]);
     
             } catch (error) {
@@ -52,13 +51,13 @@ const nearbyPlacesDic = location.state ? location.state.nearbyPlaces : [];
         };
         if (incidentId) {
             fetchIncident();
-            // fetchPredictions() 
+            fetchPredictions() 
         }
         // sendPrediction();
     }, [incidentId]);
     const fetchPredictions = async () => {
         try {
-            const response = await axios.get(`${config.url}/MapApi/prediction/${predictionId}`);
+            const response = await axios.get(`${config.url}/MapApi/Incidentprediction/${incidentId}`);
             console.log("les reponses du serveur", response.data)
             setPredictions(response.data[0]);
 

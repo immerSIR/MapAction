@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const MonthContext = createContext();
+const MonthYearContext = createContext();
 
-export const MonthProvider = ({ children }) => {
+export const MonthYearProvider = ({ children }) => {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
@@ -31,12 +31,12 @@ export const MonthProvider = ({ children }) => {
     );
 
     return (
-        <MonthContext.Provider value={{ selectedMonth, handleMonthChange, selectedYear, handleYearChange, yearsOptions }}>
+        <MonthYearContext.Provider value={{ selectedMonth, handleMonthChange, selectedYear, handleYearChange, yearsOptions }}>
             {children}
-        </MonthContext.Provider>
+        </MonthYearContext.Provider>
     );
 };
 
-export const useMonth = () => {
-    return useContext(MonthContext);
+export const useMonthYear = () => {
+    return useContext(MonthYearContext);
 };

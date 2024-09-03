@@ -22,7 +22,7 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
-import { useMonth } from "Fonctions/Month";
+import { useMonth,  } from "Fonctions/Month";
 // Custom Icons
 import appLogoLight from "../../assets/img/logo.png"; 
 // Custom Components
@@ -53,7 +53,7 @@ const CustomOption = (props) => {
   );
 };
 export default function HeaderLinks(props) {
-  const { selectedMonth, handleMonthChange } = useMonth();
+  const { selectedMonth, handleMonthChange, selectedYear, yearsOptions, handleYearChange } = useMonth();
   const {
     variant,
     children,
@@ -70,6 +70,37 @@ export default function HeaderLinks(props) {
   const {
     monthsOptions
   } = useIncidentData();
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [allIncident, setAllIncident] = useState([]);
+
+  const searchIncidents = async (searchTerm) => {
+    try {
+      const response = await axios.get(`${config.url}/MapApi/Search/`, {
+        params: { search_term: searchTerm },
+        headers: {
+          Authorization: `Bearer ${sessionStorage.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(response.data)
+      setAllIncident(response.data);
+    } catch (error) {
+      console.error('Error searching incidents:', error);
+      return [];
+    }
+  };
+  
+  
+
+  const handleSearch = async () => {
+    const results = await searchIncidents(searchTerm);
+    setSearchResults(results);
+  };
+
+  const filteredIncident = allIncident.filter(incident=> {
+    return incident.title.toLowerCase().includes(searchTerm.toLowerCase())
+  })
 
   const handleClick = (notification) => {
     setSelectedNotification(notification);
@@ -78,7 +109,6 @@ export default function HeaderLinks(props) {
 
   const handleAccept = () => {
     Swal.fire("Demande de collaboration acceptée");
-    // console.log("Demande de collaboration acceptée");
     setNotifications(notifications.filter(n => n !== selectedNotification));
     onClose();
   };
@@ -106,6 +136,7 @@ export default function HeaderLinks(props) {
 
   useEffect(() => {
     fetchNotifications();
+    searchIncidents(searchTerm)
   }, []);
 
   // Chakra Color Mode
@@ -124,7 +155,24 @@ export default function HeaderLinks(props) {
       w={{ sm: "100%", md: "auto" }}
       alignItems='center'
       flexDirection='row'>
-      <SearchBar me='18px' />
+      <SearchBar
+        me='18px'
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onSearch={handleSearch}
+      />
+        {searchTerm ? (
+          filteredIncident.length > 0 ? (
+            filteredIncident.map((incident) => (
+              <Box key={incident.id} mb="2">
+                <Text fontWeight="bold" color="white">{incident.title}</Text>
+                <Text>{incident.description}</Text>
+              </Box>
+            ))
+          ) : (
+            <Text>Aucun incident trouvé</Text>
+          )
+        ) : null }
       <SidebarResponsive
         hamburgerColor={"white"}
         logo={
@@ -162,8 +210,8 @@ export default function HeaderLinks(props) {
               >
                 <ItemContent
                   time={new Date(notification.created_at).toLocaleString()}
-                  info={notification.message || "No message available"}
-                  boldInfo={notification.read ? "" : "New "}
+                  info={notification.message || "Pas de message disponible"}
+                  boldInfo={notification.read ? "" : " Nouveau "}
                   aName={typeof notification.user === 'string' ? notification.user : "User"}
                   aSrc={notification.avatarSrc || ""}
                 />
@@ -181,8 +229,8 @@ export default function HeaderLinks(props) {
             <ModalBody>
               <ItemContent
                 time={new Date(selectedNotification.created_at).toLocaleString()}
-                info={selectedNotification.message || "No message available"}
-                boldInfo={selectedNotification.read ? "" : "New "}
+                info={selectedNotification.message || "Pas de message disponible"}
+                boldInfo={selectedNotification.read ? "" : " Nouveau "}
                 aName={typeof selectedNotification.user === 'string' ? selectedNotification.user : "User"}
                 aSrc={selectedNotification.avatarSrc || ""}
               />
@@ -217,8 +265,30 @@ export default function HeaderLinks(props) {
           }),
         }}
       />
+      <Select
+        components={{ CustomOption }}
+        value={yearsOptions.find(option => option.value === selectedYear)}
+        onChange={handleYearChange}
+        options={yearsOptions}
+        styles={{
+          control: (provided, state) => ({
+            ...provided,
+            border: '1px solid #ccc',
+            borderRadius: '10px',
+            width: '200px',
+            height: '40px',
+            justifyContent: 'space-around',
+            marginLeft: '16px',
+          }),
+          indicatorSeparator: (provided, state) => ({
+            ...provided,
+            display: 'none'
+          }),
+        }}
+      />
+
       
-      <Flex me='16px' ms={{ base: "16px", xl: "0px" }}>
+      <Flex me='16px' ms={{ base: "16px", xl: "20px" }}>
         <IoLogOutOutline
           color={navbarIcon}
           size={22}
