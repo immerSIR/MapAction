@@ -10,18 +10,22 @@ import AuthLayout from "layouts/Auth.js";
 import AdminLayout from "layouts/Admin.js";
 import RTLLayout from "layouts/RTL.js";
 import { MonthProvider } from "Fonctions/Month";
+import { DateFilterProvider } from "Fonctions/YearMonth";
 
 ReactDOM.render(
   <ChakraProvider theme={theme} resetCss={false} position="relative">
     <BrowserRouter>
       <AuthProvider>
         <MonthProvider>
-          <Switch>
-            <Route path={`/auth`} component={AuthLayout} />
-            <ProtectedRoute path={`/admin`} component={AdminLayout} roles={["admin", "elu"]} />
-            <Route path={`/rtl`} component={RTLLayout} />
-            <Redirect from={`/`} to="/admin/dashboard" />
-          </Switch>
+          <DateFilterProvider>
+            <Switch>
+              <Route path={`/auth`} component={AuthLayout} />
+              <ProtectedRoute path={`/admin`} component={AdminLayout} roles={["admin", "elu"]} />
+              <Route path={`/rtl`} component={RTLLayout} />
+              <Redirect from={`/`} to="/admin/dashboard" />
+            </Switch>
+          </DateFilterProvider>
+          
         </MonthProvider>
         
       </AuthProvider>
