@@ -21,8 +21,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Select
 } from "@chakra-ui/react";
-import { useMonth,  } from "Fonctions/Month";
 // Custom Icons
 import appLogoLight from "../../assets/img/logo.png"; 
 // Custom Components
@@ -39,8 +39,13 @@ import { useAuth } from "context/AuthContext";
 import Swal from "sweetalert2";
 import { IoLogOutOutline } from "react-icons/io5";
 import { components } from 'react-select';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { useIncidentData } from "Fonctions/Dash_fonction";
+import  { DateRange } from 'react-date-range';
+import { fr } from 'date-fns/locale';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+import { useDateFilter } from "Fonctions/YearMonth";
 
 // CustomOption Component
 const CustomOption = (props) => {
@@ -53,7 +58,7 @@ const CustomOption = (props) => {
   );
 };
 export default function HeaderLinks(props) {
-  const { selectedMonth, handleMonthChange, selectedYear, yearsOptions, handleYearChange } = useMonth();
+  const { filterType, customRange, handleFilterChange,handleDateChange, applyCustomRange, showDatePicker } = useDateFilter();
   const {
     variant,
     children,
@@ -91,8 +96,6 @@ export default function HeaderLinks(props) {
     }
   };
   
-  
-
   const handleSearch = async () => {
     const results = await searchIncidents(searchTerm);
     setSearchResults(results);
@@ -101,7 +104,7 @@ export default function HeaderLinks(props) {
   const filteredIncident = allIncident.filter(incident=> {
     return incident.title.toLowerCase().includes(searchTerm.toLowerCase())
   })
-
+  
   const handleClick = (notification) => {
     setSelectedNotification(notification);
     onOpen();
@@ -121,7 +124,6 @@ export default function HeaderLinks(props) {
           'Content-Type': 'application/json',
         },
       });
-      // console.log('Notifications response:', response.data);
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -195,6 +197,32 @@ export default function HeaderLinks(props) {
         {...rest}
       />
       
+      <Select
+          value={filterType}
+          onChange={(e) => handleFilterChange(e.target.value)}
+          background="white"
+        >
+          <option value="today">Aujourd'hui</option>
+          <option value="yesterday">Hier</option>
+          <option value="last_7_days">Les 7 derniers jours</option>
+          <option value="last_30_days">Les 30 derniers jours</option>
+          <option value="this_month">Ce mois</option>
+          <option value="last_month">Le mois dernier</option>
+          <option value="custom_range">Choix personnalisé</option>
+        </Select>
+        {filterType === 'custom_range' && showDatePicker && customRange.length > 0 && (
+          <Flex ml={4} alignItems="center">
+            <DateRange
+              ranges={customRange}
+              onChange={handleDateChange}
+              locale={fr}
+            />
+            <Button ml={4} colorScheme="blue" onClick={applyCustomRange}>
+              Appliquer
+            </Button>
+          </Flex>
+        )}
+
       <Menu>
         <MenuButton>
           <BellIcon color={navbarIcon} w='18px' h='18px' ms="12px"/>
@@ -244,50 +272,6 @@ export default function HeaderLinks(props) {
           </ModalContent>
         </Modal>
       )}
-      <Select
-        components={{ CustomOption }}
-        value={monthsOptions.find(option => option.value === selectedMonth)}
-        onChange={handleMonthChange}
-        options={monthsOptions}
-        styles={{
-          control: (provided, state) => ({
-            ...provided,
-            border: '1px solid #ccc',
-            borderRadius: '10px',
-            width: '200px',
-            height: '40px',
-            justifyContent: 'space-around',
-            marginLeft: '16px',
-          }),
-          indicatorSeparator: (provided, state) => ({
-            ...provided,
-            display: 'none'
-          }),
-        }}
-      />
-      <Select
-        components={{ CustomOption }}
-        value={yearsOptions.find(option => option.value === selectedYear)}
-        onChange={handleYearChange}
-        options={yearsOptions}
-        styles={{
-          control: (provided, state) => ({
-            ...provided,
-            border: '1px solid #ccc',
-            borderRadius: '10px',
-            width: '200px',
-            height: '40px',
-            justifyContent: 'space-around',
-            marginLeft: '16px',
-          }),
-          indicatorSeparator: (provided, state) => ({
-            ...provided,
-            display: 'none'
-          }),
-        }}
-      />
-
-      
       <Flex me='16px' ms={{ base: "16px", xl: "20px" }}>
         <IoLogOutOutline
           color={navbarIcon}

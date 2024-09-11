@@ -67,6 +67,7 @@ var dashRoutes = [
     layout: "/admin",
     roles: ["admin", "elu"]
   },
+ 
 
   {
     path: "/tables",

@@ -3,7 +3,7 @@ import axios from 'axios';
 import Chart from 'react-apexcharts';
 import {config} from '../../config'
 import { useMonth } from 'Fonctions/Month';
-
+import { useDateFilter } from 'Fonctions/YearMonth';
 const ZoneChart = () => {
     const zoneToRegionMap = {
         'Faladiè-sema': 'Bamako',
@@ -29,12 +29,29 @@ const ZoneChart = () => {
     const [chartOptions, setChartOptions] = useState({});
     const [chartSeries, setChartSeries] = useState([]);
     const { selectedMonth } = useMonth();
+    const { filterType, customRange } = useDateFilter();
 
 
     const _getZone = async () => {
+        let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+        
+        if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+            url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+        }
+        
         try {
-            const response = await axios.get(`${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`);
-            const incidents = response.data.data;
+            if (!sessionStorage.token) {
+                console.error("Token non trouvé");
+                return;
+            }
+    
+            const res = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${sessionStorage.token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            const incidents = res.data;
             const aggregatedData = {};
             incidents.forEach(incident => {
                 const zone = incident.zone; 
@@ -62,10 +79,7 @@ const ZoneChart = () => {
                 xaxis: {
                     categories: labels
                 },
-                // fill: {
-                //     colors: ['#a313eb', '#f07e0c']
-                // },
-                // colors: ['#a313eb', '#f07e0c']
+               
             });
 
             setChartSeries([
@@ -86,7 +100,7 @@ const ZoneChart = () => {
 
     useEffect(() => {
         _getZone();
-    }, [selectedMonth]);
+    }, [filterType, customRange]);
 
     return (
         <div id="chart">

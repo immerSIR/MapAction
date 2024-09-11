@@ -1,35 +1,15 @@
-# [Argon Dashboard Chakra](https://demos.creative-tim.com/argon-dashboard-chakra) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](10)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-react.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/made-with-css.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/made-with-javascript.svg)](https://forthebadge.com)
 
-![version](https://img.shields.io/badge/version-1.0.0-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/argon-dashboard-chakra.svg?maxAge=2592000)](https://github.com/creativetimofficial/argon-dashboard-chakra/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/creativetimofficial/argon-dashboard-chakra.svg?maxAge=2592000)](https://github.com/creativetimofficial/argon-dashboard-chakra/issues?q=is%3Aissue+is%3Aclosed)
+# Map Action Dashboard
 
-![Product Gif](https://i.ibb.co/WPpvjCn/argon-dashboard-chakra-free.png)
+Map Action Dashboard is a web application designed for administrators and organizations to manage various tasks and actions related to mapping projects.
 
-Most trendiest, complex and innovative Free Chakra UI Dashboard Made by [Simmmple](https://simmmple.com?ref=readme-argonchakra) & [Creative Tim](https://creative-tim.com/?ref=readme-argonchakra). Check our latest Free Chakra UI Dashboard.
+## Description
 
-Start your Development with an Innovative Admin Template for Chakra UI and React. If you like the look & feel of the hottest design trend right now, Argon Dashboard Chakra, you will fall in love with this dashboard! It features a huge number of components built to fit together and look amazing.
-
-**Fully Coded Elements**
-
-Argon Dashboard Chakra is built with over 70+ frontend individual elements, like buttons, inputs, navbars, nav tabs, cards, or alerts, giving you the freedom of choosing and combining. All components can take variations in color, which you can easily modify using JSS files and classes. You will save a lot of time going from prototyping to full-functional code because all elements are implemented. This Premium Chakra UI Dashboard is coming with prebuilt design blocks, so the development process is seamless, switching from our pages to the real website is very easy to be done.
-
-Check all components <a href="https://demos.creative-tim.com/docs-argon-dashboard-chakra?ref=readme-argonchakra" target="_blank">here</a>.
+The dashboard provides an intuitive interface for users to visualize data on interactive maps, manage users and access permissions, access the incident management section to report, track, and manage incidents related to mapping projects, view a detailed history of actions taken within the system, allowing users to track changes and updates over time, export data in csv form from the dashboard for further analysis or sharing purposes, facilitating seamless data management workflows, Customize and configure dashboard settings according to user preferences, including user profiles, find answers to frequently asked questions regarding the functionality and usage of the Map Action Dashboard, providing users with self-help resources for common queries, access online assistance and support resources, including tutorials, guides, and troubleshooting tips to help users navigate and utilize the dashboard effectively, and receive real-time updates and notifications.
 
 **Documentation built by Developers**
-
-Each element is well presented in a very complex documentation.
-You can read more about the <a href="https://demos.creative-tim.com/docs-argon-dashboard-chakra?ref=readme-argonchakra" target="_blank">documentation here</a>.
-
-**Example Pages**
-
-If you want to get inspiration or just show something directly to your clients, you can jump-start your development with our pre-built example pages. Every page is spaced well, with attractive layouts and pleasing shapes. From specially designed dashboards for smart homes, virtual reality, and automotives to CRM admins, Argon Dashboard Chakra UI has everything you need to quickly set up an amazing project.
-
-View <a href="https://demos.creative-tim.com/argon-dashboard-chakra?ref=readme-argonchakra" target="_blank">example pages here</a>.
-
-**HELPFUL LINKS**
-
-- View <a href="https://github.com/creativetimofficial/argon-dashboard-chakra" target="_blank">Github Repository</a>
-
-- Check <a href="https://www.creative-tim.com/knowledge-center?ref=readme-argonchakra" target="_blank">FAQ Page</a>
+[Developper doc](https://223mapaction.github.io/Dashboard/)
 
 #### Special thanks
 
@@ -45,11 +25,9 @@ Let us know your thoughts below. And good luck with development!
 
 ## Table of Contents
 
-- [Argon Dashboard Chakra] (https://demos.creative-tim.com/argon-dashboard-chakra/?ref=readme-argonchakra)
 - [Table of Contents](#table-of-contents)
 - [Versions](#versions)
-- [Demo](#demo)
-- [Quick start](#quick-start)
+- [Installation](#installation)
 - [Documentation](#documentation)
 - [File Structure](#file-structure)
 - [Browser Support](#browser-support)
@@ -67,31 +45,71 @@ Let us know your thoughts below. And good luck with development!
 | --- | --- |
 | [![Argon Dashboard Bootstrap](https://s3.amazonaws.com/creativetim_bucket/products/96/original/argon-dashboard-2.jpg?1643114907)](https://www.creative-tim.com/product/argon-dashboard?ref=readme-argonchakra) | [![Argon Dashboard Chakra](https://i.ibb.co/WPpvjCn/argon-dashboard-chakra-free.png)](https://www.creative-tim.com/product/argon-dashboard-chakra?ref=readme-argonchakra) 
 
-## Demo
-
-[View all Pages](https://demos.creative-tim.com/argon-dashboard-chakra?ref=readme-argonchakra).
-
-# Quick start
-
-Quick start options:
-
-- Buy from [Creative Tim](https://www.creative-tim.com/product/argon-dashboard-chakra?ref=readme-argonchakra).
-
-## Terminal Commands
+## Requirements
 
 1. Download and Install NodeJs LTS version from [NodeJs Official Page](https://nodejs.org/en/download/).
-2. Navigate to the root / directory and run yarn install/npm install to install our local dependencies.
+
+## Installation 
+
+To install dependencies, run:
+
+```bash
+$ npm install
+# or
+```
+
+```bash
+$ yarn install
+
+```
+
+## Runing the app
+
+Navigate to the root / directory and run
+
+```bash
+$ npm start
+```
 
 ## Documentation
 
-The documentation for the Argon Dashboard Chakra is hosted at our [website](https://demos.creative-tim.com/docs-argon-dashboard-chakra?ref=readme-argonchakra).
+The documentation for the Map Action is hosted at our [Developper doc](https://223mapaction.github.io/Dashboard/).
+
+## Technologies
+  - JS
+  - CSS
+  - React
+  
+  ![Selection_078](https://github.com/223MapAction/Dashboard/assets/64170643/cacccdd6-8586-403c-8acf-8a979dc081bd)
+
+## Features
+
+- Incident Management;
+- User Management;
+- Interactive maps for data visualization;
+- Real-time updates and notifications;
+- Data Export by day and month;
+- collaboration on incident between organisation;
+
+![Selection_074](https://github.com/223MapAction/Dashboard/assets/64170643/6b3c449d-5b8f-46ca-be3c-2894468e9373)
+---
+
+## Contibute to the project
+Map Action is an open source project. Fell free to fork the source and contribute with your features. Please follow our [contribution guidelines](CONTRIBUTING.md).
+
+## Authors
+Our code squad : @A7640S 
+
+## Licensing
+
+This project was built under the [GNU General Public Licence](LICENSE).
 
 ## File Structure
 
 Within the download you'll find the following directories and files:
 
 ```
-argon-dashboard-chakra/
+Dashboard/
 ├── .gitattributes
 ├── .gitigonore
 ├── CHANGELOG.md
@@ -105,7 +123,7 @@ argon-dashboard-chakra/
 │   ├── favicon.png
 │   ├── index.html
 │   ├── apple-icon.png
-│   ├── robots.txt
+│   ├── logo.png
 │   └── manifest.json
 └── src
     ├── assets
@@ -118,6 +136,7 @@ argon-dashboard-chakra/
     │   │   └── CardHeader.js
     │   ├── Charts
     │   │   ├── BarChart.js
+    │   │   ├── Chart_zone.js
     │   │   └── LineChart.js
     │   ├── Configurator
     │   │   └── Configurator.js
@@ -155,6 +174,11 @@ argon-dashboard-chakra/
     │       ├── TablesTableRow.js
     │       ├── TimelineRow.js
     │       └── TransactionRow.js
+    ├── Fonctions
+    │   ├── Dash_fonction.js
+    │   ├── Incident_fonction.js
+    │   ├── Month.js
+    │   └── YearMonth.js
     ├── layouts
     │   ├── Admin.js
     │   ├── Auth.js
@@ -178,14 +202,30 @@ argon-dashboard-chakra/
     │   └── theme.js
     ├── variables
     │   ├── charts.js
-    │   └── general.js
+    │   ├── general.js
+    │   ├── maps.js
+    │   └── MapsCollabor.js
     ├── views
     │   ├── Dashboard
+    │   │   ├── analyze.jsx
     │   │   ├── Billing.js
+    │   │   ├── CitizenTable.js
+    │   │   ├── Collaboration.jsx
     │   │   ├── Dashboard.js
+    │   │   ├── DashboardElu.js
+    │   │   ├── DataExport.js
+    │   │   ├── globalView.js
+    │   │   ├── globalViewCollaboration.jsx
+    │   │   ├── Incident.js
+    │   │   ├── LLM_Chat.jsx
     │   │   ├── Profile.js
     │   │   └── Tables.js
     │   ├── Pages
+    │   │   ├── ComponentFaq.js
+    │   │   ├── ComponentHelp.js
+    │   │   ├── FAQ.js
+    │   │   ├── Help.js
+    │   │   ├── NotFound.js
     │   │   ├── SignIn.js
     │   │   └── SignUp.js
     │   └── RTL
@@ -193,69 +233,3 @@ argon-dashboard-chakra/
     ├── index.js
     └── routes.js
 ```
-
-## Browser Support
-
-At present, we officially aim to support the last two versions of the following browsers:
-
-<img src="https://github.com/creativetimofficial/public-assets/blob/master/logos/chrome-logo.png?raw=true" width="64" height="64"> <img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/logos/firefox-logo.png" width="64" height="64"> <img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/logos/edge-logo.png" width="64" height="64"> <img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/logos/safari-logo.png" width="64" height="64"> <img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/logos/opera-logo.png" width="64" height="64">
-
-## Resources
-
-- [Live Preview](https://demos.creative-tim.com/argon-dashboard-chakra?ref=readme-argonchakra)
-- [Buy Page](https://www.creative-tim.com/product/argon-dashboard-chakra-pro?ref=readme-argonchakra)
-- License Agreement: <https://www.creative-tim.com/license?ref=readme-argonchakra>
-- Documentation is [here](https://demos.creative-tim.com/docs-argon-dashboard-chakra?ref=readme-argonchakra)
-- [Support](https://www.creative-tim.com/contact-us?ref=readme-argonchakra)
-- Issues: [Github Issues Page](https://github.com/creativetimofficial/argon-dashboard-chakra/issues)
-
-## Reporting Issues
-
-We use GitHub Issues as the official bug tracker for the Argon Dashboard Chakra. Here are some advices for our users that want to report an issue:
-
-1. Make sure that you are using the latest version of the Argon Dashboard Chakra. Check the CHANGELOG from your dashboard on our [CHANGE LOG File](https://github.com/creativetimofficial/argon-dashboard-chakra/blob/main/CHANGELOG.md?ref=readme-argonchakra).
-2. Providing us reproducible steps for the issue will shorten the time it takes for it to be fixed.
-3. Some issues may be browser specific, so specifying in what browser you encountered the issue might help.
-
-## Technical Support or Questions
-
-If you have questions or need help integrating the product please [contact us](https://www.creative-tim.com/contact-us?ref=readme-argonchakra) instead of opening an issue.
-
-## Licensing
-
-- Copyright 2022 [Creative Tim](https://www.creative-tim.com?ref=readme-argonchakra)
-
-- Creative Tim [License](https://www.creative-tim.com/license?ref=readme-argonchakra)
-
-## Useful Links
-
-- [More products](https://www.creative-tim.com/templates?ref=readme-argonchakra) from Creative Tim
-
-- [Tutorials](https://www.youtube.com/channel/UCVyTG4sCw-rOvB9oHkzZD1w)
-
-- [Freebies](https://www.creative-tim.com/bootstrap-themes/free?ref=readme-argonchakra) from Creative Tim
-
-- [Affiliate Program](https://www.creative-tim.com/affiliates/new?ref=readme-argonchakra) (earn money)
-
-- [More products](https://simmmple.com/?ref=readme-argonchakra) from Simmmple
-
-### Social Media - Creative Tim
-
-Twitter: <https://twitter.com/CreativeTim>
-
-Facebook: <https://www.facebook.com/CreativeTim>
-
-Dribbble: <https://dribbble.com/creativetim>
-
-Instagram: <https://www.instagram.com/CreativeTimOfficial>
-
-### Social Media - Simmmple
-
-Twitter: <https://twitter.com/simmmple_web>
-
-Facebook: <https://www.facebook.com/simmmple.web>
-
-Dribbble: <https://dribbble.com/simmmple>
-
-Instagram: <https://www.instagram.com/simmmple.web>
-

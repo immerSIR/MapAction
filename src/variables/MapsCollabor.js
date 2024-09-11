@@ -7,61 +7,89 @@ import { config } from "config";
 import L from "leaflet";
 import axios from "axios";
 import { useMonth } from "Fonctions/Month";
+import { useDateFilter } from "Fonctions/YearMonth";
 
 const position = [16.2833, -3.0833];
-
+        
 const Carte = ({ onShowIncident }) => {
   const [showOnlyTakenIntoAccount, setShowOnlyTakenIntoAccount] = useState(false);
   const [showOnlyResolved, setShowOnlyResolved] = useState(false);
   const [showOnlyDeclared, setShowOnlyDeclared] = useState(false);
-  // const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [positions, setPositions] = useState([]);
+  const { filterType, customRange } = useDateFilter();
   const { selectedMonth } = useMonth();
+  const [mapType, setMapType] = useState('standard');
 
   useEffect(() => {
     _getIncidents();
-  }, [selectedMonth]);
+  }, [selectedMonth, filterType, customRange]);
+  
+  const _getUserById = async (userId) => {
+    try {
+      const res = await axios.get(`${config.url}/MapApi/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.token}`,
+        },
+      });
+      console.log(res.data.data, "lesssssssssssssssssssssssssssssssssssssssss")
+      return res.data.data;
+    } catch (error) {
+      console.error(error.message);
+      return null;
+    }
+  };
 
   const _getIncidents = async () => {
-    const url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
-    try {
-        const res = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${sessionStorage.token}`,
-                "Content-Type": "application/json",
-            },
-        });
-
-        console.log('Les informations de la carte', res.data.data);
-
-        const incidents = res.data.data.filter(incident => incident.etat === "taken_into_account");
-
-        const validPositions = incidents
-            .filter(
-                (incident) =>
-                    incident.lattitude !== null &&
-                    incident.longitude !== null &&
-                    !isNaN(incident.lattitude) &&
-                    !isNaN(incident.longitude)
-            )
-            .map((incident) => ({
-                id: incident.id,
-                lat: incident.lattitude,
-                lon: incident.longitude,
-                tooltip: incident.title,
-                desc: incident.description,
-                etat: incident.etat,
-                img: incident.photo,
-                video: config.url + incident.video,
-                audio: config.url + incident.audio
-            }));
-            console.log(validPositions)
-
-        setPositions(validPositions);
-    } catch (error) {
-        console.error(error.message);
+    let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+    
+    if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+        url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
     }
-};
+    
+    try {
+      if (!sessionStorage.token) {
+        console.error("Token non trouvé");
+        return;
+      }
+
+      const res = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const incidents = res.data.filter(incident => incident.etat === "taken_into_account");
+      const validPositions = await Promise.all(
+        incidents
+          .filter(
+            (incident) =>
+              incident.lattitude !== null &&
+              incident.longitude !== null &&
+              !isNaN(incident.lattitude) &&
+              !isNaN(incident.longitude)
+          )
+          .map(async (incident) => {
+            const user = await _getUserById(incident.taken_by);
+            return {
+              id: incident.id,
+              lat: incident.lattitude,
+              lon: incident.longitude,
+              tooltip: incident.title,
+              desc: incident.description,
+              etat: incident.etat,
+              img: incident.photo,
+              orgPhoto: user?.avatar || "", 
+              video: config.url + incident.video,
+              audio: config.url + incident.audio,
+            };
+          })
+      );
+
+      setPositions(validPositions);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
 
   const iconHTMLBlue = ReactDOMServer.renderToString(

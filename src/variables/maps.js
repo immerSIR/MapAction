@@ -8,17 +8,19 @@ import axios from "axios";
 import { useMonth } from "Fonctions/Month";
 import { Button } from "@chakra-ui/react";
 import { useIncidentData } from "Fonctions/Dash_fonction";
+import { useDateFilter } from "Fonctions/YearMonth";
 
 const position = [17.570692, -3.996166];
 
 const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, showOnlyDeclared  }) => {
   const [positions, setPositions] = useState([]);
+  const { filterType, customRange } = useDateFilter();
   const { selectedMonth } = useMonth();
   const [mapType, setMapType] = useState('standard');
 
   useEffect(() => {
     _getIncidents();
-  }, [selectedMonth]);
+  }, [selectedMonth, filterType, customRange]);
   
   const _getUserById = async (userId) => {
     try {
@@ -36,16 +38,26 @@ const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, sho
   };
 
   const _getIncidents = async () => {
-    const url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
+    let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+    
+    if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+        url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+    }
+    
     try {
-      const res = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.token}`,
-          "Content-Type": "application/json",
-        },
-      });
+        if (!sessionStorage.token) {
+            console.error("Token non trouvé");
+            return;
+        }
 
-      const incidents = res.data.data;
+        const res = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${sessionStorage.token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+      const incidents = res.data;
 
       const validPositions = await Promise.all(
         incidents
