@@ -45,22 +45,6 @@ export default function Analyze() {
         prediction, // Add prediction from IncidentData if it exists in the state
     } = IncidentData();
 
-    // const fetchPredictionsByIncidentId = async (incidentId) => {
-    //     try {
-    //         const response = await fetch(
-    //             `http://139.144.63.238/MapApi/predictions/${incidentId}`
-    //         );
-    //         if (!response.ok) {
-    //             throw new Error("Failed to fetch predictions");
-    //         }
-    //         const data = await response.json();
-    //         return data; // Return the prediction data or null if no prediction is found
-    //     } catch (error) {
-    //         console.error("Error fetching predictions:", error);
-    //         return null;
-    //     }
-    // };
-
     const fetchPredictionsByIncidentId = async (incidentId) => {
         try {
             const response = await fetch(
