@@ -11,7 +11,6 @@ import {
 } from "@chakra-ui/react";
 import Card from "components/Card/Card.js";
 import { IncidentData } from "Fonctions/Incident_fonction";
-import { Player } from "video-react";
 import {
     MapContainer,
     TileLayer,
@@ -24,6 +23,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import L from "leaflet"; // Import Leaflet
 import { useParams } from "react-router-dom"; // Import useParams to get incidentId
+import { marked } from "marked";
 
 export default function Analyze() {
     const { incidentId } = useParams(); // Get incidentId from the URL parameters
@@ -31,20 +31,28 @@ export default function Analyze() {
         latitude,
         longitude,
         imgUrl,
-        position,
         date,
         heure,
-        handleNavigateLLM,
         incident,
         context,
         piste_solution,
         impact_potentiel,
         type_incident,
-        fetchPredictions,
+        zone, // Assuming `zone` corresponds to `area_name`
         sendPrediction,
-        prediction, // Add prediction from IncidentData if it exists in the state
     } = IncidentData();
 
+    const { colorMode } = useColorMode();
+    const textColor = useColorModeValue("gray.700", "white");
+
+    const [expanded, setExpanded] = useState(false);
+    const [prediction, setPrediction] = useState(null); // State to store the prediction
+
+    const toggleExpanded = () => {
+        setExpanded(!expanded);
+    };
+
+    // Fetch predictions by incident ID
     const fetchPredictionsByIncidentId = async (incidentId) => {
         try {
             const response = await fetch(
@@ -86,10 +94,11 @@ export default function Analyze() {
                     console.log(
                         "Prediction already exists, skipping prediction."
                     );
+                    setPrediction(existingPrediction); // Set the prediction if it exists
                 } else {
                     if (incident.photo) {
                         console.log("Sending prediction as none exists.");
-                        sendPrediction(); // Send prediction if no existing one is found
+                        await sendPrediction(); // Send prediction if no existing one is found
                     } else {
                         console.log(
                             "Incident photo is not available yet, skipping prediction."
@@ -102,34 +111,27 @@ export default function Analyze() {
         };
 
         fetchData();
-    }, [incident, prediction, incidentId]);
+    }, [incident, incidentId]);
 
-    const { colorMode } = useColorMode();
-    const textColor = useColorModeValue("gray.700", "white");
+    // Convert Markdown to HTML using `marked`
+    const convertMarkdownToHtml = (markdownText) => {
+        return { __html: marked(markdownText) };
+    };
 
-    const iconHTMLBlue = ReactDOMServer.renderToString(
-        <FaMapMarkerAlt color="blue" size={20} />
+    const iconHTML = ReactDOMServer.renderToString(
+        <FaMapMarkerAlt
+            color={
+                incident.etat === "resolved"
+                    ? "blue"
+                    : incident.etat === "taken_into_account"
+                    ? "orange"
+                    : "red"
+            }
+            size={20}
+        />
     );
 
-    const customMarkerIconBlue = new L.DivIcon({
-        html: iconHTMLBlue,
-    });
-
-    const iconHTMLRed = ReactDOMServer.renderToString(
-        <FaMapMarkerAlt color="red" size={20} />
-    );
-
-    const customMarkerIconRed = new L.DivIcon({
-        html: iconHTMLRed,
-    });
-
-    const iconHTMLOrange = ReactDOMServer.renderToString(
-        <FaMapMarkerAlt color="orange" size={20} />
-    );
-
-    const customMarkerIconOrange = new L.DivIcon({
-        html: iconHTMLOrange,
-    });
+    const customMarkerIcon = new L.DivIcon({ html: iconHTML });
 
     function RecenterMap({ lat, lon }) {
         const map = useMap();
@@ -141,25 +143,6 @@ export default function Analyze() {
         return null;
     }
 
-    function ExpandableContent({ content }) {
-        const [expanded, setExpanded] = useState(false);
-
-        const toggleExpanded = () => {
-            setExpanded(!expanded);
-        };
-
-        return (
-            <Box>
-                <p>
-                    {expanded ? content : content.substring(0, 300)}
-                    {!expanded && content.length > 100 && (
-                        <Button onClick={toggleExpanded}>Voir plus</Button>
-                    )}
-                </p>
-            </Box>
-        );
-    }
-
     return (
         <Flex flexDirection="column" pt={{ base: "120px", md: "75px" }}>
             <Grid
@@ -167,6 +150,7 @@ export default function Analyze() {
                 templateRows={{ lg: "repeat(2, auto)" }}
                 gap="20px"
             >
+                {/* Card for the Incident Report */}
                 <Card p="0px" maxW={{ sm: "320px", md: "100%" }}>
                     <Flex direction="column">
                         <Box
@@ -174,57 +158,79 @@ export default function Analyze() {
                             justify="space-between"
                             p="22px"
                         >
-                            <Box mb="4">
-                                <Heading as="h6" size="xs" mb="2">
-                                    Contexte & Description
-                                </Heading>
-                                <Box minH="200px">
-                                    <ExpandableContent
-                                        content={context || ""}
-                                    />
-                                </Box>
+                            <Heading as="h6" size="md" mb="4">
+                                Rapport Généré
+                            </Heading>
+                            <Box mb="4" minH="200px">
+                                <Text>
+                                    <strong>Zone:</strong>{" "}
+                                    {zone || "Zone non renseignée"}
+                                </Text>
+                                <Text>
+                                    <strong>Coordonnées:</strong> Latitude:{" "}
+                                    {latitude}, Longitude: {longitude}
+                                </Text>
+                                <Text>
+                                    <strong>Type d'incident:</strong>{" "}
+                                    {type_incident}
+                                </Text>
+                                <Text mt="2">
+                                    {expanded ? (
+                                        <>
+                                            <Box
+                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                    context ||
+                                                        (prediction &&
+                                                            prediction.context) ||
+                                                        "Contexte non disponible"
+                                                )}
+                                            />
+                                            <Box
+                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                    impact_potentiel ||
+                                                        (prediction &&
+                                                            prediction.impact_potentiel) ||
+                                                        "Non disponible"
+                                                )}
+                                            />
+                                            <Box
+                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                    piste_solution ||
+                                                        (prediction &&
+                                                            prediction.piste_solution) ||
+                                                        "Non disponible"
+                                                )}
+                                            />
+                                        </>
+                                    ) : (
+                                        `${
+                                            context
+                                                ? context.substring(0, 300)
+                                                : "Aucun contexte disponible"
+                                        }...`
+                                    )}
+                                    {context && context.length > 300 && (
+                                        <Button
+                                            onClick={toggleExpanded}
+                                            variant="link"
+                                            mt="2"
+                                        >
+                                            {expanded
+                                                ? "Voir moins"
+                                                : "Voir plus"}
+                                        </Button>
+                                    )}
+                                </Text>
                             </Box>
-                            <Box mb="4">
-                                <Heading as="h6" size="xs" mb="2">
-                                    Impacts Potentiels
-                                </Heading>
-                                <Box minH="200px">
-                                    <ExpandableContent
-                                        content={impact_potentiel || ""}
-                                    />
-                                </Box>
-                            </Box>
-                            <Box mb="4">
-                                <Heading as="h6" size="xs" mb="2">
-                                    Pistes de solutions envisageables
-                                </Heading>
-                                <Box minH="200px">
-                                    <ExpandableContent
-                                        content={piste_solution || ""}
-                                    />
-                                </Box>
-                            </Box>
-                            <Button
-                                onClick={handleNavigateLLM}
-                                colorScheme="teal"
-                            >
-                                Discussion LLM
-                            </Button>
                         </Box>
                     </Flex>
                 </Card>
-                <Card
-                    bg={
-                        colorMode === "dark"
-                            ? "navy.800"
-                            : "linear-gradient(81.62deg, #313860 2.25%, #151928 79.87%)"
-                    }
-                    p="0px"
-                    maxW={{ sm: "320px", md: "100%" }}
-                >
+
+                {/* Card for Interactive Map */}
+                <Card p="0px" maxW={{ sm: "320px", md: "100%" }}>
                     <Flex direction="column" mb="40px" p="28px 0px 0px 22px">
                         <Text
-                            color="#fff"
+                            color={textColor}
                             fontSize="lg"
                             fontWeight="bold"
                             mb="6px"
@@ -236,7 +242,7 @@ export default function Analyze() {
                         {latitude !== 0 && longitude !== 0 ? (
                             <Box height="600px" width="100%" p="0 8px 0 8px">
                                 <MapContainer
-                                    center={position}
+                                    center={[latitude, longitude]}
                                     zoom={13}
                                     style={{ height: "100%", width: "100%" }}
                                 >
@@ -249,20 +255,12 @@ export default function Analyze() {
                                         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                                     />
                                     <Marker
-                                        className="icon-marker"
-                                        icon={
-                                            incident.etat === "resolved"
-                                                ? customMarkerIconBlue
-                                                : incident.etat ===
-                                                  "taken_into_account"
-                                                ? customMarkerIconOrange
-                                                : customMarkerIconRed
-                                        }
-                                        position={position}
+                                        position={[latitude, longitude]}
+                                        icon={customMarkerIcon}
                                     >
                                         <Popup>{incident.title}</Popup>
                                         <Circle
-                                            center={position}
+                                            center={[latitude, longitude]}
                                             radius={500}
                                             color="red"
                                         />
@@ -270,13 +268,14 @@ export default function Analyze() {
                                 </MapContainer>
                             </Box>
                         ) : (
-                            <Text className="danger" color="red.500">
-                                Coordonnees non renseignees
+                            <Text color="red.500">
+                                Coordonnées non renseignées
                             </Text>
                         )}
                     </Box>
                 </Card>
 
+                {/* Card for Incident Image */}
                 <Card p="0px" maxW={{ sm: "320px", md: "100%" }}>
                     <Flex direction="column" mb="40px" p="28px 0px 0px 22px">
                         <Text fontSize="lg" color={textColor} fontWeight="bold">
@@ -296,21 +295,13 @@ export default function Analyze() {
                         justifyContent="space-between"
                         p="8px"
                     >
-                        <Text
-                            color="#ccc"
-                            fontWeight="bold"
-                            mb="6px"
-                            flexGrow={1}
-                        >
+                        <Text color="#ccc" fontWeight="bold" flexGrow={1}>
                             Date : {date}
                         </Text>
-                        <Text color="#ccc" fontWeight="bold" mb="6px">
+                        <Text color="#ccc" fontWeight="bold">
                             Heure : {heure}
                         </Text>
                     </Flex>
-                    <Text color="#000" fontWeight="bold" mb="6px" p="8px">
-                        Type d'incident : {type_incident}
-                    </Text>
                 </Card>
             </Grid>
         </Flex>
