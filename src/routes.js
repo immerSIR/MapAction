@@ -29,7 +29,6 @@ import EluDashboard from 'views/Dashboard/DashboardElu';
 import Chat from 'views/Dashboard/LLM_Chat';
 import CitizenTable from 'views/Dashboard/CitizenTable';
 import DataExport from 'views/Dashboard/DataExport';
-import IncidentFilter from 'views/Dashboard/IncidentFilter';
 
 var dashRoutes = [
   {
@@ -68,15 +67,7 @@ var dashRoutes = [
     layout: "/admin",
     roles: ["admin", "elu"]
   },
-  {
-    path: "/Incident filter",
-    name: "Incident filter",
-    rtlName: "لوحة القيادة",
-    icon: <StatsIcon color='inherit' />,
-    component: IncidentFilter,
-    layout: "/admin",
-    roles: ["admin", "elu"]
-  },
+ 
 
   {
     path: "/tables",

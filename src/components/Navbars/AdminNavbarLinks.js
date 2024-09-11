@@ -23,7 +23,6 @@ import {
   ModalCloseButton,
   Select
 } from "@chakra-ui/react";
-import { useMonth,  } from "Fonctions/Month";
 // Custom Icons
 import appLogoLight from "../../assets/img/logo.png"; 
 // Custom Components
@@ -59,9 +58,7 @@ const CustomOption = (props) => {
   );
 };
 export default function HeaderLinks(props) {
-  // const [showDatePicker, setShowDatePicker] = useState(false);
   const { filterType, customRange, handleFilterChange,handleDateChange, applyCustomRange, showDatePicker } = useDateFilter();
-  const { selectedMonth, handleMonthChange, selectedYear, yearsOptions, handleYearChange } = useMonth();
   const {
     variant,
     children,
@@ -127,7 +124,6 @@ export default function HeaderLinks(props) {
           'Content-Type': 'application/json',
         },
       });
-      // console.log('Notifications response:', response.data);
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -201,6 +197,32 @@ export default function HeaderLinks(props) {
         {...rest}
       />
       
+      <Select
+          value={filterType}
+          onChange={(e) => handleFilterChange(e.target.value)}
+          background="white"
+        >
+          <option value="today">Aujourd'hui</option>
+          <option value="yesterday">Hier</option>
+          <option value="last_7_days">Les 7 derniers jours</option>
+          <option value="last_30_days">Les 30 derniers jours</option>
+          <option value="this_month">Ce mois</option>
+          <option value="last_month">Le mois dernier</option>
+          <option value="custom_range">Choix personnalisé</option>
+        </Select>
+        {filterType === 'custom_range' && showDatePicker && customRange.length > 0 && (
+          <Flex ml={4} alignItems="center">
+            <DateRange
+              ranges={customRange}
+              onChange={handleDateChange}
+              locale={fr}
+            />
+            <Button ml={4} colorScheme="blue" onClick={applyCustomRange}>
+              Appliquer
+            </Button>
+          </Flex>
+        )}
+
       <Menu>
         <MenuButton>
           <BellIcon color={navbarIcon} w='18px' h='18px' ms="12px"/>
@@ -250,53 +272,6 @@ export default function HeaderLinks(props) {
           </ModalContent>
         </Modal>
       )}
-      {/* <Select
-        components={{ CustomOption }}
-        value={monthsOptions.find(option => option.value === selectedMonth)}
-        onChange={handleMonthChange}
-        options={monthsOptions}
-        styles={{
-          control: (provided, state) => ({
-            ...provided,
-            border: '1px solid #ccc',
-            borderRadius: '10px',
-            width: '200px',
-            height: '40px',
-            justifyContent: 'space-around',
-            marginLeft: '16px',
-          }),
-          indicatorSeparator: (provided, state) => ({
-            ...provided,
-            display: 'none'
-          }),
-        }}
-      /> */}
-      <Select
-          value={filterType}
-          onChange={(e) => handleFilterChange(e.target.value)} 
-        >
-          <option value="today">Aujourd'hui</option>
-          <option value="yesterday">Hier</option>
-          <option value="last_7_days">Les 7 derniers jours</option>
-          <option value="last_30_days">Les 30 derniers jours</option>
-          <option value="this_month">Ce mois</option>
-          <option value="last_month">Le mois dernier</option>
-          <option value="custom_range">Choix personnalisé</option>
-        </Select>
-        {filterType === 'custom_range' && showDatePicker && customRange.length > 0 && (
-          <Flex ml={4} alignItems="center">
-            <DateRange
-              ranges={customRange}
-              onChange={handleDateChange}
-              locale={fr}
-            />
-            <Button ml={4} colorScheme="blue" onClick={applyCustomRange}>
-              Appliquer
-            </Button>
-          </Flex>
-        )}
-
-      
       <Flex me='16px' ms={{ base: "16px", xl: "20px" }}>
         <IoLogOutOutline
           color={navbarIcon}
