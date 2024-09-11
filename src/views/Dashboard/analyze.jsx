@@ -45,27 +45,80 @@ export default function Analyze() {
         prediction, // Add prediction from IncidentData if it exists in the state
     } = IncidentData();
 
+    // const fetchPredictionsByIncidentId = async (incidentId) => {
+    //     try {
+    //         const response = await fetch(
+    //             `http://139.144.63.238/MapApi/predictions/${incidentId}`
+    //         );
+    //         if (!response.ok) {
+    //             throw new Error("Failed to fetch predictions");
+    //         }
+    //         const data = await response.json();
+    //         return data; // Return the prediction data or null if no prediction is found
+    //     } catch (error) {
+    //         console.error("Error fetching predictions:", error);
+    //         return null;
+    //     }
+    // };
+
+    const fetchPredictionsByIncidentId = async (incidentId) => {
+        try {
+            const response = await fetch(
+                `http://139.144.63.238/MapApi/Incidentprediction/${incidentId}`
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch predictions");
+            }
+
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const data = await response.json(); // Parse the JSON response
+                return data; // Return the prediction data
+            } else {
+                throw new Error("Received non-JSON response");
+            }
+        } catch (error) {
+            console.error("Error fetching predictions:", error);
+            return null; // Return null if there is an error
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
-            await fetchPredictions(); // Fetch predictions and set in state
+            try {
+                // Fetch existing prediction for the incident
+                const existingPrediction = await fetchPredictionsByIncidentId(
+                    incidentId
+                );
+
+                console.log("Existing prediction:", existingPrediction); // Log prediction
+
+                // Check if prediction exists
+                if (
+                    existingPrediction &&
+                    Object.keys(existingPrediction).length > 0
+                ) {
+                    console.log(
+                        "Prediction already exists, skipping prediction."
+                    );
+                } else {
+                    if (incident.photo) {
+                        console.log("Sending prediction as none exists.");
+                        sendPrediction(); // Send prediction if no existing one is found
+                    } else {
+                        console.log(
+                            "Incident photo is not available yet, skipping prediction."
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching or sending prediction:", error);
+            }
         };
 
-        fetchData().then(() => {
-            // Check if there's already a prediction
-            if (!prediction || Object.keys(prediction).length === 0) {
-                // Ensure that incident.photo exists before sending the prediction
-                if (incident.photo) {
-                    sendPrediction(); // Only send prediction if no existing prediction is found and photo exists
-                } else {
-                    console.log(
-                        "Incident photo is not available yet, skipping prediction."
-                    );
-                }
-            } else {
-                console.log("Prediction already exists, skipping prediction.");
-            }
-        });
-    }, [incident, prediction, incidentId]); // Make sure to include `incident`, `prediction`, and `incidentId` in the dependency array
+        fetchData();
+    }, [incident, prediction, incidentId]);
 
     const { colorMode } = useColorMode();
     const textColor = useColorModeValue("gray.700", "white");
