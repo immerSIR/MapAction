@@ -13,7 +13,9 @@ export const IncidentData = () => {
     const predictionId = userId + incidentId;
     const location = useLocation();
     const pictUrl = location.state ? location.state.pictUrl : "";
-    const nearbyPlacesDic = location.state ? location.state.nearbyPlaces : [];
+    // console.log("Location:", location);
+    // console.log("LocationdotState", location.state.nearbyPlaces);
+    // const nearbyPlacesDic = location.state ? location.state.nearbyPlaces : [];
     const fetchUserData = async () => {
         try {
             const response = await axios.get(
@@ -88,9 +90,9 @@ export const IncidentData = () => {
     const [videoIsLoading, setVideoIsLoading] = useState(false);
     const imgUrl =
         incident && incident.photo ? config.url + incident.photo : "";
-    console.log("The image url is", imgUrl);
-    console.log("The photo is", incident.photo);
-    console.log("The image is", incident.image_name);
+    // console.log("The image url is", imgUrl);
+    // console.log("The photo is", incident.photo);
+    // console.log("The image is", incident.image_name);
     const audioUrl = incident ? config.url + incident.audio : "";
     const videoUrl = incident ? config.url + incident.video : "";
     // console.log(videoUrl);
@@ -112,11 +114,11 @@ export const IncidentData = () => {
     const data = [];
     const [prediction, setPredictions] = useState([]);
     const piste_solution = prediction ? prediction.piste_solution : "";
-    console.log("Piste solution", piste_solution);
+    // console.log("Piste solution", piste_solution);
     const context = prediction ? prediction.context : "";
-    console.log("Context", context);
+    // console.log("Context", context);
     const impact_potentiel = prediction ? prediction.impact_potentiel : "";
-    console.log("impact_potentiel", impact_potentiel);
+    // console.log("impact_potentiel", impact_potentiel);
     const type_incident = prediction ? prediction.incident_type : "";
     const [EditIncident, setEditIncident] = useState({
         title: "",
@@ -248,6 +250,53 @@ export const IncidentData = () => {
         navigate.push(`/admin/llm_chat/${incident.id}/${userId}`);
     };
 
+    const fetchNearbySensitiveStructures = async (latitude, longitude) => {
+        try {
+            // Define Overpass API query to fetch sensitive structures near the incident
+            const overpassUrl = "https://overpass-api.de/api/interpreter";
+            const overpassQuery = `
+                [out:json];
+                (
+                  node["amenity"~"school|clinic|hospital|fire_station|police"](around:500,${latitude},${longitude});
+                  way["amenity"~"school|clinic|hospital|fire_station|police"](around:500,${latitude},${longitude});
+                  relation["amenity"~"school|clinic|hospital|fire_station|police"](around:500,${latitude},${longitude});
+                );
+                out center;
+            `;
+
+            const response = await axios.post(
+                overpassUrl,
+                `data=${encodeURIComponent(overpassQuery)}`
+            );
+            const nearbyStructures = response.data.elements;
+
+            // Map the Overpass response to a list of nearby places (sensitive structures)
+            const sensitiveStructures = nearbyStructures.map((structure) => {
+                if (structure.tags.amenity === "school") {
+                    return "ecole";
+                } else if (
+                    structure.tags.amenity === "clinic" ||
+                    structure.tags.amenity === "hospital"
+                ) {
+                    return "Clinique";
+                } else if (structure.tags.amenity === "fire_station") {
+                    return "Caserne des pompiers";
+                } else if (structure.tags.amenity === "police") {
+                    return "Commissariat";
+                } else {
+                    return structure.tags.amenity;
+                }
+            });
+            return sensitiveStructures;
+        } catch (error) {
+            console.error(
+                "Error fetching sensitive structures from Overpass API:",
+                error
+            );
+            return [];
+        }
+    };
+
     const sendPrediction = async () => {
         try {
             const fastapiUrl = config.url2;
@@ -260,20 +309,11 @@ export const IncidentData = () => {
                 return; // Don't proceed if there is no photo
             }
 
-            let sensitiveStructures = [];
-            for (let i = 0; i < nearbyPlacesDic.length; i++) {
-                if (nearbyPlacesDic[i].amenity == "school") {
-                    sensitiveStructures.push("ecole");
-                } else if (nearbyPlacesDic[i].amenity == "clinic") {
-                    sensitiveStructures.push("Clinique");
-                } else if (nearbyPlacesDic[i].amenity == "river") {
-                    sensitiveStructures.push("Rivière");
-                } else if (nearbyPlacesDic[i].amenity == "marigot") {
-                    sensitiveStructures.push("marigot");
-                } else {
-                    sensitiveStructures.push(nearbyPlacesDic[i].amenity);
-                }
-            }
+            // Fetch nearby sensitive structures from Overpass API
+            const sensitiveStructures = await fetchNearbySensitiveStructures(
+                latitude,
+                longitude
+            );
 
             const payload = {
                 image_name: incident.photo, // Use incident.photo directly
@@ -281,7 +321,7 @@ export const IncidentData = () => {
                 incident_id: incidentId,
                 user_id: userId,
             };
-
+            console.log("Les sites voisins:", sensitiveStructures);
             console.log("Payload being sent:", payload);
 
             try {
