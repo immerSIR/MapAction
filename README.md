@@ -26,24 +26,15 @@ Let us know your thoughts below. And good luck with development!
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- [Versions](#versions)
+- [Requirements](#requirements)
 - [Installation](#installation)
+- [Runing the app](#runing-the-app)
 - [Documentation](#documentation)
-- [File Structure](#file-structure)
-- [Browser Support](#browser-support)
-- [Resources](#resources)
-- [Reporting Issues](#reporting-issues)
+- [Features](#features)
+- [Contibute to the project](#contibute-to-the-project)
 - [Licensing](#licensing)
-- [Useful Links](#useful-links)
-- [Social Media](#social-media)
-
-## Versions
-
-[<img src="https://github.com/creativetimofficial/public-assets/blob/master/logos/html-logo.jpg?raw=true" width="60" height="60" />](https://www.creative-tim.com/product/argon-dashboard-chakra-react?ref=readme-argonchakra)[<img src="https://github.com/creativetimofficial/public-assets/blob/master/logos/react-logo.jpg?raw=true" width="60" height="60" />](https://www.creative-tim.com/product/argon-dashboard-chakra?ref=readme-argonchakra)
-
-| Bootstrap | Chakra |
-| --- | --- |
-| [![Argon Dashboard Bootstrap](https://s3.amazonaws.com/creativetim_bucket/products/96/original/argon-dashboard-2.jpg?1643114907)](https://www.creative-tim.com/product/argon-dashboard?ref=readme-argonchakra) | [![Argon Dashboard Chakra](https://i.ibb.co/WPpvjCn/argon-dashboard-chakra-free.png)](https://www.creative-tim.com/product/argon-dashboard-chakra?ref=readme-argonchakra) 
+- [File Structure](#file-structure)
+- [Authors](#authors)
 
 ## Requirements
 
@@ -55,9 +46,9 @@ To install dependencies, run:
 
 ```bash
 $ npm install
-# or
-```
 
+```
+or
 ```bash
 $ yarn install
 
@@ -98,7 +89,7 @@ The documentation for the Map Action is hosted at our [Developper doc](https://2
 Map Action is an open source project. Fell free to fork the source and contribute with your features. Please follow our [contribution guidelines](CONTRIBUTING.md).
 
 ## Authors
-Our code squad : @A7640S 
+Our code squad : @A7640S, @223MapAction 
 
 ## Licensing
 
