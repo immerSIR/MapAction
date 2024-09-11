@@ -8,7 +8,6 @@ import {
     Heading,
     useColorMode,
     useColorModeValue,
-    Spinner,
 } from "@chakra-ui/react";
 import Card from "components/Card/Card.js";
 import { IncidentData } from "Fonctions/Incident_fonction";
@@ -16,16 +15,18 @@ import { Player } from "video-react";
 import {
     MapContainer,
     TileLayer,
-    useMap,
     Popup,
     Marker,
     Circle,
+    useMap,
 } from "react-leaflet";
-import { FaMapMarkerAlt, FaEye } from "react-icons/fa";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import L from "leaflet"; // Import Leaflet
+import { useParams } from "react-router-dom"; // Import useParams to get incidentId
 
 export default function Analyze() {
+    const { incidentId } = useParams(); // Get incidentId from the URL parameters
     const {
         latitude,
         longitude,
@@ -41,19 +42,34 @@ export default function Analyze() {
         type_incident,
         fetchPredictions,
         sendPrediction,
+        prediction, // Add prediction from IncidentData if it exists in the state
     } = IncidentData();
 
     useEffect(() => {
-        async function fetchData() {
-            await fetchPredictions();
-        }
-        fetchData();
-        // sendPrediction();
-    }, []);
+        const fetchData = async () => {
+            await fetchPredictions(); // Fetch predictions and set in state
+        };
+
+        fetchData().then(() => {
+            // Check if there's already a prediction
+            if (!prediction || Object.keys(prediction).length === 0) {
+                // Ensure that incident.photo exists before sending the prediction
+                if (incident.photo) {
+                    sendPrediction(); // Only send prediction if no existing prediction is found and photo exists
+                } else {
+                    console.log(
+                        "Incident photo is not available yet, skipping prediction."
+                    );
+                }
+            } else {
+                console.log("Prediction already exists, skipping prediction.");
+            }
+        });
+    }, [incident, prediction, incidentId]); // Make sure to include `incident`, `prediction`, and `incidentId` in the dependency array
 
     const { colorMode } = useColorMode();
     const textColor = useColorModeValue("gray.700", "white");
-    // icon map color
+
     const iconHTMLBlue = ReactDOMServer.renderToString(
         <FaMapMarkerAlt color="blue" size={20} />
     );
@@ -77,6 +93,7 @@ export default function Analyze() {
     const customMarkerIconOrange = new L.DivIcon({
         html: iconHTMLOrange,
     });
+
     function RecenterMap({ lat, lon }) {
         const map = useMap();
         useEffect(() => {
@@ -86,6 +103,7 @@ export default function Analyze() {
         }, [lat, lon, map]);
         return null;
     }
+
     function ExpandableContent({ content }) {
         const [expanded, setExpanded] = useState(false);
 
@@ -257,77 +275,6 @@ export default function Analyze() {
                         Type d'incident : {type_incident}
                     </Text>
                 </Card>
-
-                {/* <Card p='0px' maxW={{ sm: "320px", md: "100%" }}>
-          <Flex direction='column'>
-            <Flex  justify='space-between' p='22px' direction='column'>
-              <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Type d'incident
-              </Text>
-              <Box 
-                bg='green'
-                width='100px'
-                height='100px'
-                m='2px'
-                borderRadius='10px'
-              >
-              
-              </Box>
-              <Text color='#ccc' fontWeight='bold' mb='6px'>
-                
-              </Text>
-            </Flex>
-            <Flex  justify='space-between' p='22px' direction="column">
-              <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Gravité d'incident
-              </Text>
-              <Box 
-                bg='green'
-                width='100px'
-                height='100px'
-                mt='2px'
-                borderRadius='10px'
-              >
-                
-              </Box>
-            </Flex>
-            <Flex  justify='space-between' p='22px' direction="column">
-              <Text fontSize='lg' color={textColor} fontWeight='bold'>
-                Code Couleur *
-              </Text>
-              <Box minH='50px' display='flex' >
-                <Box textAlign='center' mr='1px'>
-                  <Box bg='yellow' width='100px' height='10px' mb='5px' />
-                  <Text>Faible Impact</Text>
-                </Box>
-                <Box textAlign='center' mr='-10px'>
-                  <Box bg='orange' width='100px' height='10px' mb='5px' />
-                  <Text>Potentiellement Grave</Text>
-                </Box>
-                <Box textAlign='center'>
-                  <Box bg='red' width='100px' height='10px' mb='5px' />
-                  <Text>Potentiellement Dangereux</Text>
-                </Box>
-              </Box>
-            </Flex>
-            <Flex align='center' justify='space-between' p='22px'>
-              <Text color={textColor}>
-                * {''} L'évaluation de la gravité des incidents
-                  est réalisée par notre système d'intelligence
-                  artificielle qui analyse conjointement certains 
-                  éléments tels que la proximité des incidents aux zones sensibles, 
-                  les populations vulnérables, les données environnementales contextuelles 
-                  et les tendences historiques. 
-                  Cette estimation repose sur les données actuellement accessibles et, 
-                  bien que précise dans la majorité des cas, 
-                  peut parfois être sujette à erreur ou à mauvaise interprétation. 
-                  Nous recommandons toujours une vérification sur le terrain pour confirmer 
-                  les détails de chaque incident.
-              </Text>
-              
-            </Flex>
-          </Flex>
-        </Card> */}
             </Grid>
         </Flex>
     );
