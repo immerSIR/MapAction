@@ -159,7 +159,7 @@ export default function Analyze() {
                             p="22px"
                         >
                             <Heading as="h6" size="md" mb="4">
-                                Rapport Généré
+                                Rapport d'Analayse
                             </Heading>
                             <Box mb="4" minH="200px">
                                 <Text>
@@ -167,8 +167,8 @@ export default function Analyze() {
                                     {zone || "Zone non renseignée"}
                                 </Text>
                                 <Text>
-                                    <strong>Coordonnées:</strong> Latitude:{" "}
-                                    {latitude}, Longitude: {longitude}
+                                    <strong>Coordonnées:</strong> {latitude},{" "}
+                                    {longitude}
                                 </Text>
                                 <Text>
                                     <strong>Type d'incident:</strong>{" "}
