@@ -159,7 +159,7 @@ export default function Analyze() {
                             p="22px"
                         >
                             <Heading as="h6" size="md" mb="4">
-                                Rapport d'Analayse
+                                Rapport d'Analyse
                             </Heading>
                             <Box mb="4" minH="200px">
                                 <Text>
