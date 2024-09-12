@@ -1,0 +1,24 @@
+/* Chat.css */
+.chat-container .message-content h1,
+.chat-container .message-content h2,
+.chat-container .message-content h3 {
+    font-weight: bold;
+}
+
+.chat-container .message-content a {
+    color: blue;
+    text-decoration: underline;
+}
+
+.chat-container .message-content ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+/* Optional: Add styles for the reset button container */
+.container > .reset-button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}

@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Box, Button, Flex, Input, Text, VStack } from "@chakra-ui/react";
 import { config } from "config";
+import { marked } from "marked";
+import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
 
 function Chat() {
     let { incidentId, userId } = useParams();
@@ -86,10 +88,19 @@ function Chat() {
 
     useEffect(() => {
         if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop =
-                chatContainerRef.current.scrollHeight;
+            chatContainerRef.current.scroll({
+                top: chatContainerRef.current.scrollHeight,
+                behavior: "smooth",
+            });
         }
     }, [chatMessages]);
+
+    // Convert Markdown to HTML and sanitize it
+    const convertMarkdownToHtml = (markdownText) => {
+        const rawHtml = marked(markdownText); // Convert markdown to raw HTML
+        const sanitizedHtml = DOMPurify.sanitize(rawHtml); // Sanitize the HTML
+        return { __html: sanitizedHtml };
+    };
 
     return (
         <Flex flexDirection="column" pt={{ base: "120px", md: "75px" }}>
@@ -128,7 +139,11 @@ function Chat() {
                                 <Text fontWeight="bold">
                                     {msg.role === "user" ? "Vous:" : "MapChat:"}
                                 </Text>
-                                <Text>{msg.content}</Text>
+                                <Box
+                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                        msg.content
+                                    )}
+                                />
                             </Box>
                         ))}
                     </VStack>
