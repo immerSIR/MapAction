@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Box, Button, Flex, Input, Text, VStack } from "@chakra-ui/react";
+import { ArrowForwardIcon, RepeatIcon } from "@chakra-ui/icons"; // Import the icon
 import { config } from "config";
 import { marked } from "marked";
 import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
@@ -29,6 +30,18 @@ function Chat() {
         }
     };
 
+    const deleteChatHistory = () => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            const deleteRequest = {
+                incident_id: incidentId.toString(),
+                session_id: userId.toString(),
+                action: "delete_chat",
+            };
+            ws.send(JSON.stringify(deleteRequest));
+            setChatMessages([]); // Clear chat messages in the UI
+        }
+    };
+
     const getChatHistory = async () => {
         try {
             const chatHistory = await axios.get(
@@ -45,7 +58,9 @@ function Chat() {
     };
 
     useEffect(() => {
-        const websocket = new WebSocket("ws://57.153.185.160:8001/ws/chat");
+        const websocket = new WebSocket(
+            "ws://57.153.185.160:8001/api1/ws/chat"
+        );
 
         const connectWebSocket = () => {
             console.log("WebSocket Connected");
@@ -61,7 +76,9 @@ function Chat() {
                     )
                 ) {
                     console.log("Reconnecting WebSocket...");
-                    setWs(new WebSocket("ws://57.153.185.160:8001/ws/chat"));
+                    setWs(
+                        new WebSocket("ws://57.153.185.160:8001/api1/ws/chat")
+                    );
                 }
             }, 3000);
         };
@@ -71,10 +88,15 @@ function Chat() {
         websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log("Received data : ", data);
-            setChatMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: data.answer },
-            ]);
+
+            if (data.message === "Chat history deleted successfully.") {
+                setChatMessages([]);
+            } else {
+                setChatMessages((prev) => [
+                    ...prev,
+                    { role: "assistant", content: data.answer },
+                ]);
+            }
         };
         websocket.onclose = closeWebSocket;
         websocket.onerror = (error) => {
@@ -160,7 +182,7 @@ function Chat() {
                             if (e.key === "Enter") sendMessage();
                         }}
                     />
-                    <Button
+                    {/* <Button
                         className="submit-chat"
                         onClick={sendMessage}
                         isDisabled={
@@ -170,6 +192,36 @@ function Chat() {
                         }
                     >
                         Send
+                    </Button> */}
+                    <Button
+                        className="submit-chat"
+                        onClick={sendMessage}
+                        isDisabled={
+                            !ws ||
+                            ws.readyState !== WebSocket.OPEN ||
+                            message.trim() === ""
+                        }
+                        aria-label="Send Message" // Accessibility label
+                    >
+                        <ArrowForwardIcon />
+                    </Button>
+
+                    {/* <Button
+                        colorScheme="blue"
+                        onClick={deleteChatHistory}
+                        isDisabled={!ws || ws.readyState !== WebSocket.OPEN}
+                        ml={2}
+                    >
+                        Reset
+                    </Button> */}
+                    <Button
+                        colorScheme="blue"
+                        onClick={deleteChatHistory}
+                        isDisabled={!ws || ws.readyState !== WebSocket.OPEN}
+                        aria-label="Reset Chat History"
+                        ml={2}
+                    >
+                        <RepeatIcon />
                     </Button>
                 </Flex>
             </Box>
