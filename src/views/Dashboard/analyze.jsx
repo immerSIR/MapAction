@@ -220,6 +220,12 @@ export default function Analyze() {
                                                 : "Voir plus"}
                                         </Button>
                                     )}
+                                    <Button
+                                        onClick={handleNavigateLLM}
+                                        colorScheme="teal"
+                                    >
+                                        Discussion LLM
+                                    </Button>
                                 </Text>
                             </Box>
                         </Box>
