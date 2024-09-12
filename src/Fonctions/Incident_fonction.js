@@ -258,9 +258,9 @@ export const IncidentData = () => {
             const overpassQuery = `
                 [out:json];
                 (
-                  node["amenity"~"school|clinic|hospital|fire_station|police"](around:500,${latitude},${longitude});
-                  way["amenity"~"school|clinic|hospital|fire_station|police"](around:500,${latitude},${longitude});
-                  relation["amenity"~"school|clinic|hospital|fire_station|police"](around:500,${latitude},${longitude});
+                  node["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
+                  way["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
+                  relation["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
                 );
                 out center;
             `;
@@ -271,19 +271,34 @@ export const IncidentData = () => {
             );
             const nearbyStructures = response.data.elements;
 
-            // Map the Overpass response to a list of nearby places (sensitive structures)
+            // Map the Overpass response to a list of nearby places (sensitive structures) with French translations
             const sensitiveStructures = nearbyStructures.map((structure) => {
                 if (structure.tags.amenity === "school") {
-                    return "ecole";
+                    return "École";
                 } else if (
                     structure.tags.amenity === "clinic" ||
                     structure.tags.amenity === "hospital"
                 ) {
-                    return "Clinique";
+                    return "Clinique ou Hôpital";
                 } else if (structure.tags.amenity === "fire_station") {
                     return "Caserne des pompiers";
                 } else if (structure.tags.amenity === "police") {
-                    return "Commissariat";
+                    return "Commissariat de police";
+                } else if (structure.tags.amenity === "library") {
+                    return "Bibliothèque";
+                } else if (structure.tags.amenity === "theatre") {
+                    return "Théâtre";
+                } else if (structure.tags.amenity === "cinema") {
+                    return "Cinéma";
+                } else if (structure.tags.amenity === "place_of_worship") {
+                    return "Lieu de culte";
+                } else if (structure.tags.amenity === "marketplace") {
+                    return "Marché";
+                } else if (
+                    structure.tags.amenity === "sports_centre" ||
+                    structure.tags.amenity === "stadium"
+                ) {
+                    return "Centre sportif ou Stade";
                 } else {
                     return structure.tags.amenity;
                 }
