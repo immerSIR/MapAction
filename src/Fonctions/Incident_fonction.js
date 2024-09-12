@@ -98,6 +98,7 @@ export const IncidentData = () => {
     // console.log(videoUrl);
     const latitude = incident?.lattitude || 0;
     const longitude = incident?.longitude || 0;
+    const zone = incident?.zone || "";
     const description = incident ? incident.description : "";
     const position = [latitude, longitude];
     const dataTostring = incident ? incident.created_at : "";
@@ -361,6 +362,7 @@ export const IncidentData = () => {
         piste_solution,
         impact_potentiel,
         type_incident,
+        zone,
         EditIncident,
         handleSelectChange,
         fetchPredictions,
