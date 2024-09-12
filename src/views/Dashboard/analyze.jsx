@@ -34,6 +34,7 @@ export default function Analyze() {
         date,
         heure,
         incident,
+        handleNavigateLLM,
         context,
         piste_solution,
         impact_potentiel,
@@ -220,13 +221,14 @@ export default function Analyze() {
                                                 : "Voir plus"}
                                         </Button>
                                     )}
-                                    <Button
-                                        onClick={handleNavigateLLM}
-                                        colorScheme="teal"
-                                    >
-                                        Discussion LLM
-                                    </Button>
                                 </Text>
+                                <br />
+                                <Button
+                                    onClick={handleNavigateLLM}
+                                    colorScheme="teal"
+                                >
+                                    MapChat
+                                </Button>
                             </Box>
                         </Box>
                     </Flex>
