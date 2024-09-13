@@ -6,6 +6,7 @@ import { ArrowForwardIcon, RepeatIcon } from "@chakra-ui/icons"; // Import the i
 import { config } from "config";
 import { marked } from "marked";
 import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
+import "./Chat.css";
 
 function Chat() {
     let { incidentId, userId } = useParams();

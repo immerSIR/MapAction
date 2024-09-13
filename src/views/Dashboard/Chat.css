@@ -14,11 +14,3 @@
     list-style-type: disc;
     padding-left: 20px;
 }
-
-/* Optional: Add styles for the reset button container */
-.container > .reset-button-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}

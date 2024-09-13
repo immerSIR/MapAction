@@ -24,6 +24,8 @@ import ReactDOMServer from "react-dom/server";
 import L from "leaflet"; // Import Leaflet
 import { useParams } from "react-router-dom"; // Import useParams to get incidentId
 import { marked } from "marked";
+import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
+import "./Chat.css";
 
 export default function Analyze() {
     const { incidentId } = useParams(); // Get incidentId from the URL parameters
@@ -114,9 +116,10 @@ export default function Analyze() {
         fetchData();
     }, [incident, incidentId]);
 
-    // Convert Markdown to HTML using `marked`
     const convertMarkdownToHtml = (markdownText) => {
-        return { __html: marked(markdownText) };
+        const rawHtml = marked(markdownText); // Convert markdown to raw HTML
+        const sanitizedHtml = DOMPurify.sanitize(rawHtml); // Sanitize the HTML
+        return { __html: sanitizedHtml };
     };
 
     const iconHTML = ReactDOMServer.renderToString(
