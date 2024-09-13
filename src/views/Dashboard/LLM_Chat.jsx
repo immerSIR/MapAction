@@ -166,6 +166,11 @@ function Chat() {
                                     dangerouslySetInnerHTML={convertMarkdownToHtml(
                                         msg.content
                                     )}
+                                    maxW="100%" /* Ensure markdown-generated content does not overflow */
+                                    wordBreak="break-word" /* Ensure long words break correctly */
+                                    whiteSpace="-moz-initial" /* Ensure text wraps as expected */
+                                    overflow="hidden" /* Prevent content from overflowing */
+                                    className="markdown-content" /* Add a class for custom CSS handling */
                                 />
                             </Box>
                         ))}
