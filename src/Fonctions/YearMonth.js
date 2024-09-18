@@ -9,19 +9,28 @@ export const DateFilterProvider = ({ children }) => {
         startDate: new Date(),
         endDate: new Date(),
         key: 'selection',
+        color: '#1890ff',
     }]);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
     const handleDateChange = (ranges) => {
-        const { selection } = ranges;
-        console.log(ranges); 
-        setCustomRange([selection]);
+        const selectedRange = ranges.selection || ranges.range1;
+        
+        if (selectedRange) {
+            const { startDate, endDate, key, color } = selectedRange;
+            setCustomRange([{ startDate, endDate, key: key || 'selection', color: color || '#1890ff' }]);
+        } else {
+            console.error('Invalid ranges object:', ranges);
+        }
     };
     
+    
+    
     const applyCustomRange = () => {
-        const start = customRange[0].startDate.toISOString().split('T')[0];
-        const end = customRange[0].endDate.toISOString().split('T')[0];
+        const start = customRange[0].startDate;
+        const end = customRange[0].endDate;
         handleFilterChange('custom_range', start, end);
+        setShowDatePicker(false);
     };
 
     const handleFilterChange = (type, startDate = null, endDate = null) => {
