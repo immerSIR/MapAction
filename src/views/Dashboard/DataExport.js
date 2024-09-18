@@ -36,16 +36,14 @@ const DataExport = () => {
     try {
       let response;
       if (period === 'day') {
-        response = await axios.get(`${config.url}/MapApi/IncidentOnWeek/`, {
-          params: {
-            day: selectedDate.toISOString().slice(0, 10),
-          },
+        response = await axios.get(`${config.url}/MapApi/incident-filter/?filter_type="today"`, {
+          
           headers: {
             Authorization: `Bearer ${sessionStorage.token}`,
           },
         });
-        console.log(response.data)
-        downloadFile(response.data, `incidents_${selectedDate.toISOString().slice(0, 10)}.csv`);
+        const csvData = convertToCSV(response.data);
+        downloadFile(csvData, `incidents_${selectedDate}.csv`);
       } else if (period === 'month') {
         const monthNumber = new Date(selectedMonth + '-01').getMonth() + 1;
         response = await axios.get(`${config.url}/MapApi/incidentByMonth/`, {

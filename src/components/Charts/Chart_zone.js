@@ -4,7 +4,6 @@ import Chart from 'react-apexcharts';
 import {config} from '../../config'
 import { useMonth } from 'Fonctions/Month';
 import { useDateFilter } from 'Fonctions/YearMonth';
-
 const ZoneChart = () => {
     const zoneToRegionMap = {
         'Faladiè-sema': 'Bamako',
@@ -79,6 +78,7 @@ const ZoneChart = () => {
                 xaxis: {
                     categories: labels
                 },
+               
             });
 
             setChartSeries([
@@ -99,7 +99,7 @@ const ZoneChart = () => {
 
     useEffect(() => {
         _getZone();
-    }, [selectedMonth, filterType, customRange]);
+    }, [filterType, customRange]);
 
     return (
         <div id="chart">
