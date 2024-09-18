@@ -269,9 +269,14 @@ export const useIncidentData = () => {
     const _getIncidents = async () => {
         let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
         
-        if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
-            url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+        if (filterType === 'custom_range' && customRange && customRange[0].startDate && customRange[0].endDate) {
+            const startDate = customRange[0].startDate.toISOString().split('T')[0];
+            const endDate = customRange[0].endDate.toISOString().split('T')[0];
+            url += `&custom_start=${startDate}&custom_end=${endDate}`;
+            console.log("custom_start:", startDate, "custom_end:", endDate);
+            console.log("URL finale:", url);
         }
+        
         
         try {
             if (!sessionStorage.token) {
@@ -286,13 +291,19 @@ export const useIncidentData = () => {
                 },
             });
             
+
             console.log("Données récupérées", res.data);
             setIncident(res.data);  
             setCountIncidents(res.data.length);
             
         } catch (error) {
-            console.error('Erreur lors de la récupération des incidents:', error.response ? error.response.data : error.message);
+            if (error.response) {
+                console.error('Erreur API:', error.response.status, error.response.data);
+            } else {
+                console.error('Erreur de requête:', error.message);
+            }
         }
+        
     };
     
     const _getActions = async () => {
