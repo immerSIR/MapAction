@@ -75,7 +75,7 @@ export default function GlobalViewCollaboration() {
     setNewCollaborationData({
       incident: incidentId,
       user: userId,
-      end_date: selectedDate
+      end_date: '31-12-2024'
     });
 
     getIncidentDetails();
@@ -100,24 +100,33 @@ export default function GlobalViewCollaboration() {
 
   const createCollaboration = async () => {
     try {
-      console.log('Envoi des données:', newCollaborationData);
-      const response = await axios.post(`${config.url}/MapApi/collaboration/`, newCollaborationData, {
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      fetchCollaborations();
-      setNewCollaborationData({
+      const currentDate = new Date();
+      const oneMonthLater = new Date(currentDate.setMonth(currentDate.getMonth() + 1)).toISOString().split('T')[0]; 
+  
+      const collaborationData = {
         incident: incidentId,
         user: userId,
-        end_date: selectedDate
+        end_date: oneMonthLater 
+      };
+  
+      console.log('Envoi des données:', collaborationData);
+  
+      const response = await axios.post(`${config.url}/MapApi/collaboration/`, collaborationData, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.token}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
       });
+  
+      fetchCollaborations();
+      Swal.fire("Succès", "La demande de collaboration a été envoyée !");
     } catch (error) {
-      console.error('Erreur lors de la création de la collaboration : ', error.response.data);
-      throw error;
+      console.error('Erreur lors de la création de la collaboration : ', error.response);
+      Swal.fire("Erreur", "Une erreur s'est produite lors de l'envoi de la demande de collaboration. Veuillez réessayer plus tard.");
     }
   };
+  
 
   const getIncidentDetails = async () => {
     try {
@@ -140,23 +149,6 @@ export default function GlobalViewCollaboration() {
         throw error;
     }
   };
-
-  const sendDate = async (e) => {
-    if(selectedDate == ''){
-      Swal.fire("Date",
-        "La date de clôture de la collaboration est obligation.")
-        return
-    }
-      try {
-          await createCollaboration();
-          Swal.fire("Succès","La demande de collaboration a été envoyée !");
-      } catch (error) {
-          console.error('Erreur lors de la création de la collaboration : ', error);
-          Swal.fire("Erreur",
-              "Une erreur s'est produite lors de l'envoi de la demande de collaboration. Veuillez réessayer plus tard.");
-      }
-  };
-
 
   // icon map color
   const iconHTMLBlue = ReactDOMServer.renderToString(
@@ -246,21 +238,7 @@ export default function GlobalViewCollaboration() {
             Faire une demande de collaboration sur cet incident
           </Text>
         </Flex>
-        <Box minH='100px' p='22px'>
-          <Text fontSize='xs' p="10px" color='textColor' fontWeight='bold'>
-            Déterminer la date de clôture de la collaboration.
-          </Text>
-          
-          <Input
-            type="date"
-            onChange={handleDateChange}
-            value={selectedDate}
-            mb='10px'
-            border='1px solid #ccc'
-            borderRadius='15px'
-            boxShadow='0 0 0 1px #2684FF'
-          />
-        </Box>
+        
         <VStack align="start" spacing={4} p='22px'>
           <Text>Quelles sont vos motivations pour la demande de collaboration ?</Text>
             {items.map((item) => (
@@ -274,7 +252,7 @@ export default function GlobalViewCollaboration() {
             ))}
           </VStack>
         <Box pl="25px">
-          <Button onClick={() => sendDate()} colorScheme='blue' w="200px">Envoyer</Button>
+          <Button onClick={() => createCollaboration()} colorScheme='blue' w="200px">Envoyer</Button>
         </Box>
       </Flex>
         </Card>

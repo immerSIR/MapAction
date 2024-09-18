@@ -88,7 +88,6 @@ export default function HeaderLinks(props) {
           'Content-Type': 'application/json',
         },
       });
-      console.log(response.data)
       setAllIncident(response.data);
     } catch (error) {
       console.error('Error searching incidents:', error);
