@@ -21,7 +21,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Select
+  Select,
+  FormControl
 } from "@chakra-ui/react";
 import { useMonth,  } from "Fonctions/Month";
 // Custom Icons
@@ -127,7 +128,6 @@ export default function HeaderLinks(props) {
           'Content-Type': 'application/json',
         },
       });
-      // console.log('Notifications response:', response.data);
       setNotifications(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -271,9 +271,11 @@ export default function HeaderLinks(props) {
           }),
         }}
       /> */}
-      <Select
+      <FormControl>
+        <Select
           value={filterType}
-          onChange={(e) => handleFilterChange(e.target.value)} 
+          onChange={(e) => handleFilterChange(e.target.value)}
+          color="#ccc"
         >
           <option value="today">Aujourd'hui</option>
           <option value="yesterday">Hier</option>
@@ -283,18 +285,20 @@ export default function HeaderLinks(props) {
           <option value="last_month">Le mois dernier</option>
           <option value="custom_range">Choix personnalisé</option>
         </Select>
-        {filterType === 'custom_range' && showDatePicker && customRange.length > 0 && (
+        
+        {filterType === 'custom_range' && showDatePicker && (
           <Flex ml={4} alignItems="center">
             <DateRange
               ranges={customRange}
               onChange={handleDateChange}
-              locale={fr}
+              locale={fr} // Assurez-vous que 'fr' est bien défini pour la locale
             />
             <Button ml={4} colorScheme="blue" onClick={applyCustomRange}>
               Appliquer
             </Button>
           </Flex>
         )}
+      </FormControl>
 
       
       <Flex me='16px' ms={{ base: "16px", xl: "20px" }}>
