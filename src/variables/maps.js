@@ -21,21 +21,6 @@ const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, sho
   useEffect(() => {
     _getIncidents();
   }, [selectedMonth, filterType, customRange]);
-  
-  const _getUserById = async (userId) => {
-    try {
-      const res = await axios.get(`${config.url}/MapApi/user/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.token}`,
-        },
-      });
-      console.log(res.data.data, "lesssssssssssssssssssssssssssssssssssssssss")
-      return res.data.data;
-    } catch (error) {
-      console.error(error.message);
-      return null;
-    }
-  };
 
   const _getIncidents = async () => {
     let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
@@ -69,7 +54,6 @@ const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, sho
               !isNaN(incident.longitude)
           )
           .map(async (incident) => {
-            const user = await _getUserById(incident.taken_by);
             return {
               id: incident.id,
               lat: incident.lattitude,
@@ -78,7 +62,6 @@ const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, sho
               desc: incident.description,
               etat: incident.etat,
               img: incident.photo,
-              orgPhoto: user?.avatar || "", 
               video: config.url + incident.video,
               audio: config.url + incident.audio,
             };

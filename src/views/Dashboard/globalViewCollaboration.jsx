@@ -20,7 +20,6 @@ import { Player } from "video-react";
 import { MapContainer, TileLayer, useMap, Popup, Marker, Circle } from 'react-leaflet'
 import { FaMapMarkerAlt, FaEye } from "react-icons/fa";
 import ReactDOMServer from 'react-dom/server';
-import Select from 'react-select'
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -34,6 +33,8 @@ export default function GlobalViewCollaboration() {
     { id: 3, label: "Proposer une collaboration technique sur l'incident", checked: false },
     { id: 4, label: "Autres", checked: false },
   ]);
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [otherText, setOtherText] = useState("");
 
   const handleCheck = (id) => {
     setItems((prevItems) =>
@@ -41,11 +42,23 @@ export default function GlobalViewCollaboration() {
         item.id === id ? { ...item, checked: !item.checked } : item
       )
     );
+
+  if (id === 4) {
+      setShowOtherInput(!showOtherInput); 
+    }
+  };
+
+  const handleOtherTextChange = (e) => {
+    setOtherText(e.target.value);
   };
 
   const handleSubmit = () => {
     const checkedItems = items.filter((item) => item.checked);
-    console.log('Checked Items:', checkedItems);
+    const dataToSubmit = {
+      checkedItems,
+      otherOption: otherText, 
+    };
+    console.log('Data to submit:', dataToSubmit);
   };
 
   const {
@@ -75,19 +88,11 @@ export default function GlobalViewCollaboration() {
     setNewCollaborationData({
       incident: incidentId,
       user: userId,
-      end_date: '31-12-2024'
+      end_date: ''
     });
 
     getIncidentDetails();
   }, [incidentId, userId, selectedDate]);
-
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
-    setNewCollaborationData({
-      ...newCollaborationData,
-      end_date: e.target.value
-    });
-  };
 
   const fetchCollaborations = async () => {
     try {
@@ -250,7 +255,14 @@ export default function GlobalViewCollaboration() {
                 {item.label}
               </Checkbox>
             ))}
-          </VStack>
+            {showOtherInput && (
+                <Input 
+                  placeholder="Veuillez spécifier" 
+                  value={otherText} 
+                  onChange={handleOtherTextChange} 
+                />
+            )}
+        </VStack>
         <Box pl="25px">
           <Button onClick={() => createCollaboration()} colorScheme='blue' w="200px">Envoyer</Button>
         </Box>
@@ -287,10 +299,20 @@ export default function GlobalViewCollaboration() {
                   <Text fontSize="sm">A pris en charge l'incident</Text>
                 </Box>
               </Flex>
-              <Box>
-                <Text fontSize="lg" fontWeight="bold">Contact Information</Text>
-                <Text>Email: {userDetails.email}</Text>
-                <Text>Téléphone: {userDetails.phone}</Text>
+              <Box p={4} borderWidth="1px" borderRadius="lg" boxShadow="md" bg={colorMode === 'dark' ? 'gray.700' : 'gray.100'}>
+                <Text fontSize="lg" fontWeight="bold" mb={2} color={colorMode === 'dark' ? 'white' : 'gray.700'}>
+                  Contact Information
+                </Text>
+                <Flex direction="column" gap={1}>
+                  <Flex>
+                    <Text fontWeight="semibold" color="blue.500" mr={2}>Email:</Text>
+                    <Text>{userDetails.email}</Text>
+                  </Flex>
+                  <Flex>
+                    <Text fontWeight="semibold" color="blue.500" mr={2}>Téléphone:</Text>
+                    <Text>{userDetails.phone}</Text>
+                  </Flex>
+                </Flex>
               </Box>
             </Box>
           </Flex>
