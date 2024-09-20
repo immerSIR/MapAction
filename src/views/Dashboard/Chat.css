@@ -14,3 +14,31 @@
     list-style-type: disc;
     padding-left: 20px;
 }
+
+.markdown-content {
+    /* Ensure all text inside markdown-content is black */
+    color: inherit;
+}
+
+/* Optional: Additional Markdown Styling */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+    color: inherit; /* Inherit text color for headings */
+}
+
+.markdown-content p,
+.markdown-content span,
+.markdown-content a,
+.markdown-content li {
+    color: inherit; /* Inherit text color for paragraphs, spans, links, list items */
+}
+
+/* Remove default link colors if necessary */
+.markdown-content a {
+    color: inherit;
+    text-decoration: underline;
+}
