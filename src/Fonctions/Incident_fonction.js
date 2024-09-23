@@ -251,16 +251,35 @@ export const IncidentData = () => {
         navigate.push(`/admin/llm_chat/${incident.id}/${userId}`);
     };
 
-    const fetchNearbySensitiveStructures = async (latitude, longitude) => {
+    const fetchNearbyStructuresAndNaturalResourcesMali = async (
+        latitude,
+        longitude
+    ) => {
         try {
-            // Define Overpass API query to fetch sensitive structures near the incident
+            // Define Overpass API query to fetch sensitive structures and natural resources near the incident in Mali
             const overpassUrl = "https://overpass-api.de/api/interpreter";
             const overpassQuery = `
                 [out:json];
                 (
+                  // Fetching sensitive structures
                   node["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
                   way["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
                   relation["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
+                  
+                  // Fetching natural resources relevant to Mali
+                  node["natural"~"desert|savanna|water|wetland|rock|tree"](around:100,${latitude},${longitude});
+                  way["natural"~"desert|savanna|water|wetland|rock|tree"](around:100,${latitude},${longitude});
+                  relation["natural"~"desert|savanna|water|wetland|rock|tree"](around:100,${latitude},${longitude});
+                  
+                  // Leisure areas like parks and gardens
+                  node["leisure"~"park|garden|recreation_ground|park_space"](around:100,${latitude},${longitude});
+                  way["leisure"~"park|garden|recreation_ground|park_space"](around:100,${latitude},${longitude});
+                  relation["leisure"~"park|garden|recreation_ground|park_space"](around:100,${latitude},${longitude});
+                  
+                  // Waterways specific to Mali
+                  node["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:100,${latitude},${longitude});
+                  way["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:100,${latitude},${longitude});
+                  relation["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:100,${latitude},${longitude});
                 );
                 out center;
             `;
@@ -269,44 +288,114 @@ export const IncidentData = () => {
                 overpassUrl,
                 `data=${encodeURIComponent(overpassQuery)}`
             );
-            const nearbyStructures = response.data.elements;
+            const nearbyElements = response.data.elements;
 
-            // Map the Overpass response to a list of nearby places (sensitive structures) with French translations
-            const sensitiveStructures = nearbyStructures.map((structure) => {
-                if (structure.tags.amenity === "school") {
-                    return "École";
-                } else if (
-                    structure.tags.amenity === "clinic" ||
-                    structure.tags.amenity === "hospital"
-                ) {
-                    return "Clinique ou Hôpital";
-                } else if (structure.tags.amenity === "fire_station") {
-                    return "Caserne des pompiers";
-                } else if (structure.tags.amenity === "police") {
-                    return "Commissariat de police";
-                } else if (structure.tags.amenity === "library") {
-                    return "Bibliothèque";
-                } else if (structure.tags.amenity === "theatre") {
-                    return "Théâtre";
-                } else if (structure.tags.amenity === "cinema") {
-                    return "Cinéma";
-                } else if (structure.tags.amenity === "place_of_worship") {
-                    return "Lieu de culte";
-                } else if (structure.tags.amenity === "marketplace") {
-                    return "Marché";
-                } else if (
-                    structure.tags.amenity === "sports_centre" ||
-                    structure.tags.amenity === "stadium"
-                ) {
-                    return "Centre sportif ou Stade";
-                } else {
-                    return structure.tags.amenity;
+            // Map the Overpass response to a list of nearby places with French translations
+            const translatedElements = nearbyElements.map((element) => {
+                // Handle amenities (sensitive structures)
+                if (element.tags.amenity) {
+                    switch (element.tags.amenity) {
+                        case "school":
+                            return "École";
+                        case "clinic":
+                        case "hospital":
+                            return "Clinique ou Hôpital";
+                        case "fire_station":
+                            return "Caserne des pompiers";
+                        case "police":
+                            return "Commissariat de police";
+                        case "library":
+                            return "Bibliothèque";
+                        case "theatre":
+                            return "Théâtre";
+                        case "cinema":
+                            return "Cinéma";
+                        case "place_of_worship":
+                            if (element.tags.religion === "islam") {
+                                return "Mosquée";
+                            }
+                            return "Lieu de culte";
+                        case "marketplace":
+                            return "Marché";
+                        case "sports_centre":
+                        case "stadium":
+                            return "Centre sportif ou Stade";
+                        default:
+                            return element.tags.amenity;
+                    }
                 }
+
+                // Handle natural features
+                if (element.tags.natural) {
+                    switch (element.tags.natural) {
+                        case "desert":
+                            return "Désert";
+                        case "savanna":
+                            return "Savane";
+                        case "water":
+                            return "Eau";
+                        case "wetland":
+                            return "Zone humide";
+                        case "rock":
+                            return "Roche";
+                        case "tree":
+                            return "Arbre";
+                        default:
+                            return element.tags.natural;
+                    }
+                }
+
+                // Handle leisure features
+                if (element.tags.leisure) {
+                    switch (element.tags.leisure) {
+                        case "park":
+                            return "Parc";
+                        case "garden":
+                            return "Jardin";
+                        case "recreation_ground":
+                            return "Terrain de loisirs";
+                        case "park_space":
+                            return "Espace de parc";
+                        default:
+                            return element.tags.leisure;
+                    }
+                }
+
+                // Handle waterways
+                if (element.tags.waterway) {
+                    switch (element.tags.waterway) {
+                        case "river":
+                            return "Rivière";
+                        case "stream":
+                            return "Ruisseau";
+                        case "canal":
+                            return "Canal";
+                        case "drain":
+                            return "Drain";
+                        case "ditch":
+                            return "Fossé";
+                        case "waterfall":
+                            return "Cascade";
+                        case "rapids":
+                            return "Rapides";
+                        default:
+                            return element.tags.waterway;
+                    }
+                }
+
+                // If none of the above, return the original tag value
+                return (
+                    element.tags.amenity ||
+                    element.tags.natural ||
+                    element.tags.leisure ||
+                    element.tags.waterway
+                );
             });
-            return sensitiveStructures;
+
+            return translatedElements;
         } catch (error) {
             console.error(
-                "Error fetching sensitive structures from Overpass API:",
+                "Error fetching structures and natural resources from Overpass API:",
                 error
             );
             return [];
