@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+// Analyze.jsx
+
+import React, { useState, useEffect, useRef } from "react";
 import {
     Box,
     Button,
@@ -26,6 +28,7 @@ import { useParams } from "react-router-dom"; // Import useParams to get inciden
 import { marked } from "marked";
 import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
 import "./Chat.css";
+import QuotesCarousel from "./QuotesCarousel"; // Import QuotesCarousel from the same directory
 
 export default function Analyze() {
     const { incidentId } = useParams(); // Get incidentId from the URL parameters
@@ -50,12 +53,14 @@ export default function Analyze() {
 
     const [expanded, setExpanded] = useState(false);
     const [prediction, setPrediction] = useState(null); // State to store the prediction
+    const [isLoadingContext, setIsLoadingContext] = useState(true); // State to track context loading
+    const predictionSentRef = useRef(false); // Ref to track if prediction has been sent
 
     const toggleExpanded = () => {
         setExpanded(!expanded);
     };
 
-    // Fetch predictions by incident ID
+    // Function to fetch predictions by incident ID
     const fetchPredictionsByIncidentId = async (incidentId) => {
         try {
             const response = await fetch(
@@ -79,6 +84,7 @@ export default function Analyze() {
         }
     };
 
+    // Initial data fetching when component mounts or when incident or incidentId changes
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -90,38 +96,96 @@ export default function Analyze() {
                 console.log("Existing prediction:", existingPrediction); // Log prediction
 
                 // Check if prediction exists
-                if (
-                    existingPrediction &&
-                    Object.keys(existingPrediction).length > 0
-                ) {
+                const predictionExists =
+                    (Array.isArray(existingPrediction) &&
+                        existingPrediction.length > 0) ||
+                    (typeof existingPrediction === "object" &&
+                        existingPrediction !== null &&
+                        Object.keys(existingPrediction).length > 0);
+
+                if (predictionExists) {
                     console.log(
                         "Prediction already exists, skipping prediction."
                     );
-                    setPrediction(existingPrediction); // Set the prediction if it exists
+                    // If existingPrediction is an array, take the first element
+                    const validPrediction = Array.isArray(existingPrediction)
+                        ? existingPrediction[0]
+                        : existingPrediction;
+                    setPrediction(validPrediction); // Set the prediction if it exists
+                    setIsLoadingContext(false); // Context is available
                 } else {
                     if (incident.photo) {
-                        console.log("Sending prediction as none exists.");
-                        await sendPrediction(); // Send prediction if no existing one is found
+                        if (!predictionSentRef.current) {
+                            console.log("Sending prediction as none exists.");
+                            await sendPrediction(); // Send prediction if no existing one is found
+                            predictionSentRef.current = true; // Mark that prediction has been sent
+                        }
+                        // After sending prediction, wait for it to become available
+                        setIsLoadingContext(true);
                     } else {
                         console.log(
                             "Incident photo is not available yet, skipping prediction."
                         );
+                        setIsLoadingContext(false); // No context will be available
                     }
                 }
             } catch (error) {
                 console.error("Error fetching or sending prediction:", error);
+                setIsLoadingContext(false); // Stop loading on error
             }
         };
 
         fetchData();
-    }, [incident, incidentId]);
+    }, [incident, incidentId]); // Removed sendPrediction from dependencies
 
+    // Polling to check for context availability if it's loading and prediction is not yet available
+    useEffect(() => {
+        if (isLoadingContext && !prediction) {
+            const interval = setInterval(async () => {
+                try {
+                    const updatedPrediction = await fetchPredictionsByIncidentId(
+                        incidentId
+                    );
+
+                    console.log(
+                        "Polling fetch: Existing prediction:",
+                        updatedPrediction
+                    );
+
+                    const predictionExists =
+                        (Array.isArray(updatedPrediction) &&
+                            updatedPrediction.length > 0) ||
+                        (typeof updatedPrediction === "object" &&
+                            updatedPrediction !== null &&
+                            Object.keys(updatedPrediction).length > 0);
+
+                    if (predictionExists) {
+                        console.log("Prediction now exists.");
+                        // If updatedPrediction is an array, take the first element
+                        const validPrediction = Array.isArray(updatedPrediction)
+                            ? updatedPrediction[0]
+                            : updatedPrediction;
+                        setPrediction(validPrediction);
+                        setIsLoadingContext(false);
+                        clearInterval(interval); // Stop polling once context is available
+                    }
+                } catch (error) {
+                    console.error("Error fetching updated prediction:", error);
+                }
+            }, 5000); // Poll every 5 seconds
+
+            return () => clearInterval(interval); // Cleanup on unmount or dependencies change
+        }
+    }, [isLoadingContext, prediction, incidentId]);
+
+    // Function to convert Markdown to sanitized HTML
     const convertMarkdownToHtml = (markdownText) => {
         const rawHtml = marked(markdownText); // Convert markdown to raw HTML
         const sanitizedHtml = DOMPurify.sanitize(rawHtml); // Sanitize the HTML
         return { __html: sanitizedHtml };
     };
 
+    // Create a custom marker icon based on the incident state
     const iconHTML = ReactDOMServer.renderToString(
         <FaMapMarkerAlt
             color={
@@ -137,6 +201,7 @@ export default function Analyze() {
 
     const customMarkerIcon = new L.DivIcon({ html: iconHTML });
 
+    // Component to recenter the map when latitude or longitude changes
     function RecenterMap({ lat, lon }) {
         const map = useMap();
         useEffect(() => {
@@ -179,50 +244,58 @@ export default function Analyze() {
                                     {type_incident}
                                 </Text>
                                 <Text mt="2">
-                                    {expanded ? (
-                                        <>
-                                            <Box
-                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                    context ||
-                                                        (prediction &&
-                                                            prediction.context) ||
-                                                        "Contexte non disponible"
-                                                )}
-                                            />
-                                            <Box
-                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                    impact_potentiel ||
-                                                        (prediction &&
-                                                            prediction.impact_potentiel) ||
-                                                        "Non disponible"
-                                                )}
-                                            />
-                                            <Box
-                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                    piste_solution ||
-                                                        (prediction &&
-                                                            prediction.piste_solution) ||
-                                                        "Non disponible"
-                                                )}
-                                            />
-                                        </>
+                                    {isLoadingContext || !prediction ? (
+                                        // Display QuotesCarousel when context is loading or not available
+                                        <QuotesCarousel />
                                     ) : (
-                                        `${
-                                            context
-                                                ? context.substring(0, 300)
-                                                : "Aucun contexte disponible"
-                                        }...`
-                                    )}
-                                    {context && context.length > 300 && (
-                                        <Button
-                                            onClick={toggleExpanded}
-                                            variant="link"
-                                            mt="2"
-                                        >
-                                            {expanded
-                                                ? "Voir moins"
-                                                : "Voir plus"}
-                                        </Button>
+                                        // Display context when available
+                                        <>
+                                            {expanded ? (
+                                                <>
+                                                    <Box
+                                                        dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                            prediction.context ||
+                                                                "Contexte non disponible"
+                                                        )}
+                                                    />
+                                                    <Box
+                                                        dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                            prediction.impact_potentiel ||
+                                                                "Non disponible"
+                                                        )}
+                                                    />
+                                                    <Box
+                                                        dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                            prediction.piste_solution ||
+                                                                "Non disponible"
+                                                        )}
+                                                    />
+                                                </>
+                                            ) : (
+                                                // Show a snippet of the context with an option to expand
+                                                `${
+                                                    prediction.context
+                                                        ? prediction.context.substring(
+                                                              0,
+                                                              300
+                                                          )
+                                                        : "Aucun contexte disponible"
+                                                }...`
+                                            )}
+                                            {prediction.context &&
+                                                prediction.context.length >
+                                                    300 && (
+                                                    <Button
+                                                        onClick={toggleExpanded}
+                                                        variant="link"
+                                                        mt="2"
+                                                    >
+                                                        {expanded
+                                                            ? "Voir moins"
+                                                            : "Voir plus"}
+                                                    </Button>
+                                                )}
+                                        </>
                                     )}
                                 </Text>
                                 <br />
