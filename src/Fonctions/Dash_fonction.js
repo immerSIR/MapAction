@@ -8,9 +8,12 @@ import L from "leaflet";
 import ReactDOMServer from "react-dom/server";
 import ApexCharts from "react-apexcharts";
 import { useMonth } from "./Month";
+import { useDateFilter } from "./YearMonth";
+
 
 export const useIncidentData = () => {
-    const { selectedMonth } = useMonth();
+    const {selectedMonth} = useMonth();
+    const { filterType, customRange } = useDateFilter();
     const monthsOptions = [
         { value: 1, label: "Janvier" },
         { value: 2, label: "Février" },
@@ -71,25 +74,31 @@ export const useIncidentData = () => {
             await _getActions();
         };
         fetchData();
-    }, [selectedMonth]);
+    }, [selectedMonth, filterType, customRange]);
 
     const _getAnonymous = async () => {
-        var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
+        let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+        
+        if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+            url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+        }
+        
         try {
-            let res = await axios.get(url, {
+            if (!sessionStorage.token) {
+                console.error("Token non trouvé");
+                return;
+            }
+    
+            const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
                     "Content-Type": "application/json",
                 },
             });
-            let totalIncidents = res.data.data.length;
-            let anonymousIncidents = res.data.data.filter(
-                (incident) => incident.user_id === null
-            ).length;
-            let percentageAnonymous =
-                totalIncidents !== 0
-                    ? ((anonymousIncidents / totalIncidents) * 100).toFixed(2)
-                    : 0;
+
+            let totalIncidents = res.data.length;
+            let anonymousIncidents = res.data.filter(incident => incident.user_id === null).length;
+            let percentageAnonymous = totalIncidents !== 0 ? ((anonymousIncidents / totalIncidents) * 100).toFixed(2) : 0;
             setAnonymousPercentage(percentageAnonymous);
             return percentageAnonymous;
         } catch (error) {
@@ -102,22 +111,27 @@ export const useIncidentData = () => {
     };
 
     const _getRegistered = async () => {
-        var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
+        let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+        
+        if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+            url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+        }
+        
         try {
-            let res = await axios.get(url, {
+            if (!sessionStorage.token) {
+                console.error("Token non trouvé");
+                return;
+            }
+    
+            const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
                     "Content-Type": "application/json",
                 },
             });
-            let totalIncidents = res.data.data.length;
-            let registeredIncidents = res.data.data.filter(
-                (incident) => incident.user_id !== null
-            ).length;
-            let percentageRegistered =
-                totalIncidents !== 0
-                    ? ((registeredIncidents / totalIncidents) * 100).toFixed(2)
-                    : 0;
+            let totalIncidents = res.data.length;
+            let registeredIncidents = res.data.filter(incident => incident.user_id !== null).length;
+            let percentageRegistered = totalIncidents !== 0 ? ((registeredIncidents / totalIncidents) * 100).toFixed(2) : 0;
             setRegisteredPercentage(percentageRegistered);
             return percentageRegistered;
         } catch (error) {
@@ -152,22 +166,28 @@ export const useIncidentData = () => {
     };
 
     const _getPercentage = async () => {
-        var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
+        let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+        
+        if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+            url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+        }
+        
         try {
-            let res = await axios.get(url, {
+            if (!sessionStorage.token) {
+                console.error("Token non trouvé");
+                return;
+            }
+    
+            const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
                     "Content-Type": "application/json",
                 },
             });
-            let totalIncidents = res.data.data.length;
-            let taken = res.data.data.filter(
-                (incident) => incident.etat === "taken_into_account"
-            ).length;
-            let percentageTaken =
-                totalIncidents !== 0
-                    ? ((taken / totalIncidents) * 100).toFixed(2)
-                    : 0;
+
+            let totalIncidents = res.data.length;
+            let taken = res.data.filter(incident => incident.etat === "taken_into_account").length;
+            let percentageTaken = totalIncidents !== 0 ? ((taken / totalIncidents) * 100).toFixed(2) : 0;
             setTaken(percentageTaken);
             // console.log("Incidents pris en comptes", percentageTaken);
         } catch (error) {
@@ -310,24 +330,49 @@ export const useIncidentData = () => {
             console.log(error.message);
         }
     };
-    const userId = sessionStorage.getItem("user_id");
-    // console.log('useeeeer', userId)
+
+    const userId = sessionStorage.getItem('user_id');
 
     const _getIncidents = async () => {
-        var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
+        let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+        
+        if (filterType === 'custom_range' && customRange && customRange[0].startDate && customRange[0].endDate) {
+            const startDate = customRange[0].startDate.toISOString().split('T')[0];
+            const endDate = customRange[0].endDate.toISOString().split('T')[0];
+            url += `&custom_start=${startDate}&custom_end=${endDate}`;
+            console.log("custom_start:", startDate, "custom_end:", endDate);
+            console.log("URL finale:", url);
+        }
+        
+        
         try {
-            let res = await axios.get(url, {
+            if (!sessionStorage.token) {
+                console.error("Token non trouvé");
+                return;
+            }
+    
+            const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
                     "Content-Type": "application/json",
                 },
             });
-            setIncident(res.data.data);
-            setCountIncidents(res.data.data.length);
+            
+
+            console.log("Données récupérées", res.data);
+            setIncident(res.data);  
+            setCountIncidents(res.data.length);
+            
         } catch (error) {
-            console.log(error.message);
+            if (error.response) {
+                console.error('Erreur API:', error.response.status, error.response.data);
+            } else {
+                console.error('Erreur de requête:', error.message);
+            }
         }
+        
     };
+    
     const _getActions = async () => {
         const currentMonth = selectedMonth;
         const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
@@ -368,24 +413,26 @@ export const useIncidentData = () => {
     };
 
     const _getIncidentsCollabor = async () => {
-        var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
+        let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+        
+        if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+            url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+        }
+        
         try {
-            let res = await axios.get(url, {
+            if (!sessionStorage.token) {
+                console.error("Token non trouvé");
+                return;
+            }
+    
+            const res = await axios.get(url, {
                 headers: {
-                    Authorization: `Bearer${sessionStorage.token}`,
-                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${sessionStorage.token}`,
+                    'Content-Type': 'application/json',
                 },
             });
-            setCountTake(
-                res.data.data.filter(
-                    (incident) => incident.etat === "taken_into_account"
-                ).length
-            );
-            setData(
-                res.data.data.filter(
-                    (incident) => incident.etat === "taken_into_account"
-                )
-            );
+            setCountTake(res.data.filter(incident => incident.etat === "taken_into_account").length);
+            setData(res.data.filter(incident => incident.etat === "taken_into_account"));
         } catch (error) {
             console.log(error.message);
         }
@@ -407,17 +454,25 @@ export const useIncidentData = () => {
     };
 
     const _getIncidentsResolved = async () => {
-        var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
+        let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
+        
+        if (filterType === 'custom_range' && customRange[0].startDate && customRange[0].endDate) {
+            url += `&custom_start=${customRange[0].startDate.toISOString().split('T')[0]}&custom_end=${customRange[0].endDate.toISOString().split('T')[0]}`;
+        }
+        
         try {
-            let res = await axios.get(url, {
+            if (!sessionStorage.token) {
+                console.error("Token non trouvé");
+                return;
+            }
+    
+            const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
                     "Content-Type": "application/json",
                 },
             });
-            let resolved = res.data.data.filter(
-                (incident) => incident.etat === "resolved"
-            ).length;
+            let resolved = res.data.filter(incident => incident.etat === "resolved").length;
             setResolus(resolved);
         } catch (error) {
             console.log(error.message);
@@ -464,18 +519,15 @@ export const useIncidentData = () => {
     };
 
     const onShowIncident = (id) => {
-        const item = getIncidentById(id);
-        // console.log("Données d'incident dans onShowIncident :", item);
+        const item = getIncidentById(id)
         navigate.push(`/admin/incident_view/${id}`, { incident: item }, () => {
-            //   console.log('State updated:', location.state);
-            setIncident(item);
+          setIncident(item);
         });
         if (item) {
             console.log("element à afficher ", item);
             setIncident(item);
         }
-    };
-
+    }
     const onShowIncidentCollaboration = (id) => {
         const item = getIncidentById(id);
         console.log("Données d'incident dans onShowIncident :", item);
@@ -552,17 +604,13 @@ export const useIncidentData = () => {
         });
     };
     const IndicateurChart = () => {
-        const [chartData, setChartData] = useState({
-            series: [0, 0],
+      const [chartData, setChartData] = useState({
+        series: [0, 0],
             options: {
                 chart: {
                     type: "donut",
                 },
                 labels: ["Anonymes", "Inscrits"],
-                // fill: {
-                //   colors: ['#a313eb', '#f07e0c']
-                // },
-                // colors: ['#a313eb', '#f07e0c'],
                 responsive: [
                     {
                         breakpoint: 480,
@@ -580,7 +628,6 @@ export const useIncidentData = () => {
         });
         useEffect(() => {
             let isMounted = true;
-
             if (isMounted) {
                 setChartData((prevData) => ({
                     ...prevData,
@@ -590,7 +637,6 @@ export const useIncidentData = () => {
                     ],
                 }));
             }
-
             return () => {
                 isMounted = false;
             };
@@ -608,9 +654,9 @@ export const useIncidentData = () => {
         );
     };
 
+
     return {
         selectedMonth,
-        // setSelectedMonth,
         anonymousPercentage,
         registeredPercentage,
         percentageVs,
@@ -633,7 +679,6 @@ export const useIncidentData = () => {
         setShowOnlyResolved,
         showOnlyDeclared,
         setShowOnlyDeclared,
-        // handleMonthChange,
         _getAnonymous,
         _getRegistered,
         _getIndicateur,

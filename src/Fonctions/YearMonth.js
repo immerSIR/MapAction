@@ -1,42 +1,104 @@
 import React, { createContext, useContext, useState } from 'react';
+import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
 
-const MonthYearContext = createContext();
+const DateFilterContext = createContext();
 
-export const MonthYearProvider = ({ children }) => {
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+export const DateFilterProvider = ({ children }) => {
+    const [filterType, setFilterType] = useState('today');
+    const [customRange, setCustomRange] = useState([{
+        startDate: new Date(),
+        endDate: new Date(),
+        key: 'selection',
+        color: '#1890ff',
+    }]);
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
-    const handleYearChange = (selectedOption) => {
-        const yearValue = selectedOption.value;
-        console.log("Selected year", yearValue);
-        setSelectedYear(yearValue);
-    };
-
-    const handleMonthChange = (selectedOption) => {
-        const monthValue = selectedOption.value;
-        console.log("Selected month", monthValue);
-        if (monthValue >= 1 && monthValue <= 12) {
-            setSelectedMonth(monthValue);
+    const handleDateChange = (ranges) => {
+        const selectedRange = ranges.selection || ranges.range1;
+        
+        if (selectedRange) {
+            const { startDate, endDate, key, color } = selectedRange;
+            setCustomRange([{ startDate, endDate, key: key || 'selection', color: color || '#1890ff' }]);
         } else {
-            console.error("Invalid month value:", monthValue);
+            console.error('Invalid ranges object:', ranges);
         }
     };
+    
+    
+    
+    const applyCustomRange = () => {
+        const start = customRange[0].startDate;
+        const end = customRange[0].endDate;
+        handleFilterChange('custom_range', start, end);
+        setShowDatePicker(false);
+    };
 
-    const yearsOptions = Array.from(
-        { length: 10 },
-        (v, i) => {
-            const year = new Date().getFullYear() - i;
-            return { value: year, label: year.toString() };
+    const handleFilterChange = (type, startDate = null, endDate = null) => {
+        setFilterType(type);
+        if (type === 'custom_range') {
+            setShowDatePicker(true); 
+        } else {
+            setShowDatePicker(false);
         }
-    );
+
+        switch (type) {
+            case 'today':
+                setCustomRange([{
+                    startDate: new Date(),
+                    endDate: new Date(),
+                }]);
+                break;
+            case 'yesterday':
+                const yesterday = subDays(new Date(), 1);
+                setCustomRange([{
+                    startDate: yesterday,
+                    endDate: yesterday,
+                }]);
+                break;
+            case 'last_7_days':
+                setCustomRange([{
+                    startDate: subDays(new Date(), 7),
+                    endDate: new Date(),
+                }]);
+                break;
+            case 'last_30_days':
+                setCustomRange([{
+                    startDate: subDays(new Date(), 30),
+                    endDate: new Date(),
+                }]);
+                break;
+            case 'this_month':
+                setCustomRange([{
+                    startDate: startOfMonth(new Date()),
+                    endDate: new Date(),
+                }]);
+                break;
+            case 'last_month':
+                const lastMonthStart = startOfMonth(subDays(new Date(), 30));
+                const lastMonthEnd = endOfMonth(subDays(new Date(), 30));
+                setCustomRange([{
+                    startDate: lastMonthStart,
+                    endDate: lastMonthEnd,
+                }]);
+                break;
+            case 'custom_range':
+                setCustomRange([{
+                    startDate: startDate || new Date(),
+                    endDate: endDate || new Date(),
+                }]);
+                break;
+            default:
+                console.error('Unknown filter type:', type);
+        }
+    };
 
     return (
-        <MonthYearContext.Provider value={{ selectedMonth, handleMonthChange, selectedYear, handleYearChange, yearsOptions }}>
+        <DateFilterContext.Provider value={{ filterType, customRange, handleFilterChange, handleDateChange, applyCustomRange, showDatePicker }}>
             {children}
-        </MonthYearContext.Provider>
+        </DateFilterContext.Provider>
     );
 };
 
-export const useMonthYear = () => {
-    return useContext(MonthYearContext);
+export const useDateFilter = () => {
+    return useContext(DateFilterContext);
 };

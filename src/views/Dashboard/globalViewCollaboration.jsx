@@ -64,26 +64,35 @@ export default function GlobalViewCollaboration() {
         const checkedItems = items.filter((item) => item.checked);
         console.log("Checked Items:", checkedItems);
     };
-
-    const {
-        latitude,
-        longitude,
-        imgUrl,
-        position,
-        date,
-        heure,
-        incident,
-    } = IncidentData();
-    const [collaborations, setCollaborations] = useState([]);
-    const userId = sessionStorage.getItem("user_id");
-    const { incidentId } = useParams();
-    const { colorMode } = useColorMode();
-    const textColor = useColorModeValue("black.700", "white");
-    const [selectedDate, setSelectedDate] = useState("");
-    const [newCollaborationData, setNewCollaborationData] = useState({
-        incident: incidentId,
-        user: userId,
-        end_date: "",
+  
+  const {
+    latitude,
+    longitude,
+    imgUrl,
+    position,
+    date,
+    heure,
+    incident,
+  } = IncidentData();
+  const [collaborations, setCollaborations] = useState([]);
+  const userId = sessionStorage.getItem('user_id');
+  const { incidentId } = useParams(); 
+  const { colorMode } = useColorMode();
+  const textColor = useColorModeValue("black.700", "white");
+  const [selectedDate, setSelectedDate] = useState('');
+  const [newCollaborationData, setNewCollaborationData] = useState({
+    incident: incidentId,
+    user: userId,
+    end_date: ''
+  });
+  const [userDetails, setUserDetails] = useState({});
+  const avatar = config.url + userDetails.avatar
+  console.log('avatar', avatar)
+  useEffect(() => {
+    setNewCollaborationData({
+      incident: incidentId,
+      user: userId,
+      end_date: '31-12-2024'
     });
     const [userDetails, setUserDetails] = useState({});
     const avatar = config.url + userDetails.avatar;
@@ -120,36 +129,34 @@ export default function GlobalViewCollaboration() {
             );
         }
     };
-
-    const createCollaboration = async () => {
-        try {
-            console.log("Envoi des données:", newCollaborationData);
-            const response = await axios.post(
-                `${config.url}/MapApi/collaboration/`,
-                newCollaborationData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.getItem(
-                            "token"
-                        )}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            fetchCollaborations();
-            setNewCollaborationData({
-                incident: incidentId,
-                user: userId,
-                end_date: selectedDate,
-            });
-        } catch (error) {
-            console.error(
-                "Erreur lors de la création de la collaboration : ",
-                error.response.data
-            );
-            throw error;
-        }
-    };
+  const createCollaboration = async () => {
+    try {
+      const currentDate = new Date();
+      const oneMonthLater = new Date(currentDate.setMonth(currentDate.getMonth() + 1)).toISOString().split('T')[0]; 
+  
+      const collaborationData = {
+        incident: incidentId,
+        user: userId,
+        end_date: oneMonthLater 
+      };
+  
+      console.log('Envoi des données:', collaborationData);
+  
+      const response = await axios.post(`${config.url}/MapApi/collaboration/`, collaborationData, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.token}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
+  
+      fetchCollaborations();
+      Swal.fire("Succès", "La demande de collaboration a été envoyée !");
+    } catch (error) {
+      console.error('Erreur lors de la création de la collaboration : ', error.response);
+      Swal.fire("Erreur", "Une erreur s'est produite lors de l'envoi de la demande de collaboration. Veuillez réessayer plus tard.");
+    }
+  };
 
     const getIncidentDetails = async () => {
         try {
@@ -157,44 +164,20 @@ export default function GlobalViewCollaboration() {
             const token = sessionStorage.getItem("token");
             console.log("Requesting URL:", url);
             console.log("Using token:", token);
-
             const response = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
+        setUserDetails(response.data.user);
+        console.log("Incident details", response.data);
+    } catch (error) {
+        console.error('Error fetching incident details:', error);
+        throw error;
+    }
+  };
 
-            setUserDetails(response.data.user);
-            console.log("Incident details", response.data);
-        } catch (error) {
-            console.error("Error fetching incident details:", error);
-            throw error;
-        }
-    };
-
-    const sendDate = async (e) => {
-        if (selectedDate === "") {
-            Swal.fire(
-                "Date",
-                "La date de clôture de la collaboration est obligatoire."
-            );
-            return;
-        }
-        try {
-            await createCollaboration();
-            Swal.fire("Succès", "La demande de collaboration a été envoyée !");
-        } catch (error) {
-            console.error(
-                "Erreur lors de la création de la collaboration : ",
-                error
-            );
-            Swal.fire(
-                "Erreur",
-                "Une erreur s'est produite lors de l'envoi de la demande de collaboration. Veuillez réessayer plus tard."
-            );
-        }
-    };
 
     // icon map color
     const iconHTMLBlue = ReactDOMServer.renderToString(
@@ -257,7 +240,7 @@ export default function GlobalViewCollaboration() {
                             Carte interactive
                         </Text>
                     </Flex>
-
+  
                     <Box minH="300px">
                         {latitude !== 0 && longitude !== 0 ? (
                             <Box height="600px" width="100%" p="0 8px 0 8px">
