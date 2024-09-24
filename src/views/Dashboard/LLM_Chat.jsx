@@ -1,10 +1,20 @@
-// src/views/Dashboard/Chat.js
+// src/views/Dashboard/LLM_Chat.jsx
 
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Box, Button, Flex, Input, Text, VStack } from "@chakra-ui/react";
-import { ArrowForwardIcon, RepeatIcon } from "@chakra-ui/icons";
+import {
+    Box,
+    Button,
+    Flex,
+    Input,
+    InputGroup,
+    InputRightElement,
+    Text,
+    VStack,
+    IconButton,
+} from "@chakra-ui/react";
+import { ArrowForwardIcon, RepeatIcon, CloseIcon } from "@chakra-ui/icons";
 import { config } from "config";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -17,6 +27,9 @@ function Chat() {
     const [chatMessages, setChatMessages] = useState([]);
     const [ws, setWs] = useState(null);
     const chatContainerRef = useRef(null);
+
+    // Track which message is currently being typed
+    const [currentTypingId, setCurrentTypingId] = useState(null);
 
     // Function to scroll chat container to bottom
     const scrollToBottom = () => {
@@ -127,8 +140,10 @@ function Chat() {
                     role: "assistant",
                     content: data.answer,
                     isTyping: true, // Indicates that this message should use the Typewriter
+                    isStopped: false, // Flag to indicate if typing has been stopped
                 };
                 setChatMessages((prev) => [...prev, newAssistantMessage]);
+                setCurrentTypingId(newAssistantMessage.id);
             }
         };
         websocket.onclose = closeWebSocket;
@@ -153,6 +168,24 @@ function Chat() {
                 msg.id === id ? { ...msg, isTyping: false } : msg
             )
         );
+        setCurrentTypingId(null);
+    };
+
+    // Function to stop typing
+    const stopTyping = () => {
+        if (currentTypingId) {
+            setChatMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg.id === currentTypingId
+                        ? { ...msg, isTyping: false, isStopped: true }
+                        : msg
+                )
+            );
+            setCurrentTypingId(null);
+
+            // Optionally, send a cancel message to the server if supported
+            // ws.send(JSON.stringify({ action: "cancel_response", message_id: currentTypingId }));
+        }
     };
 
     return (
@@ -182,14 +215,14 @@ function Chat() {
                                         ? "flex-end"
                                         : "flex-start"
                                 }
-                                // bg={
-                                //     msg.role === "user"
-                                //         ? "blue.100"
-                                //         : "gray.100"
-                                // }
                                 p={2}
                                 borderRadius="md"
                                 maxW="70%"
+                                bg={
+                                    msg.role === "user"
+                                        ? "blue.100"
+                                        : "white.100"
+                                }
                             >
                                 <Text fontWeight="bold">
                                     {msg.role === "user" ? "Vous:" : "MapChat:"}
@@ -197,11 +230,12 @@ function Chat() {
                                 {msg.role === "assistant" && msg.isTyping ? (
                                     <Typewriter
                                         text={msg.content}
-                                        speed={15} // Doubled speed from 30ms to 15ms
+                                        speed={15} // Adjust as needed
                                         onTypingDone={() =>
                                             handleTypingDone(msg.id)
                                         }
-                                        onTextUpdate={scrollToBottom} // New prop
+                                        onTextUpdate={scrollToBottom} // Existing prop
+                                        isStopped={msg.isStopped} // New prop
                                     />
                                 ) : msg.role === "assistant" ? (
                                     <Box
@@ -237,18 +271,35 @@ function Chat() {
                     </VStack>
                 </Box>
 
-                <Flex className="input-chat-container" mt={4}>
-                    <Input
-                        className="input-chat"
-                        type="text"
-                        placeholder="Chat message ..."
-                        onChange={(e) => setMessage(e.target.value)}
-                        value={message}
-                        mr={2}
-                        onKeyPress={(e) => {
-                            if (e.key === "Enter") sendMessage();
-                        }}
-                    />
+                <Flex
+                    className="input-chat-container"
+                    mt={4}
+                    alignItems="center"
+                >
+                    <InputGroup>
+                        <Input
+                            className="input-chat"
+                            type="text"
+                            placeholder="Chat message ..."
+                            onChange={(e) => setMessage(e.target.value)}
+                            value={message}
+                            onKeyPress={(e) => {
+                                if (e.key === "Enter") sendMessage();
+                            }}
+                        />
+                        {currentTypingId && (
+                            <InputRightElement width="3rem">
+                                <IconButton
+                                    aria-label="Stop typing"
+                                    icon={<CloseIcon />}
+                                    size="sm"
+                                    onClick={stopTyping}
+                                    variant="ghost"
+                                    colorScheme="red"
+                                />
+                            </InputRightElement>
+                        )}
+                    </InputGroup>
                     <Button
                         className="submit-chat"
                         onClick={sendMessage}
@@ -258,6 +309,8 @@ function Chat() {
                             message.trim() === ""
                         }
                         aria-label="Send Message"
+                        ml={2}
+                        colorScheme="teal"
                     >
                         <ArrowForwardIcon />
                     </Button>
@@ -268,8 +321,9 @@ function Chat() {
                         isDisabled={!ws || ws.readyState !== WebSocket.OPEN}
                         aria-label="Reset Chat History"
                         ml={2}
+                        leftIcon={<RepeatIcon />}
                     >
-                        <RepeatIcon />
+                        Reset
                     </Button>
                 </Flex>
             </Box>

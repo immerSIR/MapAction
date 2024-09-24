@@ -1,4 +1,7 @@
 /* Chat.css */
+
+/* Existing styles... */
+
 .chat-container .message-content h1,
 .chat-container .message-content h2,
 .chat-container .message-content h3 {
@@ -41,4 +44,9 @@
 .markdown-content a {
     color: inherit;
     text-decoration: underline;
+}
+
+/* Additional styling for the stop button */
+.chat-container .stop-typing-button {
+    margin-left: 8px;
 }
