@@ -1,0 +1,6 @@
+/* src/views/Dashboard/Typewriter.css */
+
+.typewriter {
+    display: inline-block;
+    white-space: pre-wrap;
+}

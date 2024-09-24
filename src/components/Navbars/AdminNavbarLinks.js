@@ -21,7 +21,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Select
+  Select,
+  FormControl
 } from "@chakra-ui/react";
 // Custom Icons
 import appLogoLight from "../../assets/img/logo.png"; 
@@ -47,16 +48,15 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useDateFilter } from "Fonctions/YearMonth";
 
-// CustomOption Component
+
 const CustomOption = (props) => {
-  return (
-    <components.Option {...props}>
-      <div>
-        {props.data.label}
-      </div>
-    </components.Option>
-  );
+    return (
+        <components.Option {...props}>
+            <div>{props.data.label}</div>
+        </components.Option>
+    );
 };
+
 export default function HeaderLinks(props) {
   const { filterType, customRange, handleFilterChange,handleDateChange, applyCustomRange, showDatePicker } = useDateFilter();
   const {
@@ -109,38 +109,44 @@ export default function HeaderLinks(props) {
     onOpen();
   };
 
-  const handleAccept = () => {
-    Swal.fire("Demande de collaboration acceptée");
-    setNotifications(notifications.filter(n => n !== selectedNotification));
-    onClose();
-  };
+   const handleAccept = () => {
+        Swal.fire("Demande de collaboration acceptée");
+        setNotifications(
+            notifications.filter((n) => n !== selectedNotification)
+        );
+        onClose();
+    };
+    const fetchNotifications = async () => {
+        try {
+            const response = await axios.get(
+                `${config.url}/MapApi/notifications/`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${sessionStorage.getItem(
+                            "token"
+                        )}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            setNotifications(response.data);
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
+    };
 
-  const fetchNotifications = async () => {
-    try {
-      const response = await axios.get(`${config.url}/MapApi/notifications/`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      setNotifications(response.data);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    }
-  };
+    const { logout } = useAuth();
+    const handleLogout = () => {
+        logout();
+        window.location.href = "/";
+    };
 
-  const { logout } = useAuth();
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-    searchIncidents(searchTerm)
-  }, []);
-
-  // Chakra Color Mode
+    useEffect(() => {
+        fetchNotifications();
+        searchIncidents(searchTerm);
+    }, []);
+  
+// Chakra Color Mode
   let navbarIcon =
     fixed && scrolled
       ? useColorModeValue("gray.700", "gray.200")
