@@ -37,6 +37,7 @@ export default function CitizenTable(){
   const [data, setData] = useState([]);
   const [dataReady, setDataReady] = useState(false);
   const [inProgress, setInProgress] = useState(false);
+  const [editUser, setEditUser] = useState(null);
   const [newUser, setNewUser] = useState({
     first_name: "",
     last_name: "",
@@ -74,6 +75,22 @@ export default function CitizenTable(){
 
   const handleFileChange = (e) => {
     setNewUser({ ...newUser, avatar: e.target.files[0] });
+  };
+
+  const handleEditUser = (user) => {
+    setEditUser(user);  
+    setNewUser({
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      user_type: user.user_type,
+      organisation: user.organisation,
+      avatar: null,  
+    });
+    onEditUserModalOpen();  
   };
   
   const addUser = async (e) => {
@@ -159,7 +176,7 @@ export default function CitizenTable(){
       password: "mapaction2020",
     };
 
-    const url = `${global.config.url}/MapApi/user/${newUser.id}/`;
+    const url = `${config.url}/MapApi/user/${newUser.id}/`;
 
     try {
       const response = await axios.put(url, new_data);
@@ -167,8 +184,6 @@ export default function CitizenTable(){
         prevData.map((user) => (user.id === newUser.id ? response.data : user))
       );
       setInProgress(false);
-      setNewUserModal(false);
-      setEditUserModal(false);
       setNewUser({
         id: "",
         first_name: "",
@@ -191,7 +206,7 @@ export default function CitizenTable(){
     <Modal isOpen={isNewUserModalOpen} onClose={onNewUserModalClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Nouveau Utilisateur</ModalHeader>
+        <ModalHeader>Nouvel Utilisateur</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <FormControl>
@@ -250,7 +265,41 @@ export default function CitizenTable(){
         <ModalHeader>Modifier Utilisateur</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* Contenu similaire au modal d'ajout d'utilisateur */}
+          <FormControl>
+            <FormLabel>Prenom</FormLabel>
+            <Input name="first_name" value={newUser.first_name} onChange={handleInputChange} />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Nom</FormLabel>
+            <Input name="last_name" value={newUser.last_name} onChange={handleInputChange} />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Email</FormLabel>
+            <Input name="email" value={newUser.email} onChange={handleInputChange} />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Téléphone</FormLabel>
+            <Input name="phone" value={newUser.phone} onChange={handleInputChange} />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Adresse</FormLabel>
+            <Input name="address" value={newUser.address} onChange={handleInputChange} />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Type Utilisateur</FormLabel>
+            <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
+              <option value="elu">Organisation</option>
+              <option value="citizen">Utilisateur de l'application mobile</option>
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel>Organisation</FormLabel>
+            <Input name="organisation" value={newUser.organisation} onChange={handleInputChange} />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Logo de l'organisation</FormLabel>
+            <Input type="file" name="avatar" accept="image/*" onChange={handleFileChange} />
+          </FormControl>
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" onClick={onUpdateUser} isLoading={inProgress}>
@@ -263,6 +312,7 @@ export default function CitizenTable(){
       </ModalContent>
     </Modal>
   );
+  
 
   const onDeleteUser = (item) => {
     Swal.fire({
@@ -295,7 +345,7 @@ export default function CitizenTable(){
         <Card overflowX={{ sm: "scroll", xl: "hidden" }} pb="0px">
             <CardHeader p="6px 0px 22px 0px">
             <Button onClick={onNewUserModalOpen}>
-                Nouveau utilisateur
+                Nouvel utilisateur
             </Button>
             </CardHeader>
             <CardBody>
@@ -318,7 +368,7 @@ export default function CitizenTable(){
                         <Td borderColor={borderColor} color="gray.400">{item.email}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
                         <Td borderColor={borderColor} >
-                            <Button size="sm" onClick={onEditUserModalOpen}>
+                            <Button size="sm" onClick={() => handleEditUser(item)}>
                                 <FaEdit />
                             </Button>
                             <Button size="sm"  ml="2" onClick={() => onDeleteUser(item)}>

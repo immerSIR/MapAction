@@ -367,7 +367,7 @@ export const useIncidentData = () => {
                 },
             })
             setCollaboration(res.data.length)
-            // console.log("Les collaboration", res.data.length)
+            console.log("Les collaboration", res.data)
         } catch (error) {
             console.log(error.message)
         }
