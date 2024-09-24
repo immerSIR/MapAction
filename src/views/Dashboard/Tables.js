@@ -3,32 +3,31 @@ import axios from "axios";
 import { config } from "../../config";
 import Swal from "sweetalert2";
 import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Select,
-  Spinner,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useDisclosure,
-  useColorModeValue,
+    Box,
+    Button,
+    Flex,
+    FormControl,
+    FormLabel,
+    Input,
+    Modal,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ModalOverlay,
+    Select,
+    Spinner,
+    Table,
+    Tbody,
+    Td,
+    Th,
+    Thead,
+    Tr,
+    useDisclosure,
+    useColorModeValue,
 } from "@chakra-ui/react";
-import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash } from "react-icons/fa";
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -94,7 +93,7 @@ export default function Tables(){
   const addUser = async (e) => {
     e.preventDefault();
     setInProgress(true);
-    console.log("User Type before submit: ", newUser.user_type);
+
     const formData = new FormData();
     formData.append("first_name", newUser.first_name);
     formData.append("last_name", newUser.last_name);
@@ -124,8 +123,8 @@ export default function Tables(){
         phone: "",
         address: "",
         user_type: "",
-        organisation: "",
         password: "",
+        organisation: "",
         avatar: null,
       });
       Swal.fire("Succès", "Utilisateur ajouté avec succès", "success");
@@ -157,9 +156,7 @@ export default function Tables(){
 
   const handleSelectChange = (e) => {
     setNewUser({ ...newUser, user_type: e.target.value });
-    console.log("User Type selected: ", e.target.value);
   };
-
   const onUpdateUser = async (e) => {
     e.preventDefault();
     setInProgress(true);
@@ -201,7 +198,6 @@ export default function Tables(){
       handleError(error);
     }
   };
-
   const renderNewUserModal = () => (
     <Modal isOpen={isNewUserModalOpen} onClose={onNewUserModalClose}>
       <ModalOverlay />
@@ -312,7 +308,6 @@ export default function Tables(){
       </ModalContent>
     </Modal>
   );
-
   const onDeleteUser = (item) => {
     Swal.fire({
       title: "Etes-vous sûr?",
@@ -390,5 +385,3 @@ export default function Tables(){
     </Flex>
   );
 }  
-
-
