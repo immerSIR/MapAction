@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import axios from "axios";
-import { config } from "../config";
-import { useParams, useHistory } from "react-router-dom";
-import Chart from "chart.js/auto";
-import L from "leaflet";
-import ReactDOMServer from "react-dom/server";
-import ApexCharts from "react-apexcharts";
+import axios from 'axios';
+import { config } from '../config';
+import {  useParams, useHistory } from 'react-router-dom';
+// import Chart from 'chart.js/auto';
+import L from 'leaflet';
+import ReactDOMServer from 'react-dom/server';
+import ApexCharts from 'react-apexcharts';
 import { useMonth } from "./Month";
 import { useDateFilter } from "./YearMonth";
 
@@ -15,22 +14,20 @@ export const useIncidentData = () => {
     const {selectedMonth} = useMonth();
     const { filterType, customRange } = useDateFilter();
     const monthsOptions = [
-        { value: 1, label: "Janvier" },
-        { value: 2, label: "Février" },
-        { value: 3, label: "Mars" },
-        { value: 4, label: "Avril" },
-        { value: 5, label: "Mai" },
-        { value: 6, label: "Juin" },
-        { value: 7, label: "Juillet" },
-        { value: 8, label: "Août" },
-        { value: 9, label: "Septembre" },
-        { value: 10, label: "Octobre" },
-        { value: 11, label: "Novembre" },
-        { value: 12, label: "Décembre" },
+        { value: 1, label: 'Janvier' },
+        { value: 2, label: 'Février' },
+        { value: 3, label: 'Mars' },
+        { value: 4, label: 'Avril' },
+        { value: 5, label: 'Mai' },
+        { value: 6, label: 'Juin' },
+        { value: 7, label: 'Juillet' },
+        { value: 8, label: 'Août' },
+        { value: 9, label: 'Septembre' },
+        { value: 10, label: 'Octobre' },
+        { value: 11, label: 'Novembre' },
+        { value: 12, label: 'Décembre' },
     ];
     const navigate = useHistory();
-    const location = useLocation();
-
     // const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
     const [anonymousPercentage, setAnonymousPercentage] = useState(0);
     const [registeredPercentage, setRegisteredPercentage] = useState(0);
@@ -38,7 +35,7 @@ export const useIncidentData = () => {
     const [percentageVsTaken, setPercentageVsTaken] = useState(0);
     const [percentageVsResolved, setPercentageVsResolved] = useState(0);
     const [taken, setTaken] = useState(0);
-    const [countTake, setCountTake] = useState(0);
+    const [countTake, setCountTake] = useState(0)
     const [collaboration, setCollaboration] = useState([]);
     const [incidents, setIncident] = useState([]);
     const [countActions, setCountActions] = useState(0);
@@ -48,13 +45,11 @@ export const useIncidentData = () => {
     const [categoryData, setCategoryData] = useState({});
     const [zoneData, setZoneData] = useState({});
     const chartRef = useRef(null);
-    const [showOnlyTakenIntoAccount, setShowOnlyTakenIntoAccount] = useState(
-        false
-    );
+    const [showOnlyTakenIntoAccount, setShowOnlyTakenIntoAccount] = useState(false);
     const [showOnlyResolved, setShowOnlyResolved] = useState(false);
     const [showOnlyDeclared, setShowOnlyDeclared] = useState(false);
-    const [preduct, setPreduct] = useState([]);
-    const [countCategory, setCountCategory] = useState("");
+    const [preduct, setPreduct] = useState([])
+    const [countCategory, setCountCategory] = useState('');
     const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -92,20 +87,16 @@ export const useIncidentData = () => {
             const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
             });
-
             let totalIncidents = res.data.length;
             let anonymousIncidents = res.data.filter(incident => incident.user_id === null).length;
             let percentageAnonymous = totalIncidents !== 0 ? ((anonymousIncidents / totalIncidents) * 100).toFixed(2) : 0;
             setAnonymousPercentage(percentageAnonymous);
             return percentageAnonymous;
         } catch (error) {
-            console.error(
-                "Erreur lors de la requête API:",
-                error.response ? error.response.data : error.message
-            );
+          console.error('Erreur lors de la requête API:', error.response ? error.response.data : error.message);
             setAnonymousPercentage(0);
         }
     };
@@ -126,7 +117,7 @@ export const useIncidentData = () => {
             const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
             });
             let totalIncidents = res.data.length;
@@ -141,7 +132,7 @@ export const useIncidentData = () => {
     };
 
     const _getIndicateur = async () => {
-        const userChartRef = chartRef.current.getContext("2d");
+        const userChartRef = chartRef.current.getContext('2d');
         if (window.myChart !== undefined) {
             window.myChart.destroy();
         }
@@ -149,16 +140,14 @@ export const useIncidentData = () => {
             const anonymousPercentage = await _getAnonymous();
             const registeredPercentage = await _getRegistered();
             window.myChart = new Chart(userChartRef, {
-                type: "doughnut",
+                type: 'doughnut',
                 data: {
-                    datasets: [
-                        {
-                            data: [anonymousPercentage, registeredPercentage],
-                            backgroundColor: ["purple", "orange"],
-                        },
-                    ],
+                    datasets: [{
+                        data: [anonymousPercentage, registeredPercentage],
+                        backgroundColor: ['purple', 'orange']
+                    }]
                 },
-                options: {},
+                options: {}
             });
         } catch (error) {
             console.log(error.message);
@@ -181,10 +170,9 @@ export const useIncidentData = () => {
             const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
             });
-
             let totalIncidents = res.data.length;
             let taken = res.data.filter(incident => incident.etat === "taken_into_account").length;
             let percentageTaken = totalIncidents !== 0 ? ((taken / totalIncidents) * 100).toFixed(2) : 0;
@@ -203,29 +191,13 @@ export const useIncidentData = () => {
             const urlPrevious = `${config.url}/MapApi/incidentByMonth/?month=${previousMonth}`;
 
             const [responseCurrent, responsePrevious] = await Promise.all([
-                axios.get(urlCurrent, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
-                axios.get(urlPrevious, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
+                axios.get(urlCurrent, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } }),
+                axios.get(urlPrevious, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } })
             ]);
 
             const currentCount = responseCurrent.data.data.length;
             const previousCount = responsePrevious.data.data.length;
-            const percentageVs =
-                previousCount !== 0
-                    ? (
-                          ((currentCount - previousCount) / previousCount) *
-                          100
-                      ).toFixed(2)
-                    : 0;
+            const percentageVs = previousCount !== 0 ? (((currentCount - previousCount) / previousCount) * 100).toFixed(2) : 0;
             setPercentageVs(percentageVs);
             // console.log("Variation en pourcentage par rapport au mois précédent:", percentageVs);
         } catch (error) {
@@ -241,30 +213,13 @@ export const useIncidentData = () => {
             const urlPrevious = `${config.url}/MapApi/incidentByMonth/?month=${previousMonth}`;
 
             const [responseCurrent, responsePrevious] = await Promise.all([
-                axios.get(urlCurrent, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
-                axios.get(urlPrevious, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
+                axios.get(urlCurrent, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } }),
+                axios.get(urlPrevious, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } })
             ]);
 
-            const currentTaken = responseCurrent.data.data.filter(
-                (incident) => incident.etat === "taken_into_account"
-            ).length;
-            const previousTaken = responsePrevious.data.data.filter(
-                (incident) => incident.etat === "taken_into_account"
-            ).length;
-            const percentageVsPreviousMonth =
-                previousTaken !== 0
-                    ? ((currentTaken / previousTaken) * 100).toFixed(2)
-                    : 0;
+            const currentTaken = responseCurrent.data.data.filter(incident => incident.etat === "taken_into_account").length;
+            const previousTaken = responsePrevious.data.data.filter(incident => incident.etat === "taken_into_account").length;
+            const percentageVsPreviousMonth = previousTaken !== 0 ? ((currentTaken / previousTaken) * 100).toFixed(2) : 0;
             setPercentageVsTaken(percentageVsPreviousMonth);
             // console.log("Variation en pourcentage des incidents pris en compte par rapport au mois précédent:", percentageVsPreviousMonth);
         } catch (error) {
@@ -272,22 +227,22 @@ export const useIncidentData = () => {
         }
     };
     const TakenOnMap = async () => {
-        setShowOnlyTakenIntoAccount(!showOnlyTakenIntoAccount);
-        setShowOnlyResolved(false);
-        setShowOnlyDeclared(false);
-    };
+      setShowOnlyTakenIntoAccount(!showOnlyTakenIntoAccount);
+      setShowOnlyResolved(false);
+      setShowOnlyDeclared(false)
+    }
 
     const ResolvedOnMap = async () => {
         setShowOnlyResolved(!showOnlyResolved);
-        setShowOnlyDeclared(false);
+        setShowOnlyDeclared(false)
         setShowOnlyTakenIntoAccount(false);
-    };
+    }
 
     const DeclaredOnMap = async () => {
         setShowOnlyDeclared(!showOnlyDeclared);
         setShowOnlyTakenIntoAccount(false);
         setShowOnlyResolved(false);
-    };
+    }
     const _getPercentageVsResolved = async () => {
         try {
             const currentMonth = selectedMonth;
@@ -296,41 +251,19 @@ export const useIncidentData = () => {
             const urlPrevious = `${config.url}/MapApi/incidentByMonth/?month=${previousMonth}`;
 
             const [responseCurrent, responsePrevious] = await Promise.all([
-                axios.get(urlCurrent, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
-                axios.get(urlPrevious, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
+                axios.get(urlCurrent, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } }),
+                axios.get(urlPrevious, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } })
             ]);
 
-            const currentResolved = responseCurrent.data.data.filter(
-                (incident) => incident.etat === "resolved"
-            ).length;
-            const previousResolved = responsePrevious.data.data.filter(
-                (incident) => incident.etat === "resolved"
-            ).length;
-            const percentageVsResolved =
-                previousResolved !== 0
-                    ? (
-                          ((currentResolved - previousResolved) /
-                              previousResolved) *
-                          100
-                      ).toFixed(2)
-                    : 0;
+            const currentResolved = responseCurrent.data.data.filter(incident => incident.etat === "resolved").length;
+            const previousResolved = responsePrevious.data.data.filter(incident => incident.etat === "resolved").length;
+            const percentageVsResolved = previousResolved !== 0 ? (((currentResolved - previousResolved) / previousResolved) * 100).toFixed(2) : 0;
             setPercentageVsResolved(percentageVsResolved);
             // console.log("Variation en pourcentage des incidents résolus par rapport au mois précédent:", percentageVsResolved);
         } catch (error) {
             console.log(error.message);
         }
     };
-
     const userId = sessionStorage.getItem('user_id');
 
     const _getIncidents = async () => {
@@ -354,7 +287,7 @@ export const useIncidentData = () => {
             const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
             });
             
@@ -381,36 +314,23 @@ export const useIncidentData = () => {
         var url = `${config.url}/MapApi/incidentByMonth/?month=${selectedMonth}`;
         try {
             const [responseCurrent, responsePrevious] = await Promise.all([
-                axios.get(urlCurrent, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
-                axios.get(urlPrevious, {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.token}`,
-                        "Content-Type": "application/json",
-                    },
-                }),
+                axios.get(urlCurrent, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } }),
+                axios.get(urlPrevious, { headers: { Authorization: `Bearer ${sessionStorage.token}`, 'Content-Type': 'application/json' } })
             ]);
-            const currentAct = responseCurrent.data.data.filter(
-                (incident) => String(incident.taken_by) === String(userId)
-            ).length;
-            const previousAct = responsePrevious.data.data.filter(
-                (incident) => String(incident.taken_by) === String(userId)
-            ).length;
-
+            const currentAct = responseCurrent.data.data.filter(incident => String(incident.taken_by) === String(userId)).length;
+            const previousAct = responsePrevious.data.data.filter(incident => String(incident.taken_by) === String(userId)).length;
+            
             setCountActions(currentAct);
-            const percentageIncrease =
-                previousAct > 0
-                    ? ((currentAct - previousAct) / previousAct) * 100
-                    : 0;
+            const percentageIncrease = previousAct > 0
+                ? ((currentAct - previousAct) / previousAct) * 100
+                : 0;
             setPercentageIncrease(percentageIncrease);
+
         } catch (error) {
             console.log(error.message);
         }
     };
+
 
     const _getIncidentsCollabor = async () => {
         let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
@@ -434,24 +354,24 @@ export const useIncidentData = () => {
             setCountTake(res.data.filter(incident => incident.etat === "taken_into_account").length);
             setData(res.data.filter(incident => incident.etat === "taken_into_account"));
         } catch (error) {
-            console.log(error.message);
+            console.log(error.message)
         }
-    };
+    }
     const _getCollaboration = async () => {
-        var url = `${config.url}/MapApi/collaboration/`;
+        var url = `${config.url}/MapApi/collaboration/`
         try {
             let res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer${sessionStorage.token}`,
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
-            });
-            setCollaboration(res.data.length);
-            // console.log("Les collaboration", res.data.length)
+            })
+            setCollaboration(res.data.length)
+            console.log("Les collaboration", res.data)
         } catch (error) {
-            console.log(error.message);
+            console.log(error.message)
         }
-    };
+    }
 
     const _getIncidentsResolved = async () => {
         let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
@@ -469,7 +389,7 @@ export const useIncidentData = () => {
             const res = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.token}`,
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
             });
             let resolved = res.data.filter(incident => incident.etat === "resolved").length;
@@ -480,98 +400,84 @@ export const useIncidentData = () => {
     };
 
     const _getCategory = async () => {
-        try {
-            const res = await axios.get(`${config.url}/MapApi/prediction/`, {
-                headers: {
-                    Authorization: `Bearer ${sessionStorage.token}`,
-                },
-            });
-            // console.log("Ici log", res.data);
-            let predictions = res.data;
+      try {
+        const res = await axios.get(`${config.url}/MapApi/prediction/`, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.token}`,
+            },
+          });
+        // console.log("Ici log", res.data);
+        let predictions = res.data;
 
-            let incidentCounts = predictions.reduce((acc, prediction) => {
-                acc[prediction.incident_type] =
-                    (acc[prediction.incident_type] || 0) + 1;
-                return acc;
-            }, {});
+        let incidentCounts = predictions.reduce((acc, prediction) => {
+            acc[prediction.incident_type] = (acc[prediction.incident_type] || 0) + 1;
+            return acc;
+        }, {});
 
-            let totalIncidents = predictions.length;
+        let totalIncidents = predictions.length;
 
-            let incidentPercentages = Object.entries(incidentCounts).map(
-                ([type, count]) => {
-                    return {
-                        type,
-                        count,
-                        percentage:
-                            ((count / totalIncidents) * 100).toFixed(2) + "%",
-                    };
-                }
-            );
+        let incidentPercentages = Object.entries(incidentCounts).map(([type, count]) => {
+            return {
+                type,
+                count,
+                percentage: ((count / totalIncidents) * 100).toFixed(2) + '%'
+            };
+        });
 
-            // console.log('Nombre total d\'incidents:', totalIncidents);
-            // console.log('Détails des incidents:', incidentPercentages);
+        // console.log('Nombre total d\'incidents:', totalIncidents);
+        // console.log('Détails des incidents:', incidentPercentages);
 
-            setCountCategory(totalIncidents);
-            setPreduct(incidentPercentages);
-        } catch (error) {
-            console.log(error.message);
-        }
+        setCountCategory(totalIncidents);
+        setPreduct(incidentPercentages);
+      } catch (error) {
+        console.log(error.message);
+      }
     };
-
+    
     const onShowIncident = (id) => {
         const item = getIncidentById(id)
         navigate.push(`/admin/incident_view/${id}`, { incident: item }, () => {
           setIncident(item);
         });
         if (item) {
-            console.log("element à afficher ", item);
+            console.log('element à afficher ', item)
             setIncident(item);
         }
     }
     const onShowIncidentCollaboration = (id) => {
-        const item = getIncidentById(id);
-        console.log("Données d'incident dans onShowIncident :", item);
-        navigate.push(
-            `/admin/incident_view_collaboration/${id}`,
-            { incident: item },
-            () => {
-                console.log("State updated:", location.state);
-                setIncident(item);
-            }
-        );
+        const item = getIncidentById(id)
+        console.log("Données d'incident dans onShowIncident :", item); 
+        navigate.push(`/admin/incident_view_collaboration/${id}`, { incident: item }, () => {
+          console.log('State updated:', location.state); 
+          setIncident(item);
+        });
         if (item) {
-            console.log("element à afficher ", item);
+            console.log('element à afficher ', item)
             setIncident(item);
         }
-    };
+    }
 
     const getIncidentById = (id) => {
-        let incident = "";
+        let incident = ''
         for (let index = 0; index < data.length; index++) {
-            const element = data[index];
+            const element = data[index]
             if (element.id === id) {
-                incident = element;
+                incident = element
             }
         }
-        return incident;
-    };
+        return incident
+    }
 
     const filterIncidents = (incidents) => {
         let filteredIncidents = incidents;
         if (showOnlyTakenIntoAccount) {
-            filteredIncidents = filteredIncidents.filter(
-                (incident) => incident.etat === "taken_into_account"
-            );
+            filteredIncidents = filteredIncidents.filter(incident => incident.etat === "taken_into_account");
         }
         if (showOnlyResolved) {
-            filteredIncidents = filteredIncidents.filter(
-                (incident) => incident.etat === "resolved"
-            );
+            filteredIncidents = filteredIncidents.filter(incident => incident.etat === "resolved");
         }
         if (showOnlyDeclared) {
-            filteredIncidents = filteredIncidents.filter(
-                (incident) => incident.etat === "declared"
-            );
+            filteredIncidents = filteredIncidents.filter(incident => incident.etat === "declared");
         }
         return filteredIncidents;
     };
@@ -579,25 +485,21 @@ export const useIncidentData = () => {
     const displayIcon = (incidentType) => {
         let iconHtml;
         switch (incidentType) {
-            case "feu":
+            case 'feu':
                 iconHtml = '<i class="fa fa-fire" style="color:red"></i>';
                 break;
-            case "accident":
-                iconHtml =
-                    '<i class="fa fa-car-crash" style="color:orange"></i>';
+            case 'accident':
+                iconHtml = '<i class="fa fa-car-crash" style="color:orange"></i>';
                 break;
-            case "inondation":
+            case 'inondation':
                 iconHtml = '<i class="fa fa-water" style="color:blue"></i>';
                 break;
             default:
-                iconHtml =
-                    '<i class="fa fa-question-circle" style="color:gray"></i>';
+                iconHtml = '<i class="fa fa-question-circle" style="color:gray"></i>';
         }
         return L.divIcon({
-            html: ReactDOMServer.renderToString(
-                <div dangerouslySetInnerHTML={{ __html: iconHtml }} />
-            ),
-            className: "incident-icon",
+            html: ReactDOMServer.renderToString(<div dangerouslySetInnerHTML={{ __html: iconHtml }} />),
+            className: 'incident-icon',
             iconSize: [24, 24],
             iconAnchor: [12, 24],
             popupAnchor: [0, -24],
@@ -606,55 +508,48 @@ export const useIncidentData = () => {
     const IndicateurChart = () => {
       const [chartData, setChartData] = useState({
         series: [0, 0],
+        options: {
+          chart: {
+            type: 'donut',
+          },
+          labels: ['Anonymes', 'Inscrits'],
+          responsive: [{
+            breakpoint: 480,
             options: {
-                chart: {
-                    type: "donut",
-                },
-                labels: ["Anonymes", "Inscrits"],
-                responsive: [
-                    {
-                        breakpoint: 480,
-                        options: {
-                            chart: {
-                                width: 200,
-                            },
-                            legend: {
-                                position: "bottom",
-                            },
-                        },
-                    },
-                ],
-            },
-        });
-        useEffect(() => {
-            let isMounted = true;
-            if (isMounted) {
-                setChartData((prevData) => ({
-                    ...prevData,
-                    series: [
-                        parseFloat(anonymousPercentage),
-                        parseFloat(registeredPercentage),
-                    ],
-                }));
+              chart: {
+                width: 200
+              },
+              legend: {
+                position: 'bottom'
+              }
             }
-            return () => {
-                isMounted = false;
-            };
-        }, [anonymousPercentage, registeredPercentage]);
-
-        return (
-            <div>
-                <ApexCharts
-                    options={chartData.options}
-                    series={chartData.series}
-                    type="donut"
-                    height={350}
-                />
-            </div>
-        );
+          }]
+        }
+      });
+      useEffect(() => {
+        let isMounted = true;
+        if (isMounted) {
+          setChartData(prevData => ({
+            ...prevData,
+            series: [parseFloat(anonymousPercentage), parseFloat(registeredPercentage)],
+          }));
+        }
+        return () => {
+          isMounted = false;
+        };
+      }, [anonymousPercentage, registeredPercentage]);
+      return (
+        <div>
+          <ApexCharts 
+            options={chartData.options} 
+            series={chartData.series} 
+            type="donut" 
+            height={350} 
+          />
+        </div>
+      );
     };
-
-
+    
     return {
         selectedMonth,
         anonymousPercentage,
@@ -706,6 +601,6 @@ export const useIncidentData = () => {
         PercentageIncrease,
         _getCollaboration,
         collaboration,
-        monthsOptions,
+        monthsOptions
     };
 };

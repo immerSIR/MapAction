@@ -31,7 +31,6 @@ const ZoneChart = () => {
     const { selectedMonth } = useMonth();
     const { filterType, customRange } = useDateFilter();
 
-
     const _getZone = async () => {
         let url = `${config.url}/MapApi/incident-filter/?filter_type=${filterType}`;
         
