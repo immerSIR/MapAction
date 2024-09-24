@@ -8,6 +8,7 @@ import {
     Grid,
     Text,
     Heading,
+    Spinner,
     useColorMode,
     useColorModeValue,
 } from "@chakra-ui/react";
@@ -114,7 +115,8 @@ export default function Analyze() {
                     setPrediction(validPrediction); // Set the prediction if it exists
                     setIsLoadingContext(false); // Context is available
                 } else {
-                    if (incident.photo) {
+                    if (imgUrl) {
+                        // Updated condition to check imgUrl instead of incident.photo
                         if (!predictionSentRef.current) {
                             console.log("Sending prediction as none exists.");
                             await sendPrediction(); // Send prediction if no existing one is found
@@ -227,85 +229,95 @@ export default function Analyze() {
                             justify="space-between"
                             p="22px"
                         >
-                            <Heading as="h6" size="md" mb="4">
-                                Rapport d'Analyse
-                            </Heading>
-                            <Box mb="4" minH="200px">
-                                <Text>
-                                    <strong>Zone:</strong>{" "}
-                                    {zone || "Zone non renseignée"}
-                                </Text>
-                                <Text>
-                                    <strong>Coordonnées:</strong> {latitude},{" "}
-                                    {longitude}
-                                </Text>
-                                <Text>
-                                    <strong>Type d'incident:</strong>{" "}
-                                    {type_incident}
-                                </Text>
-                                <Text mt="2">
-                                    {isLoadingContext || !prediction ? (
-                                        // Display QuotesCarousel when context is loading or not available
-                                        <QuotesCarousel />
-                                    ) : (
-                                        // Display context when available
-                                        <>
-                                            {expanded ? (
-                                                <>
-                                                    <Box
-                                                        dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                            prediction.context ||
-                                                                "Contexte non disponible"
-                                                        )}
-                                                    />
-                                                    <Box
-                                                        dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                            prediction.impact_potentiel ||
-                                                                "Non disponible"
-                                                        )}
-                                                    />
-                                                    <Box
-                                                        dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                            prediction.piste_solution ||
-                                                                "Non disponible"
-                                                        )}
-                                                    />
-                                                </>
-                                            ) : (
-                                                // Show a snippet of the context with an option to expand
-                                                `${
-                                                    prediction.context
-                                                        ? prediction.context.substring(
-                                                              0,
-                                                              300
-                                                          )
-                                                        : "Aucun contexte disponible"
-                                                }...`
+                            {isLoadingContext || !prediction ? (
+                                // Display loading state with header, spinner, and QuotesCarousel
+                                <Box textAlign="center">
+                                    <Heading size="md" mb="4">
+                                        L'analyse est en cours et le rapport
+                                        sera fourni dans quelques instants...
+                                    </Heading>
+                                    <Flex
+                                        justify="center"
+                                        align="center"
+                                        mb="4"
+                                    >
+                                        <Spinner size="lg" />
+                                    </Flex>
+                                    <QuotesCarousel />
+                                </Box>
+                            ) : (
+                                // Display full report when prediction is available
+                                <Box mb="4" minH="200px">
+                                    <Heading as="h6" size="md" mb="4">
+                                        Rapport d'Analyse
+                                    </Heading>
+                                    <Text>
+                                        <strong>Zone:</strong>{" "}
+                                        {zone || "Zone non renseignée"}
+                                    </Text>
+                                    <Text>
+                                        <strong>Coordonnées:</strong> {latitude}
+                                        , {longitude}
+                                    </Text>
+                                    <Text>
+                                        <strong>Type d'incident:</strong>{" "}
+                                        {type_incident}
+                                    </Text>
+                                    <Text mt="2">
+                                        {expanded ? (
+                                            <>
+                                                <Box
+                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                        prediction.context ||
+                                                            "Contexte non disponible"
+                                                    )}
+                                                />
+                                                <Box
+                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                        prediction.impact_potentiel ||
+                                                            "Non disponible"
+                                                    )}
+                                                />
+                                                <Box
+                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                        prediction.piste_solution ||
+                                                            "Non disponible"
+                                                    )}
+                                                />
+                                            </>
+                                        ) : (
+                                            // Show a snippet of the context with an option to expand
+                                            `${
+                                                prediction.context
+                                                    ? prediction.context.substring(
+                                                          0,
+                                                          300
+                                                      )
+                                                    : "Aucun contexte disponible"
+                                            }...`
+                                        )}
+                                        {prediction.context &&
+                                            prediction.context.length > 300 && (
+                                                <Button
+                                                    onClick={toggleExpanded}
+                                                    variant="link"
+                                                    mt="2"
+                                                >
+                                                    {expanded
+                                                        ? "Voir moins"
+                                                        : "Voir plus"}
+                                                </Button>
                                             )}
-                                            {prediction.context &&
-                                                prediction.context.length >
-                                                    300 && (
-                                                    <Button
-                                                        onClick={toggleExpanded}
-                                                        variant="link"
-                                                        mt="2"
-                                                    >
-                                                        {expanded
-                                                            ? "Voir moins"
-                                                            : "Voir plus"}
-                                                    </Button>
-                                                )}
-                                        </>
-                                    )}
-                                </Text>
-                                <br />
-                                <Button
-                                    onClick={handleNavigateLLM}
-                                    colorScheme="teal"
-                                >
-                                    MapChat
-                                </Button>
-                            </Box>
+                                    </Text>
+                                    <br />
+                                    <Button
+                                        onClick={handleNavigateLLM}
+                                        colorScheme="teal"
+                                    >
+                                        MapChat
+                                    </Button>
+                                </Box>
+                            )}
                         </Box>
                     </Flex>
                 </Card>
