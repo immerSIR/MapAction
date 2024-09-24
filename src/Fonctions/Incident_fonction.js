@@ -97,8 +97,11 @@ export const IncidentData = () => {
     const videoUrl = incident ? config.url + incident.video : "";
     // console.log(videoUrl);
     const latitude = incident?.lattitude || 0;
+    console.log("latitude:", latitude);
     const longitude = incident?.longitude || 0;
+    console.log("longitude:", longitude);
     const zone = incident?.zone || "";
+    console.log("Zone:", zone);
     const description = incident ? incident.description : "";
     const position = [latitude, longitude];
     const dataTostring = incident ? incident.created_at : "";
@@ -125,7 +128,7 @@ export const IncidentData = () => {
         title: "",
         zone: "",
         description: "",
-        lattitude: "",
+        latitude: "",
         longitude: "",
         user_id: "",
         etat: "",
@@ -177,7 +180,7 @@ export const IncidentData = () => {
                 title: "",
                 zone: "",
                 description: "",
-                lattitude: "",
+                latitude: "",
                 longitude: "",
                 user_id: "",
                 etat: "",
@@ -213,7 +216,7 @@ export const IncidentData = () => {
                         title: "",
                         zone: "",
                         description: "",
-                        lattitude: "",
+                        latitude: "",
                         longitude: "",
                         user_id: "",
                         etat: "",
@@ -251,35 +254,33 @@ export const IncidentData = () => {
         navigate.push(`/admin/llm_chat/${incident.id}/${userId}`);
     };
 
-    const fetchNearbyStructuresAndNaturalResourcesMali = async (
-        latitude,
-        longitude
-    ) => {
+    const fetchNearbySensitiveStructures = async (latitude, longitude) => {
         try {
             // Define Overpass API query to fetch sensitive structures and natural resources near the incident in Mali
+            const radius = 250;
             const overpassUrl = "https://overpass-api.de/api/interpreter";
             const overpassQuery = `
                 [out:json];
                 (
                   // Fetching sensitive structures
-                  node["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
-                  way["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
-                  relation["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:100,${latitude},${longitude});
+                  node["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:${radius},${latitude},${longitude});
+                  way["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:${radius},${latitude},${longitude});
+                  relation["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:${radius},${latitude},${longitude});
                   
                   // Fetching natural resources relevant to Mali
-                  node["natural"~"desert|savanna|water|wetland|rock|tree"](around:100,${latitude},${longitude});
-                  way["natural"~"desert|savanna|water|wetland|rock|tree"](around:100,${latitude},${longitude});
-                  relation["natural"~"desert|savanna|water|wetland|rock|tree"](around:100,${latitude},${longitude});
+                  node["natural"~"desert|savanna|water|wetland|rock|tree"](around:${radius},${latitude},${longitude});
+                  way["natural"~"desert|savanna|water|wetland|rock|tree"](around:${radius},${latitude},${longitude});
+                  relation["natural"~"desert|savanna|water|wetland|rock|tree"](around:${radius},${latitude},${longitude});
                   
                   // Leisure areas like parks and gardens
-                  node["leisure"~"park|garden|recreation_ground|park_space"](around:100,${latitude},${longitude});
-                  way["leisure"~"park|garden|recreation_ground|park_space"](around:100,${latitude},${longitude});
-                  relation["leisure"~"park|garden|recreation_ground|park_space"](around:100,${latitude},${longitude});
+                  node["leisure"~"park|garden|recreation_ground|park_space"](around:${radius},${latitude},${longitude});
+                  way["leisure"~"park|garden|recreation_ground|park_space"](around:${radius},${latitude},${longitude});
+                  relation["leisure"~"park|garden|recreation_ground|park_space"](around:${radius},${latitude},${longitude});
                   
                   // Waterways specific to Mali
-                  node["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:100,${latitude},${longitude});
-                  way["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:100,${latitude},${longitude});
-                  relation["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:100,${latitude},${longitude});
+                  node["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:${radius},${latitude},${longitude});
+                  way["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:${radius},${latitude},${longitude});
+                  relation["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:${radius},${latitude},${longitude});
                 );
                 out center;
             `;
