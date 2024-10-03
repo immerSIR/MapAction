@@ -8,7 +8,7 @@ import L from "leaflet";
 import axios from "axios";
 import { useMonth } from "Fonctions/Month";
 import { useDateFilter } from "Fonctions/YearMonth";
-
+import { Image, Flex, Text, IconButton } from "@chakra-ui/react";
 const position = [16.2833, -3.0833];
         
 const Carte = ({ onShowIncident }) => {
@@ -26,13 +26,13 @@ const Carte = ({ onShowIncident }) => {
   
   const _getUserById = async (userId) => {
     try {
-      const res = await axios.get(`${config.url}/MapApi/user/${userId}`, {
+      const res = await axios.get(`${config.url}/MapApi/user/${userId}/`, {
         headers: {
           Authorization: `Bearer ${sessionStorage.token}`,
         },
       });
-      console.log(res.data.data, "lesssssssssssssssssssssssssssssssssssssssss")
-      return res.data.data;
+      console.log(res.data, "")
+      return res.data;
     } catch (error) {
       console.error(error.message);
       return null;
@@ -77,8 +77,9 @@ const Carte = ({ onShowIncident }) => {
               tooltip: incident.title,
               desc: incident.description,
               etat: incident.etat,
-              img: incident.photo,
-              orgPhoto: user?.avatar || "", 
+              img: config.url + incident.photo,
+              orgPhoto: config.url + user?.avatar || "", 
+              orga_name: user?.organisation,
               video: config.url + incident.video,
               audio: config.url + incident.audio,
             };
@@ -90,7 +91,6 @@ const Carte = ({ onShowIncident }) => {
       console.error(error.message);
     }
   };
-
 
   const iconHTMLBlue = ReactDOMServer.renderToString(
       <FaMapMarkerAlt color= "blue" size={20}/>
@@ -143,18 +143,34 @@ const Carte = ({ onShowIncident }) => {
                 <ul>
                   <div className="row">
                     <div className="col-md-6">
-                      <p>Voir l'incident</p>
+                    <Flex alignItems="center">
+                      <Text mr={2}>Voir l'incident</Text> 
+                      <IconButton
+                        icon={<FaEye />}
+                        aria-label="Voir l'incident"
+                        colorScheme="gray"
+                        onClick={() => onShowIncident(mark.id)}
+                      />
+                    </Flex>
                     </div>
                     <div className="col-md-6">
-                      <img src={mark.img} alt="" />
+                    <Image
+                      src={mark.img}
+                      alt="Organization"
+                      // borderRadius="full"
+                      boxSize="300px"
+                      objectFit="cover"
+                    />
                       <div>
-                        <button
-                          className="boutton button--round-l"
-                          onClick={() => onShowIncident(mark.id)}
-                        >
-                          <FaEye color="#ccc" />
-                        </button>
+                        <p> Pris en compte par {mark.orga_name} </p>
                       </div>
+                      <Image
+                        src={mark.orgPhoto}
+                        alt="Organization"
+                        borderRadius="full" 
+                        boxSize="100px"      
+                        objectFit="cover"   
+                      />
                     </div>
                   </div>
                 </ul>
@@ -168,54 +184,3 @@ const Carte = ({ onShowIncident }) => {
 };
 
 export default Carte;
-// import React from 'react';
-// import { MapContainer, TileLayer, Popup, Marker } from 'react-leaflet';
-// import L from 'leaflet';
-// import { IconContext } from 'react-icons';
-// import { FaMapMarkerAlt } from 'react-icons/fa';
-// import ReactDOMServer from 'react-dom/server';
-
-// const position = [16.2833, -3.0833]; // Position centrale de la carte
-
-// const iconHTMLBlue = ReactDOMServer.renderToString(
-//   <IconContext.Provider value={{ color: 'blue', className: 'global-class-name' }}>
-//     <FaMapMarkerAlt />
-//   </IconContext.Provider>
-// );
-
-// const customMarkerIconBlue = new L.DivIcon({
-//   html: iconHTMLBlue,
-// });
-
-// const dummyPositions = [
-//   { id: 1, lat: 16.5, lon: -3.5, tooltip: 'Marqueur 1', img: 'https://via.placeholder.com/50' },
-//   { id: 2, lat: 16.7, lon: -3.0, tooltip: 'Marqueur 2', img: 'https://via.placeholder.com/50' },
-//   { id: 3, lat: 16.3, lon: -3.2, tooltip: 'Marqueur 3', img: 'https://via.placeholder.com/50' },
-// ];
-
-// const Carte = () => {
-//   return (
-//     <MapContainer center={position} zoom={5} style={{ height: '50vh', width: '100%' }}>
-//       <TileLayer
-//         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-//       />
-//       {dummyPositions.map((mark, idx) => (
-//         <Marker
-//           key={`marker-${idx}`}
-//           icon={customMarkerIconBlue}
-//           position={[mark.lat, mark.lon]}
-//         >
-//           <Popup>
-//             <span className="icon-marker-tooltip">
-//               <p>{mark.tooltip}</p>
-//               <img src={mark.img} alt="" />
-//             </span>
-//           </Popup>
-//         </Marker>
-//       ))}
-//     </MapContainer>
-//   );
-// };
-
-// export default Carte;
