@@ -10,6 +10,14 @@ import {
     useColorModeValue,
     Alert,
     AlertIcon,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    ModalCloseButton,
+    useDisclosure,
 } from "@chakra-ui/react";
 import axios from "axios";
 import signInImage from "assets/img/signInImage.png";
@@ -23,7 +31,9 @@ function SignIn() {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-    const [changepwd, setChangepwd] = useState(false); // Initialize changepwd state
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     // Chakra color mode
     const textColor = useColorModeValue("gray.700", "white");
@@ -64,12 +74,12 @@ function SignIn() {
 
             login();
 
-            // Redirection basée sur le type d'utilisateur
+            // Redirection ou ouverture du modal pour les utilisateurs "elu"
             if (userData.user_type === "admin") {
                 window.location.href = "/dashboardAdmin";
             } else if (userData.user_type === "elu") {
                 if (userData.password_reset_count === "0") {
-                    setChangepwd(true); // Trigger password change flow
+                    onOpen(); // Ouvrir le modal pour changer le mot de passe
                 } else {
                     window.location.href = "/admin/elu-dashboard";
                 }
@@ -93,9 +103,29 @@ function SignIn() {
         }
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter") {
-            handleSubmit(e);
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        if (newPassword !== confirmPassword) {
+            Swal.fire("Erreur", "Les deux mots de passe doivent être identiques", "error");
+            return;
+        }
+
+        try {
+            const newPasswordData = {
+                old_password: password,
+                new_password: newPassword,
+            };
+
+            const response = await axios.put(config.url + "/MapApi/change_password/", newPasswordData, {
+                headers: { Authorization: `Bearer ${sessionStorage.token}` },
+            });
+
+            Swal.fire("Succès", "Mot de passe modifié avec succès", "success");
+            onClose();
+            window.location.href = "/admin/elu-dashboard"; // Redirection après changement de mot de passe
+        } catch (err) {
+            Swal.fire("Erreur", "Échec du changement de mot de passe", "error");
+            console.error(err);
         }
     };
 
@@ -167,7 +197,6 @@ function SignIn() {
                                 size="lg"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                onKeyDown={handleKeyDown}
                             />
                             <FormLabel
                                 ms="4px"
@@ -186,7 +215,6 @@ function SignIn() {
                                 size="lg"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                onKeyDown={handleKeyDown}
                             />
                             <Button
                                 fontSize="10px"
@@ -221,6 +249,41 @@ function SignIn() {
                     ></Box>
                 </Box>
             </Flex>
+
+            {/* Modal de changement de mot de passe */}
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Changer le mot de passe</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <FormControl>
+                            <FormLabel>Nouveau mot de passe</FormLabel>
+                            <Input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                        </FormControl>
+                        <FormControl mt={4}>
+                            <FormLabel>Confirmer le mot de passe</FormLabel>
+                            <Input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                        </FormControl>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button colorScheme="blue" mr={3} onClick={handlePasswordChange}>
+                            Enregistrer
+                        </Button>
+                        <Button variant="ghost" onClick={onClose}>
+                            Annuler
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </Flex>
     );
 }

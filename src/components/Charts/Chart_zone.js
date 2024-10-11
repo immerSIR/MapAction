@@ -17,14 +17,210 @@ const ZoneChart = () => {
         'Kalaban Coro': 'Bamako',
         'Kabala': 'Bamako',
         'Badalabougou': 'Bamako',
+        'Aci 2000': 'Bamako',
+        'Bagadadji': 'Bamako',
+        'Bozola': 'Bamako',
+        'Cité du Niger': 'Bamako',
+        'Daoudabougou': 'Bamako',
+        'Darsalam': 'Bamako',
+        'Djélibougou': 'Bamako',
+        'Faladié': 'Bamako',
+        'Hamdalaye': 'Bamako',
+        'Hippodrome': 'Bamako',
+        'Korofina': 'Bamako',
+        'Lafiabougou': 'Bamako',
+        'Magnambougou': 'Bamako',
+        'Missira': 'Bamako',
+        'Niamakoro': 'Bamako',
+        'Niarela': 'Bamako',
+        'Quinzambougou': 'Bamako',
+        'Sabalibougou': 'Bamako',
+        'Sebenikoro': 'Bamako',
+        'Sogoniko': 'Bamako',
+        'Titi-Bougou': 'Bamako',
+        'Yirimadio': 'Bamako',
+        'Banconi': 'Bamako',
+        'Boulkassoumbougou': 'Bamako',
+        'Djelibougou': 'Bamako',
+        'Fadjiguila': 'Bamako',
+        'Kalabancoura': 'Bamako',
+        'Kati (banlieue)': 'Bamako',
+        'Médina Coura': 'Bamako',
+        'Niamana': 'Bamako',
+        'Sabalibougou': 'Bamako',
+        'Samé': 'Bamako',
+        'Senou': 'Bamako',
+        'Sokorodji': 'Bamako',
+        'Sotuba ACI': 'Bamako',
+        'Siracoro': 'Bamako',
+        'ATT-Bougou': 'Bamako',
+        'Yobokondji': 'Bamako',
         'Bamako': 'Bamako',
-        'Sévaré':'Mopti',
-        'Mopti':'Mopti',
-        'Zinder':'Zinder',
-        'Kita':'Kita',
-        'Sikasso':'Sikasso',
-        'Gadougou':'Kita',
 
+         // Mopti
+        'Sévaré': 'Mopti',
+        'Mopti': 'Mopti',
+        'Bandiagara': 'Mopti',
+        'Djenné': 'Mopti',
+        'Douentza': 'Mopti',
+        'Youwarou': 'Mopti',
+        'Tenenkou': 'Mopti',
+        'Korientzé': 'Mopti',
+        'Fatoma': 'Mopti',
+
+        // Kayes
+        'Kayes': 'Kayes',
+        'Yélimané': 'Kayes',
+        'Diéma': 'Kayes',
+        'Nioro du Sahel': 'Kayes',
+        'Bafoulabé': 'Kayes',
+        'Mahina': 'Kayes',
+        'Oussoubidiagna': 'Kayes',
+        'Sadiola': 'Kayes',
+        'Sagabari': 'Kayes',
+        'Sandaré': 'Kayes',
+
+        // Koulikoro
+        'Koulikoro': 'Koulikoro',
+        'Kati': 'Koulikoro',
+        'Banamba': 'Koulikoro',
+        'Fana': 'Koulikoro',
+        'Kolokani': 'Koulikoro',
+        'Dioïla': 'Koulikoro',
+        'Nara': 'Koulikoro',
+        'Kangaba': 'Koulikoro',
+
+        // Sikasso
+        'Sikasso': 'Sikasso',
+        'Koutiala': 'Sikasso',
+        'Bougouni': 'Sikasso',
+        'Yanfolila': 'Sikasso', 
+        'Kignan': 'Sikasso',
+        'Zégoua': 'Sikasso',
+        'Loulouni': 'Sikasso',
+        'Sikoro': 'Sikasso',
+        'Kadiolo': 'Sikasso',
+
+        // Gao
+        'Gao': 'Gao',
+        'Bourem': 'Gao',
+        'Ansongo': 'Gao',
+        'Ménaka': 'Gao',
+        'Talataye': 'Gao',
+        'Tarkint': 'Gao',
+        'Andéramboukane': 'Gao',
+
+        // Tombouctou
+        'Tombouctou': 'Tombouctou',
+        'Goundam': 'Tombouctou',
+        'Diré': 'Tombouctou',
+        'Rharous': 'Tombouctou',
+        'Niafunké': 'Tombouctou',
+        'Léré': 'Tombouctou',
+        'Tonka': 'Tombouctou',
+
+        // Kidal
+        'Kidal': 'Kidal',
+        'Abeïbara': 'Kidal',
+        'Tessalit': 'Kidal',
+        'Essouk': 'Kidal',
+        'Tin-Essako': 'Kidal',
+
+        // Segou
+        'Ségou': 'Ségou',
+        'San': 'Ségou',
+        'Bla': 'Ségou',
+        'Tominian': 'Ségou',
+        'Markala': 'Ségou',
+        'Niono': 'Ségou',
+        'Macina': 'Ségou',
+        'Baraouéli': 'Ségou',
+        'Dioro': 'Ségou',
+        'Séribala': 'Ségou',
+
+        // Taoudénit (nouvelle région)
+        'Achouratt': 'Taoudénit',
+        'Foum-Alba': 'Taoudénit',
+        'Araouane': 'Taoudénit',
+        'Bou-Djébéha': 'Taoudénit',
+
+        // Ménaka (nouvelle région)
+        'Anderamboukane': 'Ménaka',
+        'Inékar': 'Ménaka',
+        'Tidermène': 'Ménaka',
+        
+        // Regions of Kita and Zinder already included
+        'Kita': 'Kita',
+        'Zinder': 'Zinder',
+
+        // Senegal
+
+        // Dakar
+        'Dakar': 'Dakar',
+        'Pikine': 'Dakar',
+        'Guédiawaye': 'Dakar',
+        'Rufisque': 'Dakar',
+        'Bargny': 'Dakar',
+        'Keur Massar': 'Dakar',
+        'Mbao': 'Dakar',
+        'Parcelles Assainies': 'Dakar',
+        'Yoff': 'Dakar',
+        'Medina': 'Dakar',
+        'Plateau': 'Dakar',
+        'Fann-Point E': 'Dakar',
+        'Hann Bel-Air': 'Dakar',
+        'Grand Yoff': 'Dakar',
+        'Ouakam': 'Dakar',
+        'Ngor': 'Dakar',
+        'Bambilor':'Dakar',
+
+        // Thiès
+        'Thiès': 'Thiès',
+        'Tivaouane': 'Thiès',
+        'Mbour': 'Thiès',
+        'Saly': 'Thiès',
+        'Popenguine': 'Thiès',
+        'Ngaparou': 'Thiès',
+        'Joal-Fadiouth': 'Thiès',
+        'Sindia': 'Thiès',
+
+        // Saint-Louis
+        'Saint-Louis': 'Saint-Louis',
+        'Richard-Toll': 'Saint-Louis',
+        'Dagana': 'Saint-Louis',
+        'Podor': 'Saint-Louis',
+
+        // Ziguinchor
+        'Ziguinchor': 'Ziguinchor',
+        'Oussouye': 'Ziguinchor',
+        'Bignona': 'Ziguinchor',
+        'Cap Skirring': 'Ziguinchor',
+
+        // Kaolack
+        'Kaolack': 'Kaolack',
+        'Nioro du Rip': 'Kaolack',
+        'Guinguinéo': 'Kaolack',
+
+        // Tambacounda
+        'Tambacounda': 'Tambacounda',
+        'Bakel': 'Tambacounda',
+        'Koumpentoum': 'Tambacounda',
+        'Kédougou': 'Tambacounda',
+
+        // Kolda
+        'Kolda': 'Kolda',
+        'Vélingara': 'Kolda',
+        'Médina Yoro Foulah': 'Kolda',
+
+        // Matam
+        'Matam': 'Matam',
+        'Ranérou': 'Matam',
+        'Kanel': 'Matam',
+
+        // Louga
+        'Louga': 'Louga',
+        'Kébémer': 'Louga',
+        'Linguère': 'Louga',
     };
     const [chartOptions, setChartOptions] = useState({});
     const [chartSeries, setChartSeries] = useState([]);

@@ -61,7 +61,7 @@ const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, sho
               tooltip: incident.title,
               desc: incident.description,
               etat: incident.etat,
-              img: incident.photo,
+              img: config.url + incident.photo,
               video: config.url + incident.video,
               audio: config.url + incident.audio,
             };

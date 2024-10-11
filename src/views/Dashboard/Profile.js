@@ -28,20 +28,24 @@ function Profile() {
   const OnUpdateUser = async (e) => {
     e.preventDefault();
     setProgress(true);
-
-    const new_data = {
-      first_name: user.first_name,
-      last_name: user.last_name,
-      phone: user.phone,
-      address: user.address,
-    };
-
+  
+    const formData = new FormData();
+    formData.append('first_name', user.first_name);
+    formData.append('last_name', user.last_name);
+    formData.append('phone', user.phone);
+    formData.append('address', user.address);
+  
+    if (user.avatar instanceof File) {
+      formData.append('avatar', user.avatar); // Add the avatar file only if it's updated
+    }
+  
     const url = config.url + '/MapApi/user/' + user.id + '/';
-
+  
     try {
-      const response = await axios.put(url, new_data, {
+      const response = await axios.put(url, formData, {
         headers: {
           Authorization: `Bearer ${sessionStorage.token}`,
+          'Content-Type': 'multipart/form-data',
         },
       });
       console.log("Update response", response.data);
@@ -58,6 +62,7 @@ function Profile() {
       console.log('Erreur:', error);
     }
   };
+  
 
   const fetchUserData = async () => {
     try {
@@ -181,6 +186,15 @@ function Profile() {
                   onChange={(e) => setUser({ ...user, address: e.target.value })}
                 />
               </FormControl>
+              <FormControl>
+                <FormLabel>Photo de profil</FormLabel>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setUser({ ...user, avatar: e.target.files[0] })}
+                />
+              </FormControl>
+
             </Grid>
 
             <Button

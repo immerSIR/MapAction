@@ -34,15 +34,11 @@ import {
 } from "components/Icons/Icons.js";
 import { RiMessage2Fill } from "react-icons/ri";
 import { IoStatsChart } from "react-icons/io5";
-
 import Carte from "variables/MapsCollabor";
 // Fonctions
 import { useIncidentData } from "Fonctions/Dash_fonction";
 
 const positions = [16.2833, -3.0833]
-
-
-
 export default function Dashboard() {
     const [percentageAnonymous, setAnonymousPercentage] = useState(0);
     const [getPercentageVsTaken, setPercentageVsTaken] = useState(0);
@@ -54,8 +50,7 @@ export default function Dashboard() {
         countTake,
         _getIncidentsCollabor,
         _getCollaboration,
-        collaboration,
-        
+        collaboration,  
     } = useIncidentData();
 
     // Chakra Color Mode
@@ -66,7 +61,6 @@ export default function Dashboard() {
             await _getIncidentsCollabor()
             await _getCollaboration()
         }
-
         fetchData();
     }, [selectedMonth]);
 

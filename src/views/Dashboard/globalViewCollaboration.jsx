@@ -107,11 +107,14 @@ export default function GlobalViewCollaboration() {
     try {
       const currentDate = new Date();
       const oneMonthLater = new Date(currentDate.setMonth(currentDate.getMonth() + 1)).toISOString().split('T')[0]; 
-  
+      const checkedItems = items.filter((item) => item.checked);
+      const motivations = checkedItems.map((item) => item.label).join(', ');
       const collaborationData = {
         incident: incidentId,
         user: userId,
-        end_date: oneMonthLater 
+        end_date: oneMonthLater,
+        motivation: motivations,
+        other_option: otherText 
       };
   
       console.log('Envoi des données:', collaborationData);
