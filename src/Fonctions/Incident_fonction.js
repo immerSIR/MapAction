@@ -256,31 +256,69 @@ export const IncidentData = () => {
 
     const fetchNearbySensitiveStructures = async (latitude, longitude) => {
         try {
-            // Define Overpass API query to fetch sensitive structures and natural resources near the incident in Mali
             const radius = 250;
             const overpassUrl = "https://overpass-api.de/api/interpreter";
             const overpassQuery = `
                 [out:json];
                 (
-                  // Fetching sensitive structures
-                  node["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:${radius},${latitude},${longitude});
-                  way["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:${radius},${latitude},${longitude});
-                  relation["amenity"~"school|clinic|hospital|fire_station|police|library|theatre|cinema|place_of_worship|marketplace|sports_centre|stadium"](around:${radius},${latitude},${longitude});
-                  
-                  // Fetching natural resources relevant to Mali
-                  node["natural"~"desert|savanna|water|wetland|rock|tree"](around:${radius},${latitude},${longitude});
-                  way["natural"~"desert|savanna|water|wetland|rock|tree"](around:${radius},${latitude},${longitude});
-                  relation["natural"~"desert|savanna|water|wetland|rock|tree"](around:${radius},${latitude},${longitude});
-                  
-                  // Leisure areas like parks and gardens
-                  node["leisure"~"park|garden|recreation_ground|park_space"](around:${radius},${latitude},${longitude});
-                  way["leisure"~"park|garden|recreation_ground|park_space"](around:${radius},${latitude},${longitude});
-                  relation["leisure"~"park|garden|recreation_ground|park_space"](around:${radius},${latitude},${longitude});
-                  
-                  // Waterways specific to Mali
-                  node["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:${radius},${latitude},${longitude});
-                  way["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:${radius},${latitude},${longitude});
-                  relation["waterway"~"river|stream|canal|drain|ditch|waterfall|rapids"](around:${radius},${latitude},${longitude});
+                    // 1. Infrastructures Urbaines
+                    way["highway"](around:${radius},${latitude},${longitude});
+                    node["amenity"~"hospital|school|public_building"](around:${radius},${latitude},${longitude});
+                    way["amenity"~"hospital|school|public_building"](around:${radius},${latitude},${longitude});
+                    node["man_made"~"sewer|drain"](around:${radius},${latitude},${longitude});
+                    way["man_made"~"sewer|drain"](around:${radius},${latitude},${longitude});
+
+                    // 2. Ressources Naturelles et Écologiques
+                    way["waterway"~"river|stream|canal|drain|ditch"](around:${radius},${latitude},${longitude});
+                    node["natural"="water"](around:${radius},${latitude},${longitude});
+                    way["natural"="water"](around:${radius},${latitude},${longitude});
+                    node["natural"="wetland"](around:${radius},${latitude},${longitude});
+                    way["natural"="wetland"](around:${radius},${latitude},${longitude});
+                    way["waterway"="riverbank"](around:${radius},${latitude},${longitude});
+                    node["landuse"~"reservoir|basin"](around:${radius},${latitude},${longitude});
+                    way["landuse"~"reservoir|basin"](around:${radius},${latitude},${longitude});
+                    node["man_made"="reservoir_covered"](around:${radius},${latitude},${longitude});
+                    way["man_made"="reservoir_covered"](around:${radius},${latitude},${longitude});
+                    way["landuse"~"forest|park"](around:${radius},${latitude},${longitude});
+                    node["leisure"="park"](around:${radius},${latitude},${longitude});
+                    way["leisure"="park"](around:${radius},${latitude},${longitude});
+
+                    // 3. Zones Résidentielles et Population
+                    way["landuse"="residential"](around:${radius},${latitude},${longitude});
+                    node["building"="residential"](around:${radius},${latitude},${longitude});
+                    way["building"="residential"](around:${radius},${latitude},${longitude});
+                    node["amenity"="marketplace"](around:${radius},${latitude},${longitude});
+                    way["amenity"="marketplace"](around:${radius},${latitude},${longitude});
+
+                    // 4. Zones Agricoles et de Production
+                    way["landuse"~"farmland|orchard"](around:${radius},${latitude},${longitude});
+
+                    // 5. Zones Sensibles et Réserves Naturelles
+                    relation["boundary"="protected_area"](around:${radius},${latitude},${longitude});
+
+                    // 6. Structures économiques et commerciales
+                    way["landuse"~"industrial|commercial"](around:${radius},${latitude},${longitude});
+
+                    // 7. Installations liées à la gestion des déchets
+                    node["amenity"~"waste_disposal|recycling"](around:${radius},${latitude},${longitude});
+                    way["amenity"~"waste_disposal|recycling"](around:${radius},${latitude},${longitude});
+
+                    // 8. Points d'accès à l'eau et infrastructures WASH
+                    node["amenity"="drinking_water"](around:${radius},${latitude},${longitude});
+                    node["man_made"~"water_well|wastewater_plant"](around:${radius},${latitude},${longitude});
+                    way["man_made"~"water_well|wastewater_plant"](around:${radius},${latitude},${longitude});
+
+                    // 9. Infrastructures énergétiques
+                    node["power"~"plant|substation"](around:${radius},${latitude},${longitude});
+                    way["power"~"plant|substation|line"](around:${radius},${latitude},${longitude});
+
+                    // 10. Transports publics et mobilité
+                    node["highway"="bus_stop"](around:${radius},${latitude},${longitude});
+                    node["railway"="station"](around:${radius},${latitude},${longitude});
+                    way["railway"="station"](around:${radius},${latitude},${longitude});
+
+                    // 11. Risques naturels
+                    way["hazard"="flood"](around:${radius},${latitude},${longitude});
                 );
                 out center;
             `;
@@ -293,104 +331,55 @@ export const IncidentData = () => {
 
             // Map the Overpass response to a list of nearby places with French translations
             const translatedElements = nearbyElements.map((element) => {
-                // Handle amenities (sensitive structures)
-                if (element.tags.amenity) {
-                    switch (element.tags.amenity) {
-                        case "school":
-                            return "École";
-                        case "clinic":
-                        case "hospital":
-                            return "Clinique ou Hôpital";
-                        case "fire_station":
-                            return "Caserne des pompiers";
-                        case "police":
-                            return "Commissariat de police";
-                        case "library":
-                            return "Bibliothèque";
-                        case "theatre":
-                            return "Théâtre";
-                        case "cinema":
-                            return "Cinéma";
-                        case "place_of_worship":
-                            if (element.tags.religion === "islam") {
-                                return "Mosquée";
-                            }
-                            return "Lieu de culte";
-                        case "marketplace":
-                            return "Marché";
-                        case "sports_centre":
-                        case "stadium":
-                            return "Centre sportif ou Stade";
-                        default:
-                            return element.tags.amenity;
-                    }
-                }
+                const tags = element.tags;
 
-                // Handle natural features
-                if (element.tags.natural) {
-                    switch (element.tags.natural) {
-                        case "desert":
-                            return "Désert";
-                        case "savanna":
-                            return "Savane";
-                        case "water":
-                            return "Eau";
-                        case "wetland":
-                            return "Zone humide";
-                        case "rock":
-                            return "Roche";
-                        case "tree":
-                            return "Arbre";
-                        default:
-                            return element.tags.natural;
-                    }
-                }
+                if (tags.highway) return "Route";
+                if (tags.amenity === "hospital") return "Hôpital";
+                if (tags.amenity === "school") return "École";
+                if (tags.amenity === "public_building")
+                    return "Bâtiment public";
+                if (tags.man_made === "sewer") return "Égout";
+                if (tags.man_made === "drain") return "Drain";
+                if (tags.waterway === "river") return "Rivière";
+                if (tags.waterway === "stream") return "Ruisseau";
+                if (tags.waterway === "canal") return "Canal";
+                if (tags.waterway === "drain") return "Drain";
+                if (tags.waterway === "ditch") return "Fossé";
+                if (tags.natural === "water") return "Plan d'eau";
+                if (tags.natural === "wetland") return "Zone humide";
+                if (tags.waterway === "riverbank") return "Berge de rivière";
+                if (tags.landuse === "reservoir") return "Réservoir";
+                if (tags.landuse === "basin") return "Bassin";
+                if (tags.man_made === "reservoir_covered")
+                    return "Réservoir couvert";
+                if (tags.landuse === "forest") return "Forêt";
+                if (tags.leisure === "park") return "Parc";
+                if (tags.landuse === "residential") return "Zone résidentielle";
+                if (tags.building === "residential")
+                    return "Bâtiment résidentiel";
+                if (tags.amenity === "marketplace") return "Marché";
+                if (tags.landuse === "farmland") return "Terre agricole";
+                if (tags.landuse === "orchard") return "Verger";
+                if (tags.boundary === "protected_area") return "Zone protégée";
+                if (tags.landuse === "industrial") return "Zone industrielle";
+                if (tags.landuse === "commercial") return "Zone commerciale";
+                if (tags.amenity === "waste_disposal")
+                    return "Site de gestion des déchets";
+                if (tags.amenity === "recycling") return "Site de recyclage";
+                if (tags.amenity === "drinking_water")
+                    return "Point d'eau potable";
+                if (tags.man_made === "water_well") return "Puits";
+                if (tags.man_made === "wastewater_plant")
+                    return "Station d'épuration";
+                if (tags.power === "plant") return "Centrale électrique";
+                if (tags.power === "substation")
+                    return "Sous-station électrique";
+                if (tags.power === "line") return "Ligne électrique";
+                if (tags.highway === "bus_stop") return "Arrêt de bus";
+                if (tags.railway === "station") return "Gare";
+                if (tags.hazard === "flood") return "Zone inondable";
 
-                // Handle leisure features
-                if (element.tags.leisure) {
-                    switch (element.tags.leisure) {
-                        case "park":
-                            return "Parc";
-                        case "garden":
-                            return "Jardin";
-                        case "recreation_ground":
-                            return "Terrain de loisirs";
-                        case "park_space":
-                            return "Espace de parc";
-                        default:
-                            return element.tags.leisure;
-                    }
-                }
-
-                // Handle waterways
-                if (element.tags.waterway) {
-                    switch (element.tags.waterway) {
-                        case "river":
-                            return "Rivière";
-                        case "stream":
-                            return "Ruisseau";
-                        case "canal":
-                            return "Canal";
-                        case "drain":
-                            return "Drain";
-                        case "ditch":
-                            return "Fossé";
-                        case "waterfall":
-                            return "Cascade";
-                        case "rapids":
-                            return "Rapides";
-                        default:
-                            return element.tags.waterway;
-                    }
-                }
-
-                // If none of the above, return the original tag value
-                return (
-                    element.tags.amenity ||
-                    element.tags.natural ||
-                    element.tags.leisure ||
-                    element.tags.waterway
-                );
+                return "Autre";
             });
 
             return translatedElements;
@@ -426,6 +415,7 @@ export const IncidentData = () => {
                 sensitive_structures: sensitiveStructures,
                 incident_id: incidentId,
                 user_id: userId,
+                zone: incident.zone,
             };
             console.log("Les sites voisins:", sensitiveStructures);
             console.log("Payload being sent:", payload);
