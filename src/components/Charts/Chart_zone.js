@@ -172,6 +172,7 @@ const ZoneChart = () => {
         'Grand Yoff': 'Dakar',
         'Ouakam': 'Dakar',
         'Ngor': 'Dakar',
+        'Bambilor':'Dakar',
 
         // Thiès
         'Thiès': 'Thiès',

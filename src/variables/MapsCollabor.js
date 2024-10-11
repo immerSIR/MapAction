@@ -154,14 +154,13 @@ const Carte = ({ onShowIncident }) => {
                     </Flex>
                     </div>
                     <div className="col-md-6">
-                    <Image
-                      src={mark.img}
-                      alt="Organization"
-                      // borderRadius="full"
-                      boxSize="300px"
-                      objectFit="cover"
-                    />
-                      <div>
+                      <Image
+                        src={mark.img}
+                        alt="Organization"
+                        boxSize="100px"
+                        objectFit="cover"
+                      />
+                      <div style={{ wordBreak:'break-word', maxWidth:'14Opx'}}>
                         <p> Pris en compte par {mark.orga_name} </p>
                       </div>
                       <Image
