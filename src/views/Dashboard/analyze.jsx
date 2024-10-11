@@ -182,9 +182,9 @@ export default function Analyze() {
 
     // Function to convert Markdown to sanitized HTML
     const convertMarkdownToHtml = (markdownText) => {
-        const rawHtml = marked(markdownText); // Convert markdown to raw HTML
-        const sanitizedHtml = DOMPurify.sanitize(rawHtml); // Sanitize the HTML
-        return { __html: sanitizedHtml };
+        if (!markdownText) return { __html: "" };
+        const rawHtml = marked(markdownText);
+        return { __html: DOMPurify.sanitize(rawHtml) };
     };
 
     // Create a custom marker icon based on the incident state
@@ -268,14 +268,8 @@ export default function Analyze() {
                                             <>
                                                 <Box
                                                     dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                        prediction.context ||
-                                                            "Contexte non disponible"
-                                                    )}
-                                                />
-                                                <Box
-                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                        prediction.impact_potentiel ||
-                                                            "Non disponible"
+                                                        prediction.analysis ||
+                                                            "Analyse non disponible"
                                                     )}
                                                 />
                                                 <Box
@@ -287,17 +281,22 @@ export default function Analyze() {
                                             </>
                                         ) : (
                                             // Show a snippet of the context with an option to expand
-                                            `${
-                                                prediction.context
-                                                    ? prediction.context.substring(
-                                                          0,
-                                                          300
-                                                      )
-                                                    : "Aucun contexte disponible"
-                                            }...`
+                                            <Box
+                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
+                                                    `${
+                                                        prediction.analysis
+                                                            ? prediction.analysis.substring(
+                                                                  0,
+                                                                  300
+                                                              )
+                                                            : "Aucun contexte disponible"
+                                                    }...`
+                                                )}
+                                            />
                                         )}
-                                        {prediction.context &&
-                                            prediction.context.length > 300 && (
+                                        {prediction.analysis &&
+                                            prediction.analysis.length >
+                                                300 && (
                                                 <Button
                                                     onClick={toggleExpanded}
                                                     variant="link"
