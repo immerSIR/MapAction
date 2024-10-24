@@ -9,8 +9,16 @@ import {
     Text,
     Heading,
     Spinner,
-    useColorMode,
     useColorModeValue,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    Image,
+    useDisclosure,
 } from "@chakra-ui/react";
 import Card from "components/Card/Card.js";
 import { IncidentData } from "Fonctions/Incident_fonction";
@@ -26,10 +34,13 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import L from "leaflet"; // Import Leaflet
 import { useParams } from "react-router-dom"; // Import useParams to get incidentId
-import { marked } from "marked";
-import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
 import "./Chat.css";
 import QuotesCarousel from "./QuotesCarousel"; // Import QuotesCarousel from the same directory
+import ReactMarkdown from "react-markdown"; // Add this import
+import { config } from "config";
+import Slider from "react-slick"; // Import react-slick for carousel
+import "slick-carousel/slick/slick.css"; // Import slick carousel styles
+import "slick-carousel/slick/slick-theme.css"; // Import slick carousel theme
 
 export default function Analyze() {
     const { incidentId } = useParams(); // Get incidentId from the URL parameters
@@ -45,17 +56,17 @@ export default function Analyze() {
         piste_solution,
         impact_potentiel,
         type_incident,
-        zone, // Assuming `zone` corresponds to `area_name`
+        zone,
         sendPrediction,
     } = IncidentData();
-
-    const { colorMode } = useColorMode();
     const textColor = useColorModeValue("gray.700", "white");
 
     const [expanded, setExpanded] = useState(false);
     const [prediction, setPrediction] = useState(null); // State to store the prediction
     const [isLoadingContext, setIsLoadingContext] = useState(true); // State to track context loading
     const predictionSentRef = useRef(false); // Ref to track if prediction has been sent
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const toggleExpanded = () => {
         setExpanded(!expanded);
@@ -65,7 +76,7 @@ export default function Analyze() {
     const fetchPredictionsByIncidentId = async (incidentId) => {
         try {
             const response = await fetch(
-                `http://139.144.63.238/MapApi/Incidentprediction/${incidentId}`
+                `${config.url}/MapApi/Incidentprediction/${incidentId}`
             );
 
             if (!response.ok) {
@@ -138,7 +149,8 @@ export default function Analyze() {
         };
 
         fetchData();
-    }, [incident, incidentId]); // Removed sendPrediction from dependencies
+    }, [incident, incidentId]);
+    // Removed sendPrediction from dependencies
 
     // Polling to check for context availability if it's loading and prediction is not yet available
     useEffect(() => {
@@ -163,6 +175,7 @@ export default function Analyze() {
 
                     if (predictionExists) {
                         console.log("Prediction now exists.");
+
                         // If updatedPrediction is an array, take the first element
                         const validPrediction = Array.isArray(updatedPrediction)
                             ? updatedPrediction[0]
@@ -180,12 +193,13 @@ export default function Analyze() {
         }
     }, [isLoadingContext, prediction, incidentId]);
 
-    // Function to convert Markdown to sanitized HTML
-    const convertMarkdownToHtml = (markdownText) => {
-        if (!markdownText) return { __html: "" };
-        const rawHtml = marked(markdownText);
-        return { __html: DOMPurify.sanitize(rawHtml) };
-    };
+    if (prediction) {
+        console.log(prediction.ndvi_heatmap);
+    } else {
+        console.log(
+            "Prediction data is not available or does not contain ndvi_heatmap."
+        );
+    }
 
     // Create a custom marker icon based on the incident state
     const iconHTML = ReactDOMServer.renderToString(
@@ -213,6 +227,23 @@ export default function Analyze() {
         }, [lat, lon, map]);
         return null;
     }
+
+    const MarkdownComponents = {
+        h1: (props) => <Heading as="h1" size="xl" my={4} {...props} />,
+        h2: (props) => <Heading as="h2" size="lg" my={4} {...props} />,
+        h3: (props) => <Heading as="h3" size="md" my={3} {...props} />,
+        p: (props) => <Text my={2} {...props} />,
+        // Add more custom components as needed
+    };
+
+    // Settings for the carousel
+    const sliderSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+    };
 
     return (
         <Flex flexDirection="column" pt={{ base: "120px", md: "75px" }}>
@@ -266,33 +297,37 @@ export default function Analyze() {
                                     <Text mt="2">
                                         {expanded ? (
                                             <>
-                                                <Box
-                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                        prediction.analysis ||
-                                                            "Analyse non disponible"
-                                                    )}
-                                                />
-                                                <Box
-                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                        prediction.piste_solution ||
-                                                            "Non disponible"
-                                                    )}
-                                                />
+                                                <ReactMarkdown
+                                                    components={
+                                                        MarkdownComponents
+                                                    }
+                                                >
+                                                    {prediction.analysis ||
+                                                        "Analyse non disponible"}
+                                                </ReactMarkdown>
+                                                <ReactMarkdown
+                                                    components={
+                                                        MarkdownComponents
+                                                    }
+                                                >
+                                                    {prediction.piste_solution ||
+                                                        "Non disponible"}
+                                                </ReactMarkdown>
                                             </>
                                         ) : (
                                             // Show a snippet of the context with an option to expand
-                                            <Box
-                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                    `${
-                                                        prediction.analysis
-                                                            ? prediction.analysis.substring(
-                                                                  0,
-                                                                  300
-                                                              )
-                                                            : "Aucun contexte disponible"
-                                                    }...`
-                                                )}
-                                            />
+                                            <ReactMarkdown
+                                                components={MarkdownComponents}
+                                            >
+                                                {`${
+                                                    prediction.analysis
+                                                        ? prediction.analysis.substring(
+                                                              0,
+                                                              310
+                                                          )
+                                                        : "Aucun contexte disponible"
+                                                }...`}
+                                            </ReactMarkdown>
                                         )}
                                         {prediction.analysis &&
                                             prediction.analysis.length >
@@ -315,6 +350,61 @@ export default function Analyze() {
                                     >
                                         MapChat
                                     </Button>
+                                    <Button
+                                        onClick={onOpen}
+                                        colorScheme="teal"
+                                        mt="4"
+                                    >
+                                        Voir Graphiques
+                                    </Button>
+                                    <Modal isOpen={isOpen} onClose={onClose}>
+                                        <ModalOverlay />
+                                        <ModalContent maxW="80vw" maxH="80vh">
+                                            <ModalHeader>
+                                                Graphiques
+                                            </ModalHeader>
+                                            <ModalCloseButton />
+                                            <ModalBody>
+                                                <Slider {...sliderSettings}>
+                                                    <div>
+                                                        <Image
+                                                            src={
+                                                                prediction.ndvi_heatmap
+                                                            }
+                                                            alt="NDVI Heatmap"
+                                                            mb={4}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Image
+                                                            src={
+                                                                prediction.ndvi_ndwi_plot
+                                                            }
+                                                            alt="NDVI NDWI Plot"
+                                                            mb={4}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Image
+                                                            src={
+                                                                prediction.landcover_plot
+                                                            }
+                                                            alt="Landcover Plot"
+                                                        />
+                                                    </div>
+                                                </Slider>
+                                            </ModalBody>
+                                            <ModalFooter>
+                                                <Button
+                                                    colorScheme="blue"
+                                                    mr={3}
+                                                    onClick={onClose}
+                                                >
+                                                    Fermer
+                                                </Button>
+                                            </ModalFooter>
+                                        </ModalContent>
+                                    </Modal>
                                 </Box>
                             )}
                         </Box>
