@@ -344,19 +344,20 @@ export default function Analyze() {
                                             )}
                                     </Text>
                                     <br />
-                                    <Button
-                                        onClick={handleNavigateLLM}
-                                        colorScheme="teal"
-                                    >
-                                        MapChat
-                                    </Button>
-                                    <Button
-                                        onClick={onOpen}
-                                        colorScheme="teal"
-                                        mt="4"
-                                    >
-                                        Voir Graphiques
-                                    </Button>
+                                    <Flex gap="4">
+                                        <Button
+                                            onClick={handleNavigateLLM}
+                                            colorScheme="teal"
+                                        >
+                                            MapChat
+                                        </Button>
+                                        <Button
+                                            onClick={onOpen}
+                                            colorScheme="teal"
+                                        >
+                                            Visualiser
+                                        </Button>
+                                    </Flex>
                                     <Modal isOpen={isOpen} onClose={onClose}>
                                         <ModalOverlay />
                                         <ModalContent maxW="80vw" maxH="80vh">
@@ -373,6 +374,8 @@ export default function Analyze() {
                                                             }
                                                             alt="NDVI Heatmap"
                                                             mb={4}
+                                                            maxW="100%"
+                                                            maxH="60vh"
                                                         />
                                                     </div>
                                                     <div>
@@ -382,6 +385,8 @@ export default function Analyze() {
                                                             }
                                                             alt="NDVI NDWI Plot"
                                                             mb={4}
+                                                            maxW="100%"
+                                                            maxH="60vh"
                                                         />
                                                     </div>
                                                     <div>
@@ -390,6 +395,8 @@ export default function Analyze() {
                                                                 prediction.landcover_plot
                                                             }
                                                             alt="Landcover Plot"
+                                                            maxW="100%"
+                                                            maxH="60vh"
                                                         />
                                                     </div>
                                                 </Slider>
