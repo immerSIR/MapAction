@@ -90,12 +90,10 @@ export const IncidentData = () => {
     const [videoIsLoading, setVideoIsLoading] = useState(false);
     const imgUrl =
         incident && incident.photo ? config.url + incident.photo : "";
-    // console.log("The image url is", imgUrl);
-    // console.log("The photo is", incident.photo);
-    // console.log("The image is", incident.image_name);
+
     const audioUrl = incident ? config.url + incident.audio : "";
     const videoUrl = incident ? config.url + incident.video : "";
-    // console.log(videoUrl);
+
     const latitude = incident?.lattitude || 0;
     console.log("latitude:", latitude);
     const longitude = incident?.longitude || 0;
@@ -118,11 +116,10 @@ export const IncidentData = () => {
     const data = [];
     const [prediction, setPredictions] = useState([]);
     const piste_solution = prediction ? prediction.piste_solution : "";
-    // console.log("Piste solution", piste_solution);
-    const context = prediction ? prediction.context : "";
-    // console.log("Context", context);
-    const impact_potentiel = prediction ? prediction.impact_potentiel : "";
-    // console.log("impact_potentiel", impact_potentiel);
+    const analysis = prediction ? prediction.analysis : "";
+    const ndvi_heatmap = prediction ? prediction.ndvi_heatmap : "";
+    const ndvi_ndwi_plot = prediction ? prediction.ndvi_ndwi_plot : "";
+    const landcover_plot = prediction ? prediction.landcover_plot : "";
     const type_incident = prediction ? prediction.incident_type : "";
     const [EditIncident, setEditIncident] = useState({
         title: "",
@@ -416,6 +413,8 @@ export const IncidentData = () => {
                 incident_id: incidentId,
                 user_id: userId,
                 zone: incident.zone,
+                latitude: latitude,
+                longitude: longitude,
             };
             console.log("Les sites voisins:", sensitiveStructures);
             console.log("Payload being sent:", payload);
@@ -453,9 +452,11 @@ export const IncidentData = () => {
         handleNavigate,
         setVideoIsLoading,
         incident,
-        context,
+        analysis,
+        ndvi_heatmap,
+        ndvi_ndwi_plot,
+        landcover_plot,
         piste_solution,
-        impact_potentiel,
         type_incident,
         zone,
         EditIncident,
