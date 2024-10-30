@@ -102,5 +102,8 @@
             "last 1 safari version"
         ]
     },
-    "proxy": "http://139.144.63.238"
+    "proxy": "http://20.19.82.202",
+    "engines": {
+        "node": ">=18"
+    }
 }
