@@ -62,7 +62,7 @@
     "scripts": {
         "start": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
         "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build && gulp licenses",
-        "test": "NODE_OPTIONS=--openssl-legacy-provider react-scripts test --env=jsdom",
+        "test": "NODE_OPTIONS=--openssl-legacy-provider react-scripts test --env=jsdom --coverage",
         "eject": "react-scripts eject",
         "deploy": "npm run build",
         "lint:check": "eslint . --ext=js,jsx;  exit 0",
@@ -75,11 +75,20 @@
     },
     "devDependencies": {
         "@babel/plugin-transform-react-jsx-source": "^7.14.5",
+        "@testing-library/dom": "^10.4.0",
+        "@testing-library/jest-dom": "^6.6.2",
+        "@testing-library/react": "^16.0.1",
+        "@testing-library/react-hooks": "^8.0.1",
+        "@testing-library/user-event": "^14.5.2",
         "eslint-config-prettier": "8.3.0",
         "eslint-plugin-prettier": "3.4.0",
         "gulp": "^5.0.0",
         "gulp-append-prepend": "1.0.9",
-        "prettier": "2.2.1"
+        "identity-obj-proxy": "^3.0.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
+        "prettier": "2.2.1",
+        "text-encoding-polyfill": "^0.6.7"
     },
     "browserslist": {
         "production": [

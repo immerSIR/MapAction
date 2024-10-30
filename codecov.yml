@@ -1,0 +1,14 @@
+# Codecov configuration file
+coverage:
+    precision: 2
+    round: down
+    range: "40...100"
+    status:
+        project:
+            default:
+                target: 40%
+        patch:
+            default:
+                target: 40%
+    notify:
+        require_ci_to_pass: yes
