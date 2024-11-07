@@ -8,8 +8,17 @@ module.exports = {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<rootDir>/src/__mocks__/fileMock.js",
-    "^components/(.*)$": "<rootDir>/src/components/$1", // Resolving 'components' alias
-    "^src/(.*)$": "<rootDir>/src/$1", // Resolving 'src' alias if you use it
+    "react-leaflet": "<rootDir>/src/__mocks__/reactLeafletMock.js",
+    "react-apexcharts": "<rootDir>/src/__mocks__/apexcharts.js",
+    "^components/(.*)$": "<rootDir>/src/components/$1",
+    "^context/(.*)$": "<rootDir>/src/context/$1",
+    "^assets/(.*)$": "<rootDir>/src/assets/$1",
+    "^layouts/(.*)$": "<rootDir>/src/layouts/$1",
+    "^Fonctions/(.*)$": "<rootDir>/src/Fonctions/$1",
+    "^theme/(.*)$": "<rootDir>/src/theme/$1",
+    "^variables/(.*)$": "<rootDir>/src/variables/$1",
+    "^views/(.*)$": "<rootDir>/src/views/$1",
+    "^src/(.*)$": "<rootDir>/src/$1",
   },
   roots: ["<rootDir>/src"],
   testMatch: ["<rootDir>/src/**/*.(test|spec).(js|jsx|ts|tsx)"],
