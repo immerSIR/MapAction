@@ -9,8 +9,16 @@ import {
     Text,
     Heading,
     Spinner,
-    useColorMode,
     useColorModeValue,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    Image,
+    useDisclosure,
 } from "@chakra-ui/react";
 import Card from "components/Card/Card.js";
 import { IncidentData } from "Fonctions/Incident_fonction";
@@ -26,10 +34,13 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import ReactDOMServer from "react-dom/server";
 import L from "leaflet"; // Import Leaflet
 import { useParams } from "react-router-dom"; // Import useParams to get incidentId
-import { marked } from "marked";
-import DOMPurify from "dompurify"; // Import DOMPurify to sanitize HTML
 import "./Chat.css";
 import QuotesCarousel from "./QuotesCarousel"; // Import QuotesCarousel from the same directory
+import ReactMarkdown from "react-markdown"; // Add this import
+import { config } from "config";
+import Slider from "react-slick"; // Import react-slick for carousel
+import "slick-carousel/slick/slick.css"; // Import slick carousel styles
+import "slick-carousel/slick/slick-theme.css"; // Import slick carousel theme
 
 export default function Analyze() {
     const { incidentId } = useParams(); // Get incidentId from the URL parameters
@@ -45,17 +56,17 @@ export default function Analyze() {
         piste_solution,
         impact_potentiel,
         type_incident,
-        zone, // Assuming `zone` corresponds to `area_name`
+        zone,
         sendPrediction,
     } = IncidentData();
-
-    const { colorMode } = useColorMode();
     const textColor = useColorModeValue("gray.700", "white");
 
     const [expanded, setExpanded] = useState(false);
     const [prediction, setPrediction] = useState(null); // State to store the prediction
     const [isLoadingContext, setIsLoadingContext] = useState(true); // State to track context loading
     const predictionSentRef = useRef(false); // Ref to track if prediction has been sent
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const toggleExpanded = () => {
         setExpanded(!expanded);
@@ -65,7 +76,7 @@ export default function Analyze() {
     const fetchPredictionsByIncidentId = async (incidentId) => {
         try {
             const response = await fetch(
-                `http://139.144.63.238/MapApi/Incidentprediction/${incidentId}`
+                `${config.url}/MapApi/Incidentprediction/${incidentId}`
             );
 
             if (!response.ok) {
@@ -85,60 +96,51 @@ export default function Analyze() {
         }
     };
 
-    // Initial data fetching when component mounts or when incident or incidentId changes
+    // Add this function to determine if we should show the report
+    const shouldShowReport = () => {
+        return type_incident !== "Aucun problème environnemental";
+    };
+
+    // Modify the useEffect for fetching predictions
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch existing prediction for the incident
-                const existingPrediction = await fetchPredictionsByIncidentId(
-                    incidentId
-                );
-
-                console.log("Existing prediction:", existingPrediction); // Log prediction
-
-                // Check if prediction exists
-                const predictionExists =
-                    (Array.isArray(existingPrediction) &&
-                        existingPrediction.length > 0) ||
-                    (typeof existingPrediction === "object" &&
-                        existingPrediction !== null &&
-                        Object.keys(existingPrediction).length > 0);
-
-                if (predictionExists) {
-                    console.log(
-                        "Prediction already exists, skipping prediction."
+                // Only fetch prediction if we should show the report
+                if (shouldShowReport()) {
+                    const existingPrediction = await fetchPredictionsByIncidentId(
+                        incidentId
                     );
-                    // If existingPrediction is an array, take the first element
-                    const validPrediction = Array.isArray(existingPrediction)
-                        ? existingPrediction[0]
-                        : existingPrediction;
-                    setPrediction(validPrediction); // Set the prediction if it exists
-                    setIsLoadingContext(false); // Context is available
-                } else {
-                    if (imgUrl) {
-                        // Updated condition to check imgUrl instead of incident.photo
-                        if (!predictionSentRef.current) {
-                            console.log("Sending prediction as none exists.");
-                            await sendPrediction(); // Send prediction if no existing one is found
-                            predictionSentRef.current = true; // Mark that prediction has been sent
-                        }
-                        // After sending prediction, wait for it to become available
-                        setIsLoadingContext(true);
-                    } else {
-                        console.log(
-                            "Incident photo is not available yet, skipping prediction."
-                        );
-                        setIsLoadingContext(false); // No context will be available
+
+                    console.log("Existing prediction:", existingPrediction);
+
+                    const predictionExists =
+                        (Array.isArray(existingPrediction) &&
+                            existingPrediction.length > 0) ||
+                        (typeof existingPrediction === "object" &&
+                            existingPrediction !== null &&
+                            Object.keys(existingPrediction).length > 0);
+
+                    if (predictionExists) {
+                        const validPrediction = Array.isArray(
+                            existingPrediction
+                        )
+                            ? existingPrediction[0]
+                            : existingPrediction;
+                        setPrediction(validPrediction);
+                    } else if (imgUrl && !predictionSentRef.current) {
+                        await sendPrediction();
+                        predictionSentRef.current = true;
                     }
                 }
+                setIsLoadingContext(false);
             } catch (error) {
                 console.error("Error fetching or sending prediction:", error);
-                setIsLoadingContext(false); // Stop loading on error
+                setIsLoadingContext(false);
             }
         };
 
         fetchData();
-    }, [incident, incidentId]); // Removed sendPrediction from dependencies
+    }, [incident, incidentId]);
 
     // Polling to check for context availability if it's loading and prediction is not yet available
     useEffect(() => {
@@ -163,6 +165,7 @@ export default function Analyze() {
 
                     if (predictionExists) {
                         console.log("Prediction now exists.");
+
                         // If updatedPrediction is an array, take the first element
                         const validPrediction = Array.isArray(updatedPrediction)
                             ? updatedPrediction[0]
@@ -180,12 +183,13 @@ export default function Analyze() {
         }
     }, [isLoadingContext, prediction, incidentId]);
 
-    // Function to convert Markdown to sanitized HTML
-    const convertMarkdownToHtml = (markdownText) => {
-        if (!markdownText) return { __html: "" };
-        const rawHtml = marked(markdownText);
-        return { __html: DOMPurify.sanitize(rawHtml) };
-    };
+    if (prediction) {
+        console.log(prediction.ndvi_heatmap);
+    } else {
+        console.log(
+            "Prediction data is not available or does not contain ndvi_heatmap."
+        );
+    }
 
     // Create a custom marker icon based on the incident state
     const iconHTML = ReactDOMServer.renderToString(
@@ -214,6 +218,23 @@ export default function Analyze() {
         return null;
     }
 
+    const MarkdownComponents = {
+        h1: (props) => <Heading as="h1" size="xl" my={4} {...props} />,
+        h2: (props) => <Heading as="h2" size="lg" my={4} {...props} />,
+        h3: (props) => <Heading as="h3" size="md" my={3} {...props} />,
+        p: (props) => <Text my={2} {...props} />,
+        // Add more custom components as needed
+    };
+
+    // Settings for the carousel
+    const sliderSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+    };
+
     return (
         <Flex flexDirection="column" pt={{ base: "120px", md: "75px" }}>
             <Grid
@@ -229,8 +250,7 @@ export default function Analyze() {
                             justify="space-between"
                             p="22px"
                         >
-                            {isLoadingContext || !prediction ? (
-                                // Display loading state with header, spinner, and QuotesCarousel
+                            {isLoadingContext ? (
                                 <Box textAlign="center">
                                     <Heading size="md" mb="4">
                                         L'analyse est en cours et le rapport
@@ -245,8 +265,42 @@ export default function Analyze() {
                                     </Flex>
                                     <QuotesCarousel />
                                 </Box>
+                            ) : type_incident ===
+                              "Aucun problème environnemental" ? (
+                                <Box mb="4" minH="200px">
+                                    <Heading as="h6" size="md" mb="4">
+                                        Rapport d'Analyse
+                                    </Heading>
+                                    <Text mb="4" fontWeight="bold">
+                                        Notre modèle a analysé l'image de
+                                        l'incident mais n'a détecté aucun
+                                        problème environnemental. Par
+                                        conséquent, aucun rapport détaillé n'a
+                                        été généré.
+                                    </Text>
+                                    <Text
+                                        mb="4"
+                                        fontWeight="bold"
+                                        color="gray.600"
+                                    >
+                                        Note: Notre modèle utilise
+                                        l'intelligence artificielle et peut donc
+                                        ne pas être parfait. Si vous pensez
+                                        qu'il s'est trompé, vous pouvez toujours
+                                        poursuivre l'analyse de l'incident via
+                                        MapChat.
+                                    </Text>
+                                    <Flex gap="4">
+                                        <Button
+                                            onClick={handleNavigateLLM}
+                                            colorScheme="teal"
+                                        >
+                                            MapChat
+                                        </Button>
+                                    </Flex>
+                                </Box>
                             ) : (
-                                // Display full report when prediction is available
+                                // Existing report display code
                                 <Box mb="4" minH="200px">
                                     <Heading as="h6" size="md" mb="4">
                                         Rapport d'Analyse
@@ -266,33 +320,37 @@ export default function Analyze() {
                                     <Text mt="2">
                                         {expanded ? (
                                             <>
-                                                <Box
-                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                        prediction.analysis ||
-                                                            "Analyse non disponible"
-                                                    )}
-                                                />
-                                                <Box
-                                                    dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                        prediction.piste_solution ||
-                                                            "Non disponible"
-                                                    )}
-                                                />
+                                                <ReactMarkdown
+                                                    components={
+                                                        MarkdownComponents
+                                                    }
+                                                >
+                                                    {prediction.analysis ||
+                                                        "Analyse non disponible"}
+                                                </ReactMarkdown>
+                                                <ReactMarkdown
+                                                    components={
+                                                        MarkdownComponents
+                                                    }
+                                                >
+                                                    {prediction.piste_solution ||
+                                                        "Non disponible"}
+                                                </ReactMarkdown>
                                             </>
                                         ) : (
                                             // Show a snippet of the context with an option to expand
-                                            <Box
-                                                dangerouslySetInnerHTML={convertMarkdownToHtml(
-                                                    `${
-                                                        prediction.analysis
-                                                            ? prediction.analysis.substring(
-                                                                  0,
-                                                                  300
-                                                              )
-                                                            : "Aucun contexte disponible"
-                                                    }...`
-                                                )}
-                                            />
+                                            <ReactMarkdown
+                                                components={MarkdownComponents}
+                                            >
+                                                {`${
+                                                    prediction.analysis
+                                                        ? prediction.analysis.substring(
+                                                              0,
+                                                              310
+                                                          )
+                                                        : "Aucun contexte disponible"
+                                                }...`}
+                                            </ReactMarkdown>
                                         )}
                                         {prediction.analysis &&
                                             prediction.analysis.length >
@@ -309,12 +367,74 @@ export default function Analyze() {
                                             )}
                                     </Text>
                                     <br />
-                                    <Button
-                                        onClick={handleNavigateLLM}
-                                        colorScheme="teal"
-                                    >
-                                        MapChat
-                                    </Button>
+                                    <Flex gap="4">
+                                        <Button
+                                            onClick={handleNavigateLLM}
+                                            colorScheme="teal"
+                                        >
+                                            MapChat
+                                        </Button>
+                                        <Button
+                                            onClick={onOpen}
+                                            colorScheme="teal"
+                                        >
+                                            Visualiser
+                                        </Button>
+                                    </Flex>
+                                    <Modal isOpen={isOpen} onClose={onClose}>
+                                        <ModalOverlay />
+                                        <ModalContent maxW="80vw" maxH="80vh">
+                                            <ModalHeader>
+                                                Graphiques
+                                            </ModalHeader>
+                                            <ModalCloseButton />
+                                            <ModalBody>
+                                                <Slider {...sliderSettings}>
+                                                    <div>
+                                                        <Image
+                                                            src={
+                                                                prediction.ndvi_heatmap
+                                                            }
+                                                            alt="NDVI Heatmap"
+                                                            mb={4}
+                                                            maxW="100%"
+                                                            maxH="60vh"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Image
+                                                            src={
+                                                                prediction.ndvi_ndwi_plot
+                                                            }
+                                                            alt="NDVI NDWI Plot"
+                                                            mb={4}
+                                                            maxW="100%"
+                                                            maxH="60vh"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Image
+                                                            src={
+                                                                prediction.landcover_plot
+                                                            }
+                                                            alt="Landcover Plot"
+                                                            maxW="100%"
+                                                            maxH="60vh"
+                                                        />
+                                                    </div>
+                                                </Slider>
+                                            </ModalBody>
+                                            <ModalFooter>
+                                                <Button
+                                                    colorScheme="blue"
+                                                    mr={3}
+                                                    onClick={onClose}
+                                                >
+                                                    Fermer
+                                                </Button>
+                                            </ModalFooter>
+                                        </ModalContent>
+                                    </Modal>
                                 </Box>
                             )}
                         </Box>

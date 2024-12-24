@@ -1,17 +1,27 @@
 [![forthebadge](https://forthebadge.com/images/badges/made-with-react.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/made-with-css.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/made-with-javascript.svg)](https://forthebadge.com)
 
-# Map Action Dashboard
+# 🗺️ Map Action Dashboard
 
 Map Action Dashboard is a web application designed for administrators and organizations to manage various tasks and actions related to mapping projects.
 
-## Description
+## 📝 Description
 
-The dashboard provides an intuitive interface for users to visualize data on interactive maps, manage users and access permissions, access the incident management section to report, track, and manage incidents related to mapping projects, view a detailed history of actions taken within the system, allowing users to track changes and updates over time, export data in csv form from the dashboard for further analysis or sharing purposes, facilitating seamless data management workflows, Customize and configure dashboard settings according to user preferences, including user profiles, find answers to frequently asked questions regarding the functionality and usage of the Map Action Dashboard, providing users with self-help resources for common queries, access online assistance and support resources, including tutorials, guides, and troubleshooting tips to help users navigate and utilize the dashboard effectively, and receive real-time updates and notifications.
+The dashboard provides an intuitive interface for users to:
 
-**Documentation built by Developers**
+- 🗺️ Visualize data on interactive maps
+- 👥 Manage users and access permissions
+- 📄 manage incidents related to mapping projects
+- 🕒 View a detailed history of actions taken within the system, allowing users to track changes and updates over time
+- 📊 Export data in CSV format for further analysis or sharing purposes
+- ⚙️ Customize and configure dashboard settings according to user preferences, including user profiles
+- 💬 Find answers to frequently asked questions regarding the functionality and usage of the Map Action Dashboard
+- 📚 Access online assistance and support resources, including tutorials, guides, and troubleshooting tips
+- 🔔 Receive real-time updates and notifications
+
+**📚 Documentation built by Developers**
 [Developper doc](https://223mapaction.github.io/Dashboard/)
 
-#### Special thanks
+#### 🎉 Special thanks
 
 During the development of this dashboard, we have used many existing resources from awesome developers. We want to thank them for providing their tools open source:
 
@@ -23,24 +33,24 @@ During the development of this dashboard, we have used many existing resources f
 
 Let us know your thoughts below. And good luck with development!
 
-## Table of Contents
+## 📑 Table of Contents
 
-- [Table of Contents](#table-of-contents)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Runing the app](#runing-the-app)
-- [Documentation](#documentation)
-- [Features](#features)
-- [Contibute to the project](#contibute-to-the-project)
-- [Licensing](#licensing)
-- [File Structure](#file-structure)
-- [Authors](#authors)
+- [📑 Table of Contents](#table-of-contents)
+- [⚙️ Requirements](#requirements)
+- [📦 Installation](#installation)
+- [🚀 Runing the app](#runing-the-app)
+- [📚 Documentation](#documentation)
+- [✨ Features](#features)
+- [🤝 Contibute to the project](#contibute-to-the-project)
+- [📄 Licensing](#licensing)
+- [📂 File Structure](#file-structure)
+- [👥 Authors](#authors)
 
-## Requirements
+## ⚙️ Requirements
 
 1. Download and Install NodeJs LTS version from [NodeJs Official Page](https://nodejs.org/en/download/).
 
-## Installation 
+## 📦 Installation 
 
 To install dependencies, run:
 
@@ -54,7 +64,7 @@ $ yarn install
 
 ```
 
-## Runing the app
+## 🚀 Runing the app
 
 Navigate to the root / directory and run
 
@@ -62,40 +72,40 @@ Navigate to the root / directory and run
 $ npm start
 ```
 
-## Documentation
+## 📚 Documentation
 
 The documentation for the Map Action is hosted at our [Developper doc](https://223mapaction.github.io/Dashboard/).
 
-## Technologies
+## 💻 Technologies
   - JS
   - CSS
   - React
   
   ![Selection_078](https://github.com/223MapAction/Dashboard/assets/64170643/cacccdd6-8586-403c-8acf-8a979dc081bd)
 
-## Features
+## ✨ Features
 
-- Incident Management;
-- User Management;
-- Interactive maps for data visualization;
-- Real-time updates and notifications;
-- Data Export by day and month;
-- collaboration on incident between organisation;
+- 🚨 Incident Management;
+- 👥 User Management;
+- 🗺️ Interactive maps for data visualization;
+- 🔔 Real-time updates and notifications;
+- 📊 Data Export by day and month;
+- 🤝 collaboration on incident between organisation;
 
 ![Selection_074](https://github.com/223MapAction/Dashboard/assets/64170643/6b3c449d-5b8f-46ca-be3c-2894468e9373)
 ---
 
-## Contibute to the project
+## 🤝 Contibute to the project
 Map Action is an open source project. Fell free to fork the source and contribute with your features. Please follow our [contribution guidelines](CONTRIBUTING.md).
 
-## Authors
+## 👥 Authors
 Our code squad : @A7640S, @223MapAction 
 
-## Licensing
+## 📄 Licensing
 
 This project was built under the [GNU General Public Licence](LICENSE).
 
-## File Structure
+## 📂 File Structure
 
 Within the download you'll find the following directories and files:
 

@@ -102,7 +102,7 @@ function Chat() {
     // WebSocket setup
     useEffect(() => {
         const websocket = new WebSocket(
-            "ws://57.153.185.160:8001/api1/ws/chat"
+            "wss://model.map-action.com/api1/ws/chat"
         );
 
         const connectWebSocket = () => {
@@ -120,7 +120,7 @@ function Chat() {
                 ) {
                     console.log("Reconnecting WebSocket...");
                     setWs(
-                        new WebSocket("ws://57.153.185.160:8001/api1/ws/chat")
+                        new WebSocket("wss://model.map-action.com/api1/ws/chat")
                     );
                 }
             }, 3000);
