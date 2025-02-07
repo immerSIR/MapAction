@@ -134,8 +134,12 @@
         "coverageReporters": [
             "text",
             "lcov",
-            "html"
+            "html",
+            "text-summary",
+            "json-summary"
+
         ]
+        
     },
     "babel": {
       "presets": [
