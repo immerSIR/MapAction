@@ -161,8 +161,9 @@ export default function HeaderLinks(props) {
       pe={{ sm: "0px", md: "16px" }}
       w={{ sm: "100%", md: "auto" }}
       alignItems='center'
-      flexDirection='row'>
+      flexDirection='row' data-testid="search">
       <SearchBar
+        data-testid="search-content"
         me='18px'
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -222,14 +223,14 @@ export default function HeaderLinks(props) {
               onChange={handleDateChange}
               locale={fr}
             />
-            <Button ml={4} colorScheme="blue" onClick={applyCustomRange}>
+            <Button ml={4} colorScheme="blue" onClick={applyCustomRange} data-testid="appliquer">
               Appliquer
             </Button>
           </Flex>
         )}
 
       <Menu>
-        <MenuButton>
+        <MenuButton data-testid="notifications-icon">
           <BellIcon color={navbarIcon} w='18px' h='18px' ms="12px"/>
         </MenuButton>
         <MenuList p="16px 8px" bg={menuBg}>
@@ -277,8 +278,9 @@ export default function HeaderLinks(props) {
           </ModalContent>
         </Modal>
       )}
-      <Flex me='16px' ms={{ base: "16px", xl: "20px" }}>
+      <Flex me='16px' ms={{ base: "16px", xl: "20px" }} data-testid="logout-icon">
         <IoLogOutOutline
+          data-testid="logout-icon-inner"
           color={navbarIcon}
           size={22}
           onClick={handleLogout}

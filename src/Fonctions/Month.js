@@ -38,5 +38,11 @@ export const MonthProvider = ({ children }) => {
 };
 
 export const useMonth = () => {
-    return useContext(MonthContext);
+    const context = useContext(MonthContext);
+    console.log('useMonth context:', context); 
+    if (!context) {
+        throw new Error('useMonth must be used within a MonthProvider');
+    }
+    return context;
 };
+

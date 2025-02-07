@@ -67,7 +67,8 @@
         "deploy": "npm run build",
         "lint:check": "eslint . --ext=js,jsx;  exit 0",
         "lint:fix": "eslint . --ext=js,jsx --fix;  exit 0",
-        "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start"
+        "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
+        "test:coverage": "react-scripts test --coverage --watchAll=false"
     },
     "optionalDependencies": {
         "@babel/core": "7.14.0",
@@ -75,11 +76,16 @@
     },
     "devDependencies": {
         "@babel/plugin-transform-react-jsx-source": "^7.14.5",
+        "@testing-library/dom": "^10.4.0",
+        "@testing-library/jest-dom": "^6.6.3",
+        "@testing-library/react": "^16.2.0",
+        "@testing-library/user-event": "^14.6.1",
         "eslint-config-prettier": "8.3.0",
         "eslint-plugin-prettier": "3.4.0",
         "gulp": "^5.0.0",
         "gulp-append-prepend": "1.0.9",
         "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
         "prettier": "2.2.1"
     },
     "browserslist": {
@@ -94,5 +100,55 @@
             "last 1 safari version"
         ]
     },
-    "proxy": "http://api.map-action.com"
+    "proxy": "http://api.map-action.com",
+    "jest": {
+        
+        "testMatch": [
+          "<rootDir>/src/__tests__/**/*.{js,jsx,ts,tsx}"
+        ],
+        "collectCoverageFrom": [
+          "src/**/*.{js,jsx,ts,tsx}",
+          "!src/**/*.d.ts",
+          "!src/index.js",
+          "!src/serviceWorker.js"
+        ],
+        "moduleNameMapper": {
+            "^axios$": "<rootDir>/node_modules/axios/dist/axios.js",
+            "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+            "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
+            "^Fonctions/(.*)$": "<rootDir>/src/Fonctions/$1",
+            "^variables/(.*)$": "<rootDir>/src/variables/$1",
+            "^react-leaflet$": "<rootDir>/node_modules/react-leaflet/lib/index.js"
+        },
+        "transformIgnorePatterns": [
+         "node_modules/(?!(@?react-leaflet|leaflet|react-markdown|@react-leaflet|react-icons|@chakra-ui|@emotion|react-apexcharts|axios|@babel|@jest)/)"
+        ],
+
+        "transform": {
+          "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+          "node_modules/react-leaflet/.+\\.(js|jsx)$": "babel-jest"
+        },
+        "clearMocks": true,
+        "resetMocks": true,
+        "restoreMocks": true,
+        "coverageReporters": [
+            "text",
+            "lcov",
+            "html"
+        ]
+    },
+    "babel": {
+      "presets": [
+          "@babel/preset-env",
+          ["@babel/preset-react", { "runtime": "automatic" }]
+      ],
+      "ignore": [],
+      "overrides": [
+          {
+          "include": "./node_modules/react-leaflet",
+          "presets": ["@babel/preset-env"]
+          }
+      ]
+    }
+
 }

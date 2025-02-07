@@ -601,6 +601,11 @@ export const useIncidentData = () => {
         PercentageIncrease,
         _getCollaboration,
         collaboration,
-        monthsOptions
+        monthsOptions,
+        getIncidentById,
+        _setData: setData,
+        _setAnonymousPercentage: setAnonymousPercentage,
+        _setRegisteredPercentage: setRegisteredPercentage,
+        _countCategory: setCountCategory,
     };
 };

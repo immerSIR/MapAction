@@ -8,6 +8,7 @@ const ZoneChart = () => {
     const zoneToRegionMap = {
         'Faladiè-sema': 'Bamako',
         'Faladie Sema, Bamako, Mali': 'Bamako',
+        'Faladie Sema': 'Bamako',
         'Faladie, Bamako, Mali': 'Bamako',
         'Torokorobougou': 'Bamako',
         'Kalaban': 'Bamako',
