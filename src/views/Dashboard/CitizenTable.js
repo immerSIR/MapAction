@@ -371,8 +371,15 @@ export default function CitizenTable(){
                             <Button size="sm" onClick={() => handleEditUser(item)}>
                                 <FaEdit />
                             </Button>
-                            <Button size="sm"  ml="2" onClick={() => onDeleteUser(item)}>
-                                <FaTrash />
+                            <Button
+                              size="sm"
+                              // colorScheme="red"
+                              ml="2"
+                              data-testid={`delete-icon-${item.id}`}
+                              onClick={() => onDeleteUser(item)}
+                              // isLoading={inProgress}
+                            >
+                              <FaTrash />
                             </Button>
                         </Td>
                         </Tr>

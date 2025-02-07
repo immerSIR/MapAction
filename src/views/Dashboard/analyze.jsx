@@ -261,7 +261,7 @@ export default function Analyze() {
                                         align="center"
                                         mb="4"
                                     >
-                                        <Spinner size="lg" />
+                                        <Spinner data-testid="loading-indicator" size="lg" />
                                     </Flex>
                                     <QuotesCarousel />
                                 </Box>

@@ -82,7 +82,8 @@ export default function GlobalViewCollaboration() {
     end_date: ''
   });
   const [userDetails, setUserDetails] = useState({});
-  const avatar = config.url + userDetails.avatar
+  const avatar = userDetails?.avatar ? config.url + userDetails.avatar : '';
+
   console.log('avatar', avatar)
   useEffect(() => {
     setNewCollaborationData({
@@ -298,7 +299,7 @@ export default function GlobalViewCollaboration() {
               <Flex align="center" mb="4">
                 <Avatar src={avatar} size="xl" mr="4" />
                 <Box>
-                  <Text fontWeight="bold" fontSize="xl">{userDetails.organisation}</Text>
+                  <Text fontWeight="bold" fontSize="xl">{userDetails?.organisation}</Text>
                   <Text fontSize="sm">A pris en charge l'incident</Text>
                 </Box>
               </Flex>
@@ -309,11 +310,11 @@ export default function GlobalViewCollaboration() {
                 <Flex direction="column" gap={1}>
                   <Flex>
                     <Text fontWeight="semibold" color="blue.500" mr={2}>Email:</Text>
-                    <Text>{userDetails.email}</Text>
+                    <Text>{userDetails?.email}</Text>
                   </Flex>
                   <Flex>
                     <Text fontWeight="semibold" color="blue.500" mr={2}>Téléphone:</Text>
-                    <Text>{userDetails.phone}</Text>
+                    <Text>{userDetails?.phone}</Text>
                   </Flex>
                 </Flex>
               </Box>
