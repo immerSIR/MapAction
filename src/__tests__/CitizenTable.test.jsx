@@ -101,43 +101,58 @@ describe('CitizenTable Component', () => {
   });
 
   it('gère la modification d\'un citoyen', async () => {
+    // Préparez la réponse simulée pour axios.put
+    const updatedCitizen = {
+      id: 1,
+      first_name: "Jane Updated",
+      last_name: "Doe",
+      email: "john@example.com",
+      phone: "1234567890",
+      user_type: "citizen",
+      organisation: "Test Org"
+    };
+    axios.put.mockResolvedValueOnce({ data: updatedCitizen });
+  
     renderWithProvider(<CitizenTable />);
-
+  
     await waitFor(() => {
-      const editButton = screen.getByRole('button', { name: /edit/i });
+      const editButton = screen.getByTestId('edit');
       fireEvent.click(editButton);
     });
-
+  
     const inputs = screen.getAllByRole('textbox');
     fireEvent.change(inputs[0], { target: { value: 'Jane Updated' } });
-
+  
     const updateButton = screen.getByText('Modifier');
     fireEvent.click(updateButton);
-
+  
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalled();
     });
   });
+  
 
   it('gère la suppression d\'un citoyen', async () => {
     axios.delete.mockResolvedValueOnce({});
     renderWithProvider(<CitizenTable />);
-
+  
+    const deleteButton = await screen.findByTestId('delete-icon-1');
+    fireEvent.click(deleteButton);
+  
     await waitFor(() => {
-      const deleteButton = screen.getByTestId('delete-icon-1');
-      fireEvent.click(deleteButton);
+      expect(Swal.fire).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Etes-vous sûr?",
+        })
+      );
     });
-
-    expect(Swal.fire).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: "Etes-vous sûr?"
-      })
-    );
-
+  
     await waitFor(() => {
       expect(axios.delete).toHaveBeenCalled();
     });
   });
+  
+  
 
   it('gère le changement de fichier avatar', () => {
     renderWithProvider(<CitizenTable />);
@@ -153,7 +168,7 @@ describe('CitizenTable Component', () => {
     renderWithProvider(<CitizenTable />);
 
     await waitFor(() => {
-      const editButton = screen.getByRole('button', { name: /edit/i });
+      const editButton = screen.getByTestId('edit');
       fireEvent.click(editButton);
     });
 

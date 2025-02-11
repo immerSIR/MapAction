@@ -24,15 +24,18 @@ jest.mock('Fonctions/Incident_fonction', () => ({
     date: '2024-03-21',
     heure: '14:30',
     incident: { title: 'Test Incident' },
-    handleNavigateLLM: jest.fn(),
-    context: 'Test context',
-    piste_solution: 'Test solution',
-    impact_potentiel: 'Test impact',
+    analysis: { 
+      context: 'Test context',
+      piste_solution: 'Test solution',
+      impact_potentiel: 'Test impact'
+    },
     type_incident: 'Test type',
     zone: 'Test zone',
+    handleNavigateLLM: jest.fn(),
     sendPrediction: jest.fn()
   })
 }));
+
 
 const Analyze = require('../views/Dashboard/analyze').default;
 

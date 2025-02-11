@@ -245,6 +245,13 @@ describe('IncidentData', () => {
 
   it("gère une erreur lors de la récupération des prédictions", async () => {
     const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    axios.get
+      .mockResolvedValueOnce({ data: { data: { id: 1, name: "Test User" } } }) 
+      .mockResolvedValueOnce({ data: mockIncident }) 
+      .mockResolvedValueOnce({ data: [mockPrediction] }); 
+
+    // Pour le clic, on simule une erreur
     axios.get.mockRejectedValueOnce(new Error("API Error"));
     
     render(<TestComponentFetch />);
@@ -262,8 +269,6 @@ describe('IncidentData', () => {
     consoleSpy.mockRestore();
   });
 
-      
-  
 
   it('envoie les prédictions correctement', async () => {
     const mockOverpassResponse = {
@@ -476,15 +481,21 @@ describe('IncidentData', () => {
   
     // On mock axios.post pour qu'il log et renvoie une réponse résolue.
     axios.post.mockImplementation((url, data) => {
-      console.log("Appel axios.post à:", url, "avec les données:", data);
+      if (url === "https://overpass-api.de/api/interpreter") {
+        return Promise.resolve(mockOverpassResponse);
+      } else if (url === config.url2) {
+        return Promise.resolve({ data: {} });
+      }
       return Promise.resolve({ data: {} });
     });
-  
-    // Si sendPrediction dépend d'une réponse de prédiction, on simule aussi axios.get ici.
-    // Par exemple, si fetchPredictions fait appel à axios.get :
     const fakePrediction = { analysis: "Test Analysis", piste_solution: "Test Solution", incident_type: "Test Type" };
     axios.get.mockResolvedValueOnce({ data: [fakePrediction] });
     axios.get.mockImplementation((url, data) => {
+      if (url.includes("/MapApi/incident/")) {
+        // Retourne les détails de l'incident
+        return Promise.resolve({ data: mockIncident });
+      }
+      
       console.log("Appel axios.post à:", url, "avec les données:", data);
       return Promise.resolve(mockPrediction);
     });
@@ -500,10 +511,11 @@ describe('IncidentData', () => {
     });
   
     // On attend que les prédictions soient chargées (par exemple, en vérifiant qu'un élément affiche l'analyse)
+   
     await waitFor(() => {
-      expect(screen.getByTestId('analysis').textContent).toBe("Test Analysis");
+      expect(screen.getByTestId("img-url").textContent).toContain("test.jpg");
+      expect(screen.getByTestId("analysis").textContent).toBe("Test Analysis");
     });
-  
     // Maintenant, on déclenche sendPrediction
     await act(async () => {
       fireEvent.click(screen.getByTestId('send-prediction'));
