@@ -368,7 +368,7 @@ export default function CitizenTable(){
                         <Td borderColor={borderColor} color="gray.400">{item.email}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
                         <Td borderColor={borderColor} >
-                            <Button size="sm" onClick={() => handleEditUser(item)}>
+                            <Button size="sm" onClick={() => handleEditUser(item)} data-testid="edit">
                                 <FaEdit />
                             </Button>
                             <Button

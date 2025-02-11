@@ -364,7 +364,7 @@ export default function Tables(){
                         <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.organisation}</Td>
                         <Td borderColor={borderColor} >
-                            <Button size="sm" onClick={() => handleEditUser(item)}>
+                            <Button size="sm" onClick={() => handleEditUser(item)} data-testid='edit'>
                                 <FaEdit />
                             </Button>
                             <Button size="sm"  ml="2" onClick={() => onDeleteUser(item)}>
