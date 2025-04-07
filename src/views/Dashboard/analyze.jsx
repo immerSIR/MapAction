@@ -261,7 +261,10 @@ export default function Analyze() {
                                         align="center"
                                         mb="4"
                                     >
-                                        <Spinner data-testid="loading-indicator" size="lg" />
+                                        <Spinner
+                                            data-testid="loading-indicator"
+                                            size="lg"
+                                        />
                                     </Flex>
                                     <QuotesCarousel />
                                 </Box>
@@ -325,7 +328,7 @@ export default function Analyze() {
                                                         MarkdownComponents
                                                     }
                                                 >
-                                                    {prediction.analysis ||
+                                                    {prediction?.analysis ||
                                                         "Analyse non disponible"}
                                                 </ReactMarkdown>
                                                 <ReactMarkdown
@@ -333,7 +336,7 @@ export default function Analyze() {
                                                         MarkdownComponents
                                                     }
                                                 >
-                                                    {prediction.piste_solution ||
+                                                    {prediction?.piste_solution ||
                                                         "Non disponible"}
                                                 </ReactMarkdown>
                                             </>
@@ -343,8 +346,8 @@ export default function Analyze() {
                                                 components={MarkdownComponents}
                                             >
                                                 {`${
-                                                    prediction.analysis
-                                                        ? prediction.analysis.substring(
+                                                    prediction?.analysis
+                                                        ? prediction?.analysis.substring(
                                                               0,
                                                               310
                                                           )
@@ -352,7 +355,7 @@ export default function Analyze() {
                                                 }...`}
                                             </ReactMarkdown>
                                         )}
-                                        {prediction.analysis &&
+                                        {prediction?.analysis &&
                                             prediction.analysis.length >
                                                 300 && (
                                                 <Button
@@ -393,7 +396,7 @@ export default function Analyze() {
                                                     <div>
                                                         <Image
                                                             src={
-                                                                prediction.ndvi_heatmap
+                                                                prediction?.ndvi_heatmap
                                                             }
                                                             alt="NDVI Heatmap"
                                                             mb={4}
@@ -404,7 +407,7 @@ export default function Analyze() {
                                                     <div>
                                                         <Image
                                                             src={
-                                                                prediction.ndvi_ndwi_plot
+                                                                prediction?.ndvi_ndwi_plot
                                                             }
                                                             alt="NDVI NDWI Plot"
                                                             mb={4}
@@ -415,7 +418,7 @@ export default function Analyze() {
                                                     <div>
                                                         <Image
                                                             src={
-                                                                prediction.landcover_plot
+                                                                prediction?.landcover_plot
                                                             }
                                                             alt="Landcover Plot"
                                                             maxW="100%"
