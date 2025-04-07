@@ -64,6 +64,7 @@ export default function Analyze() {
     const [expanded, setExpanded] = useState(false);
     const [prediction, setPrediction] = useState(null); // State to store the prediction
     const [isLoadingContext, setIsLoadingContext] = useState(true); // State to track context loading
+    const [predictionError, setPredictionError] = useState(null); // State to track prediction errors
     const predictionSentRef = useRef(false); // Ref to track if prediction has been sent
 
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -127,26 +128,68 @@ export default function Analyze() {
                             ? existingPrediction[0]
                             : existingPrediction;
                         setPrediction(validPrediction);
-                    } else if (imgUrl && !predictionSentRef.current) {
-                        await sendPrediction();
-                        predictionSentRef.current = true;
+                        setPredictionError(null); // Clear any previous errors
+                    } else if (
+                        imgUrl &&
+                        !predictionSentRef.current &&
+                        incidentId
+                    ) {
+                        // Only try to send prediction once and only if we have both an image URL and an incident ID
+                        try {
+                            await sendPrediction();
+                            predictionSentRef.current = true;
+                        } catch (error) {
+                            console.error("Failed to send prediction:", error);
+                            // Set error state with meaningful message
+                            setPredictionError(
+                                "Échec de l'envoi de la prédiction. Problème de connexion au serveur d'analyse."
+                            );
+                            // Mark as sent even on error to prevent retries
+                            predictionSentRef.current = true;
+                        }
                     }
                 }
                 setIsLoadingContext(false);
             } catch (error) {
                 console.error("Error fetching or sending prediction:", error);
+                setPredictionError(
+                    "Erreur lors de la récupération des données d'analyse."
+                );
                 setIsLoadingContext(false);
+                // Mark as sent on error to prevent infinite retries
+                predictionSentRef.current = true;
             }
         };
 
-        fetchData();
-    }, [incident, incidentId]);
+        // Only run fetchData if predictionSentRef is false
+        if (!predictionSentRef.current) {
+            fetchData();
+        }
+    }, [incident, incidentId, imgUrl]);
 
     // Polling to check for context availability if it's loading and prediction is not yet available
     useEffect(() => {
-        if (isLoadingContext && !prediction) {
+        let pollingCount = 0;
+        const maxPollingAttempts = 5; // Maximum number of polling attempts
+
+        if (isLoadingContext && !prediction && incidentId) {
             const interval = setInterval(async () => {
                 try {
+                    // Stop polling after reaching max attempts
+                    if (pollingCount >= maxPollingAttempts) {
+                        console.log(
+                            "Reached maximum polling attempts. Stopping."
+                        );
+                        setIsLoadingContext(false);
+                        clearInterval(interval);
+                        return;
+                    }
+
+                    pollingCount++;
+                    console.log(
+                        `Polling attempt ${pollingCount}/${maxPollingAttempts}`
+                    );
+
                     const updatedPrediction = await fetchPredictionsByIncidentId(
                         incidentId
                     );
@@ -321,7 +364,24 @@ export default function Analyze() {
                                         {type_incident}
                                     </Text>
                                     <Text mt="2">
-                                        {expanded ? (
+                                        {predictionError ? (
+                                            <Box
+                                                p={4}
+                                                bg="red.50"
+                                                color="red.600"
+                                                borderRadius="md"
+                                            >
+                                                <Heading size="sm" mb={2}>
+                                                    Erreur d'analyse
+                                                </Heading>
+                                                <Text>{predictionError}</Text>
+                                                <Text mt={2}>
+                                                    Veuillez réessayer plus tard
+                                                    ou contacter le support
+                                                    technique.
+                                                </Text>
+                                            </Box>
+                                        ) : expanded ? (
                                             <>
                                                 <ReactMarkdown
                                                     components={
@@ -351,8 +411,12 @@ export default function Analyze() {
                                                               0,
                                                               310
                                                           )
-                                                        : "Aucun contexte disponible"
-                                                }...`}
+                                                        : "Analyse en cours ou non disponible. Si cette situation persiste, veuillez réessayer plus tard ou contacter le support."
+                                                }${
+                                                    prediction?.analysis
+                                                        ? "..."
+                                                        : ""
+                                                }`}
                                             </ReactMarkdown>
                                         )}
                                         {prediction?.analysis &&
