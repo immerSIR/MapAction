@@ -18,12 +18,14 @@ import {
     ModalFooter,
     ModalCloseButton,
     useDisclosure,
+    Image
 } from "@chakra-ui/react";
 import axios from "axios";
-import signInImage from "assets/img/signInImage.png";
+import signInImage from "assets/img/connexion.png";
 import { config } from "../../config";
 import { useAuth } from "context/AuthContext";
 import Swal from "sweetalert2";
+import appLogoLight from "../../assets/img/logo.png"; 
 
 function SignIn() {
     const { login } = useAuth();
@@ -72,7 +74,7 @@ function SignIn() {
             sessionStorage.setItem("user_type", userData.user_type);
             sessionStorage.setItem("organisation", userData.organisation);
 
-            login();
+            login(userData);
 
             // Redirection ou ouverture du modal pour les utilisateurs "elu"
             if (userData.user_type === "admin") {
@@ -116,9 +118,13 @@ function SignIn() {
                 new_password: newPassword,
             };
 
-            const response = await axios.put(config.url + "/MapApi/change_password/", newPasswordData, {
-                headers: { Authorization: `Bearer ${sessionStorage.token}` },
-            });
+            const response = await axios.put(
+                config.url + "/MapApi/change_password/",
+                newPasswordData,
+                {
+                    headers: { Authorization: `Bearer ${sessionStorage.token}` },
+                }
+            );
 
             Swal.fire("Succès", "Mot de passe modifié avec succès", "success");
             onClose();
@@ -131,16 +137,27 @@ function SignIn() {
 
     return (
         <Flex position="relative" mb="40px">
+
             <Flex
                 minH={{ md: "1000px" }}
                 h={{ sm: "initial", md: "75vh", lg: "85vh" }}
                 w="100%"
                 maxW="1044px"
                 mx="auto"
-                justifyContent="space-between"
+                justifyContent="center"
                 mb="30px"
-                pt={{ md: "0px" }}
+                alignItems="center"
+                direction="column"
+                pt={{ base: "20px", md: "0px" }}
             >
+                <Image 
+                    src={appLogoLight} 
+                    alt="Logo" 
+                    mb={{ base: "10px", md: "5px" }} 
+                    mt={{ base: "100px", md: "200px" }} 
+                    w='250px'
+                    h='150px'
+                />
                 <Flex
                     w="100%"
                     h="100%"
@@ -180,11 +197,7 @@ function SignIn() {
                             </Alert>
                         )}
                         <FormControl>
-                            <FormLabel
-                                ms="4px"
-                                fontSize="sm"
-                                fontWeight="normal"
-                            >
+                            <FormLabel ms="4px" fontSize="sm" fontWeight="normal">
                                 Email
                             </FormLabel>
                             <Input
@@ -197,15 +210,17 @@ function SignIn() {
                                 size="lg"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        document.getElementById("password").focus();
+                                    }
+                                }}
                             />
-                            <FormLabel
-                                ms="4px"
-                                fontSize="sm"
-                                fontWeight="normal"
-                            >
+                            <FormLabel ms="4px" fontSize="sm" fontWeight="normal">
                                 Mot de passe
                             </FormLabel>
                             <Input
+                                id="password"
                                 variant="auth"
                                 fontSize="sm"
                                 ms="4px"
@@ -215,6 +230,11 @@ function SignIn() {
                                 size="lg"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleSubmit(e);
+                                    }
+                                }}
                             />
                             <Button
                                 fontSize="10px"
@@ -239,14 +259,15 @@ function SignIn() {
                     left="0px"
                     position="absolute"
                     bgImage={signInImage}
+                    zIndex={-1}
                 >
-                    <Box
+                    {/* <Box
                         w="100%"
                         h="100%"
                         bgSize="cover"
                         bg="blue.500"
                         opacity="0.8"
-                    ></Box>
+                    ></Box> */}
                 </Box>
             </Flex>
 

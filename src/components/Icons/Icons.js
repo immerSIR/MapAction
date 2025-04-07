@@ -610,3 +610,79 @@ export const ChakraLogoBlue = createIcon({
     </svg>
   ),
 });
+export const ChatIcon = createIcon({
+  displayName: "ChatIcon",
+  viewBox: "0 0 24 24",
+  path: (
+    <g>
+      <path
+        fill="currentColor"
+        d="M12 2C6.48 2 2 5.8 2 10.5c0 2.38 1.2 4.54 3.16 6.09L4 21l4.09-2.04c1.2.34 2.49.54 3.91.54 5.52 0 10-3.8 10-8.5S17.52 2 12 2zm0 14c-1.17 0-2.34-.18-3.41-.53l-.52-.16-2.44 1.22.51-2.44-.34-.4C4.69 12.2 4 11.07 4 10.5 4 6.91 7.92 4 12 4s8 2.91 8 6.5-3.92 6.5-8 6.5z"
+      />
+    </g>
+  ),
+});
+export const CollaborationIcon = createIcon({
+  displayName: "CollaborationIcon",
+  viewBox: "0 0 24 24",
+  path: (
+    <g>
+      <circle cx="7" cy="8" r="3" fill="currentColor" />
+      <circle cx="17" cy="8" r="3" fill="currentColor" />
+
+      <path
+        fill="currentColor"
+        d="M4 18c0-2.5 2-4 4-4s4 1.5 4 4v1H4v-1zm12 1c0-2.5 2-4 4-4s4 1.5 4 4v1h-8v-1z"
+      />
+    </g>
+  ),
+});
+export const CollaborationListIcon = createIcon({
+  displayName: "CollaborationListIcon",
+  viewBox: "0 0 24 24",
+  path: (
+    <g>
+      <rect x="2" y="4" width="10" height="2" fill="currentColor" />
+      <rect x="2" y="10" width="10" height="2" fill="currentColor" />
+      <rect x="2" y="16" width="10" height="2" fill="currentColor" />
+
+      <circle cx="17" cy="6" r="3" fill="currentColor" />
+      <circle cx="17" cy="16" r="3" fill="currentColor" />
+
+      <path
+        fill="currentColor"
+        d="M14 18c0-2.5 2-4 4-4s4 1.5 4 4v1H4v-1zm12 1c0-2.5 2-4 4-4s4 1.5 4 4v1h-8v-1z"
+      />
+    </g>
+  ),
+});
+
+
+export const IncidentIcon = createIcon({
+  displayName: "IncidentIcon",
+  viewBox: "0 0 48 48",
+  defaultProps: {
+    fill: "none",
+    stroke: "currentColor",
+  },
+  path: (
+    <>
+      
+      <path strokeWidth="5" d="M24 4 L4 44 H44 Z" />
+
+      <g
+      transform="translate(24, 26) scale(1.4) translate(-24, -23)"
+      stroke="currentColor"
+      // strokeWidth="2"
+      fill="currentColor"
+    >
+      <path d="M21 29 H27 V25 C27 23.895 26.105 23 25 23 H23 C21.895 23 21 23.895 21 25 Z" />
+      <path d="M24 22 V18" />
+      <path d="M20 22 L19 19" />
+      <path d="M28 22 L29 19" />
+    </g>
+
+    </>
+  ),
+});
+

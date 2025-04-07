@@ -531,7 +531,10 @@ export const useIncidentData = () => {
         if (isMounted) {
           setChartData(prevData => ({
             ...prevData,
-            series: [parseFloat(anonymousPercentage), parseFloat(registeredPercentage)],
+            series: [
+                parseFloat(anonymousPercentage) || 0, 
+                parseFloat(registeredPercentage) || 0
+            ],
           }));
         }
         return () => {

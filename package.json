@@ -100,7 +100,7 @@
             "last 1 safari version"
         ]
     },
-    "proxy": "http://api.map-action.com",
+    "proxy": "https://api.map-action.com",
     "jest": {
         
         "testMatch": [
