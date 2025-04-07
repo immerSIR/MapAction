@@ -261,7 +261,10 @@ export default function Analyze() {
                                         align="center"
                                         mb="4"
                                     >
-                                        <Spinner data-testid="loading-indicator" size="lg" />
+                                        <Spinner
+                                            data-testid="loading-indicator"
+                                            size="lg"
+                                        />
                                     </Flex>
                                     <QuotesCarousel />
                                 </Box>
@@ -344,7 +347,7 @@ export default function Analyze() {
                                             >
                                                 {`${
                                                     prediction?.analysis
-                                                        ? prediction.analysis.substring(
+                                                        ? prediction?.analysis.substring(
                                                               0,
                                                               310
                                                           )
