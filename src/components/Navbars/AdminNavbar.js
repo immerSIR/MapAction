@@ -178,11 +178,15 @@ export default function AdminNavbar(props) {
                     <Breadcrumb>
                         <BreadcrumbItem color={mainText}>
                             <BreadcrumbLink
-                                href={previousPage}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    history.goBack();
+                                }}
                                 color={secondaryText}
                             >
                                 Page précédente
                             </BreadcrumbLink>
+
                         </BreadcrumbItem>
 
                         <BreadcrumbItem color={mainText}>

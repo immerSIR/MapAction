@@ -15,7 +15,8 @@ import Help from 'views/Pages/Help';
 import FAQ from 'views/Pages/FAQ';
 import NotFound from 'views/Pages/NotFound';
 import Incident from 'views/Dashboard/Incident';
-
+import MessageManager from 'views/Dashboard/MessageManager';
+import { ChatIcon, WarningTwoIcon } from "@chakra-ui/icons";
 import {
   HomeIcon,
   StatsIcon,
@@ -24,11 +25,19 @@ import {
   DocumentIcon,
   RocketIcon,
   SupportIcon,
+  HelpIcon,
+  ProfileIcon,
+  // ChatIcon,
+  CollaborationIcon,
+  IncidentIcon,
+  CollaborationListIcon
 } from "components/Icons/Icons";
 import EluDashboard from 'views/Dashboard/DashboardElu';
 import Chat from 'views/Dashboard/LLM_Chat';
 import CitizenTable from 'views/Dashboard/CitizenTable';
 import DataExport from 'views/Dashboard/DataExport';
+import CollaborationChat from 'views/Dashboard/CollaborationChat';
+import CollaborationList from 'views/Dashboard/ListeCollab';
 
 var dashRoutes = [
   {
@@ -53,10 +62,12 @@ var dashRoutes = [
     path: "/collaboration",
     name: "Collaboration",
     rtlName: "التعاون",
-    icon: <CreditIcon color='inherit' />,
+    icon: <CollaborationIcon color='inherit' />,
     component: Collaboration,
     layout: "/admin",
+    roles: ["elu", "admin"]
   },
+  
   
   {
     path: "/export",
@@ -68,7 +79,16 @@ var dashRoutes = [
     roles: ["admin", "elu"]
   },
  
-
+  
+  {
+    path: "/collab",
+    name: "Liste Collaborations",
+    rtlName: "التعاون",
+    icon: <CollaborationListIcon color='inherit' />,
+    component: CollaborationList,
+    layout: "/admin",
+    roles: ["admin", "elu"]
+  },
   {
     path: "/tables",
     name: "Organisations",
@@ -118,10 +138,18 @@ var dashRoutes = [
   {
     path: "/incident",
     name: "Incident",
-    icon: <SupportIcon color='inherit' />,
+    icon: <IncidentIcon color='inherit' />,
     component: Incident,
     layout: "/admin",
     roles: ["admin", "elu"],
+  },
+  {
+    path: "/messagemanager",
+    name: "Message",
+    icon: <ChatIcon color='inherit' />,
+    component: MessageManager,
+    layout: "/admin",
+    roles: ["admin"],
   },
   {
     name: "Paramètres",
@@ -133,7 +161,7 @@ var dashRoutes = [
         path: "/profile",
         name: "Profil",
         rtlName: "لوحة القيادة",
-        icon: <PersonIcon color='inherit' />,
+        icon: <ProfileIcon color='inherit' />,
         secondaryNavbar: true,
         component: Profile,
         layout: "/admin",
@@ -161,7 +189,7 @@ var dashRoutes = [
         path: "/help",
         name: "Aide en Ligne",
         rtlName: "لوحة القيادة",
-        icon: <RocketIcon color='inherit' />,
+        icon: <HelpIcon color='inherit' />,
         component: Help,
         layout: "/admin",
         roles: ["admin", "elu"],
@@ -174,6 +202,14 @@ var dashRoutes = [
         component: Chat,
         layout: "/admin",
         roles: ["admin", "elu"],
+      },
+      {
+        path: "/discussion",
+        name: "Discussion",
+        icon: <ChatIcon color='inherit' />,
+        component: CollaborationChat,
+        layout: "/admin",
+        roles: ["admin", "elu"]
       },
       {
         path: "/NotFound",

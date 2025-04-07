@@ -64,7 +64,7 @@ function Sidebar(props) {
   const createLinks = (routes) => {
     
     return routes
-    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Chat" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
+    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Chat" && prop.name !== "Discussion" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
     .filter(prop => !prop.roles || prop.roles.includes(userType))
     .map((prop, key) => {
       if (prop.redirect) {
@@ -351,7 +351,7 @@ export function SidebarResponsive(props) {
   // this function creates the links and collapses that appear in the sidebar (left menu)
   const createLinks = (routes) => {
     return routes
-    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Chat" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
+    .filter(prop => prop.name !== "Sign In" && prop.name !== "Sign Up" && prop.name !== "Chat" && prop.name !== "Discussion" && prop.name !== "Error" && prop.name !== "Vue d'ensemble" && prop.name !== "Analyse avancé" && prop.name !== "Demande collaboration")
     .filter(prop => !prop.roles || prop.roles.includes(userType))
     .map((prop, key) => {
       if (prop.redirect) {

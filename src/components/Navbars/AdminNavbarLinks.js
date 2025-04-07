@@ -31,7 +31,7 @@ import { ItemContent } from "components/Menu/ItemContent";
 import { SearchBar } from "components/Navbars/SearchBar/SearchBar";
 import { SidebarResponsive } from "components/Sidebar/Sidebar";
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import routes from "routes.js";
 // axios
 import axios from "axios";
@@ -58,6 +58,8 @@ const CustomOption = (props) => {
 };
 
 export default function HeaderLinks(props) {
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState([])
+  const history = useHistory();
   const { filterType, customRange, handleFilterChange,handleDateChange, applyCustomRange, showDatePicker } = useDateFilter();
   const {
     variant,
@@ -99,7 +101,10 @@ export default function HeaderLinks(props) {
     const results = await searchIncidents(searchTerm);
     setSearchResults(results);
   };
-
+  const handleSearchResultClick = (incident) => {
+    setSearchTerm(incident.title);
+    history.push(`/admin/incident?highlight=${incident.id}`);
+  };
   const filteredIncident = allIncident.filter(incident=> {
     return incident.title.toLowerCase().includes(searchTerm.toLowerCase())
   })
@@ -109,31 +114,112 @@ export default function HeaderLinks(props) {
     onOpen();
   };
 
-   const handleAccept = () => {
-        Swal.fire("Demande de collaboration acceptée");
-        setNotifications(
-            notifications.filter((n) => n !== selectedNotification)
+  const handleAccept = async () => {
+    try {
+      // Utilisez selectedNotification pour obtenir l'ID de la collaboration
+      const collaborationId = selectedNotification?.colaboration;
+      console.log("collllllalllla", collaborationId);
+      
+      if (!collaborationId) {
+        throw new Error("Aucune collaboration sélectionnée.");
+      }
+      const response = await axios.post(`${config.url}/MapApi/collaborations/accept/`, {
+        collaboration_id: collaborationId,
+      });
+      
+      Swal.fire({
+        icon: "success",
+        title: "Demande de collaboration acceptée",
+        text: response.data.message,
+      });
+      
+      setNotifications(notifications.filter((n) => n !== selectedNotification));
+      onClose();
+    } catch (error) {
+      console.error("Erreur lors de l'acceptation de la collaboration", error);
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: error.response?.data?.error || "Erreur lors de l'acceptation de la collaboration",
+      });
+    }
+  };
+  const handleDecline = async (collaborationId) => {
+    try {
+        const url = `${config.url}/MapApi/collaboration/decline/`;
+        console.log("URL:", url);
+        console.log("Données envoyées:", { collaboration_id: collaborationId });
+
+        const response = await axios.post(
+            url,
+            {
+              collaboration_id: collaborationId
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+              },
+            }
         );
-        onClose();
-    };
-    const fetchNotifications = async () => {
-        try {
-            const response = await axios.get(
-                `${config.url}/MapApi/notifications/`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${sessionStorage.getItem(
-                            "token"
-                        )}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            setNotifications(response.data);
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-        }
-    };
+        Swal.fire("Demande de collaboration declinée");
+        setNotifications(
+          notifications.filter((n) => n !== selectedNotification)
+        );
+        onClose();    
+      } catch (error) {
+        console.error("Error accepting collaboration:", error.response ? error.response.data : error.message);
+      }
+  };
+  
+  const fetchNotifications = async () => {
+    try {
+        const notificationResponse = await axios.get(
+            `${config.url}/MapApi/notifications/`,
+            {
+                headers: {
+                    Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        console.log("Réponse des notifications :", notificationResponse.data);
+
+        const collaborationsResponse = await axios.get(`${config.url}/MapApi/collaboration/`, {
+            headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const collaborationsMap = collaborationsResponse.data.reduce((acc, collaboration) => {
+          acc[collaboration.id] = {
+            motivation: collaboration.motivation, 
+            other_option: collaboration.other_option || "",
+          };
+          return acc;
+        }, {});
+
+        const notificationsWithMotivation = notificationResponse.data.map(notification => {
+          const collaborationDetails = collaborationsMap[notification.colaboration] || {};
+          return {
+              ...notification,
+              motivation: collaborationDetails.motivation || "Aucune motivation fournie",
+              other_option: collaborationDetails.other_option || "Aucune autre option fournie",
+          };
+        });
+      
+
+        console.log("Notifications avec motivations :", notificationsWithMotivation);
+
+        setNotifications(notificationsWithMotivation);
+        const unreadCount = notificationsWithMotivation.filter(n => !n.read).length;
+        setUnreadNotificationsCount(unreadCount);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des notifications:", error);
+    }
+  };
 
     const { logout } = useAuth();
     const handleLogout = () => {
@@ -142,9 +228,20 @@ export default function HeaderLinks(props) {
     };
 
     useEffect(() => {
-        fetchNotifications();
-        searchIncidents(searchTerm);
+      const fetchNotificationsData = async () => {
+        await fetchNotifications();
+      };
+      fetchNotificationsData();
+      const intervalId = setInterval(fetchNotificationsData, 30000); 
+      return () => clearInterval(intervalId);
     }, []);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        await searchIncidents(searchTerm);
+      };
+      fetchData();
+    }, [searchTerm]);
   
 // Chakra Color Mode
   let navbarIcon =
@@ -162,25 +259,45 @@ export default function HeaderLinks(props) {
       w={{ sm: "100%", md: "auto" }}
       alignItems='center'
       flexDirection='row' data-testid="search">
-      <SearchBar
-        data-testid="search-content"
+     <SearchBar
         me='18px'
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         onSearch={handleSearch}
       />
-        {searchTerm ? (
-          filteredIncident.length > 0 ? (
-            filteredIncident.map((incident) => (
-              <Box key={incident.id} mb="2">
-                <Text fontWeight="bold" color="white">{incident.title}</Text>
-                <Text>{incident.description}</Text>
-              </Box>
-            ))
-          ) : (
-            <Text>Aucun incident trouvé</Text>
-          )
-        ) : null }
+        {searchTerm && (
+          <Box
+            position="absolute"
+            top="60px"  
+            bg="white"
+            borderRadius="md"
+            boxShadow="md"
+            width="300px"  
+            maxHeight="200px"  
+            overflowY="auto"  
+            zIndex="10"
+          >
+            {filteredIncident.length > 0 ? (
+              <Stack spacing={2} p={2}>
+                {filteredIncident.map((incident) => (
+                  <Box 
+                    key={incident.id} 
+                    mb="2" 
+                    p={2} 
+                    borderBottom="1px solid #eaeaea" 
+                    onClick={() => handleSearchResultClick(incident)} 
+                    cursor="pointer"
+                  >
+                    <Text fontWeight="bold" color="black">{incident.title}</Text>
+                    <Text color="gray.600">{incident.description}</Text>
+                  </Box>
+                ))}
+              </Stack>
+            ) : (
+              <Text p={2}>Aucun incident trouvé</Text>
+            )}
+          </Box>
+        )}
       <SidebarResponsive
         hamburgerColor={"white"}
         logo={
@@ -230,10 +347,28 @@ export default function HeaderLinks(props) {
         )}
 
       <Menu>
-        <MenuButton data-testid="notifications-icon">
+      <MenuButton>
           <BellIcon color={navbarIcon} w='18px' h='18px' ms="12px"/>
+          {unreadNotificationsCount > 0 && (
+            <Box
+                position="absolute"
+                top="20px"
+                right="100px"
+                backgroundColor="red.500"
+                color="white"
+                borderRadius="full"
+                width="10px"
+                height="10px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                fontSize="smaller"
+            >
+                {unreadNotificationsCount}
+            </Box>
+          )}
         </MenuButton>
-        <MenuList p="16px 8px" bg={menuBg}>
+        <MenuList p="16px 8px" bg={menuBg} maxHeight="300px" overflowY="auto">
           <Flex flexDirection="column">
             {notifications.map((notification, index) => (
               <MenuItem
@@ -246,9 +381,10 @@ export default function HeaderLinks(props) {
                   time={new Date(notification.created_at).toLocaleString()}
                   info={notification.message || "Pas de message disponible"}
                   boldInfo={notification.read ? "" : " Nouveau "}
-                  aName={typeof notification.user === 'string' ? notification.user : "User"}
+                  aName={typeof notification.motivation  ? notification.motivation : "User"}
                   aSrc={notification.avatarSrc || ""}
                 />
+                
               </MenuItem>
             ))}
           </Flex>
@@ -265,15 +401,47 @@ export default function HeaderLinks(props) {
                 time={new Date(selectedNotification.created_at).toLocaleString()}
                 info={selectedNotification.message || "Pas de message disponible"}
                 boldInfo={selectedNotification.read ? "" : " Nouveau "}
-                aName={typeof selectedNotification.user === 'string' ? selectedNotification.user : "User"}
-                aSrc={selectedNotification.avatarSrc || ""}
               />
+              <Flex flexDirection="column" mt={2}>
+                <Text fontSize="sm" color="gray.500" fontWeight="bold">
+                  Détails de la collaboration:
+                </Text>
+                <ul style={{ paddingLeft: "20px", margin: "0" }}>
+                    {Array.isArray(selectedNotification.motivation)
+                      ? selectedNotification.motivation.map((motivation, index) => (
+                          <li key={index}>
+                            <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                              {motivation}
+                            </Text>
+                          </li>
+                        ))
+                      : (selectedNotification.motivation
+                          ? selectedNotification.motivation.split(',').map((motivation, index) => (
+                              <li key={index}>
+                                <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                                  {motivation.trim()}
+                                </Text>
+                              </li>
+                            ))
+                          : <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                              Aucune motivation fournie
+                            </Text>
+                    )}
+                  <li>
+                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                      {selectedNotification.other_option || ""}
+                    </Text>
+                  </li>
+                </ul>
+              </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={handleAccept}>
+              <Button colorScheme="blue" mr={3} onClick={() => handleAccept(selectedNotification.colaboration)}>
                 Accepter
               </Button>
-              <Button variant="ghost" onClick={onClose}>Decliner</Button>
+              <Button variant="ghost" onClick={() => handleDecline(selectedNotification.colaboration)}>
+                Décliner
+              </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

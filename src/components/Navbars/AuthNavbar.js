@@ -152,7 +152,7 @@ export default function AuthNavbar(props) {
           ms={{ base: "auto", lg: "0px" }}
           display={{ base: "flex", lg: "none" }}
         >
-          <SidebarResponsive
+          {/* <SidebarResponsive
             hamburgerColor={hamburgerColor}
             logoText={props.logoText}
             secondary={props.secondary}
@@ -168,7 +168,7 @@ export default function AuthNavbar(props) {
               </Stack>
             }
             {...rest}
-          />
+          /> */}
         </Box>
         {/* {linksAuth} */}
         

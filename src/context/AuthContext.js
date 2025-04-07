@@ -3,13 +3,18 @@ import React, { createContext, useState, useContext } from 'react';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const storedUser = sessionStorage.getItem("user");
+  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  const [user, setUser] = useState(parsedUser);
   const userType = sessionStorage.getItem("user_type")
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem("token") !== null; 
   });
 
-  const login = () => {
+  const login = (userData) => {
     setIsAuthenticated(true);
+    setUser(userData);
+    sessionStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
@@ -23,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, userType }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout,user, userType }}>
       {children}
     </AuthContext.Provider>
   );
