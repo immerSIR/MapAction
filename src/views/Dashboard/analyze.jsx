@@ -66,11 +66,18 @@ export default function Analyze() {
     const [isLoadingContext, setIsLoadingContext] = useState(true); // State to track context loading
     const [predictionError, setPredictionError] = useState(null); // State to track prediction errors
     const predictionSentRef = useRef(false); // Ref to track if prediction has been sent
+    const refreshTimerRef = useRef(null); // Ref to store the refresh timer
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const toggleExpanded = () => {
         setExpanded(!expanded);
+    };
+
+    // Function to handle page refresh
+    const refreshPage = () => {
+        console.log("Auto-refreshing page to check for prediction data...");
+        window.location.reload();
     };
 
     // Function to fetch predictions by incident ID
@@ -129,6 +136,12 @@ export default function Analyze() {
                             : existingPrediction;
                         setPrediction(validPrediction);
                         setPredictionError(null); // Clear any previous errors
+
+                        // Clear any pending refresh timer
+                        if (refreshTimerRef.current) {
+                            clearTimeout(refreshTimerRef.current);
+                            refreshTimerRef.current = null;
+                        }
                     } else if (
                         imgUrl &&
                         !predictionSentRef.current &&
@@ -138,6 +151,12 @@ export default function Analyze() {
                         try {
                             await sendPrediction();
                             predictionSentRef.current = true;
+
+                            // Set a refresh timer to check for new prediction data after 30 seconds
+                            refreshTimerRef.current = setTimeout(
+                                refreshPage,
+                                30000
+                            );
                         } catch (error) {
                             console.error("Failed to send prediction:", error);
                             // Set error state with meaningful message
@@ -146,6 +165,24 @@ export default function Analyze() {
                             );
                             // Mark as sent even on error to prevent retries
                             predictionSentRef.current = true;
+                        }
+                    } else if (
+                        Array.isArray(existingPrediction) &&
+                        existingPrediction.length === 0
+                    ) {
+                        // If the API returned an empty array and we're not in the process of sending a prediction,
+                        // set a refresh timer to check again after 30 seconds
+                        if (
+                            !refreshTimerRef.current &&
+                            !predictionSentRef.current
+                        ) {
+                            console.log(
+                                "No predictions found, setting refresh timer..."
+                            );
+                            refreshTimerRef.current = setTimeout(
+                                refreshPage,
+                                30000
+                            );
                         }
                     }
                 }
@@ -165,74 +202,29 @@ export default function Analyze() {
         if (!predictionSentRef.current) {
             fetchData();
         }
+
+        // Cleanup function to clear timer on unmount
+        return () => {
+            if (refreshTimerRef.current) {
+                clearTimeout(refreshTimerRef.current);
+            }
+        };
     }, [incident, incidentId, imgUrl]);
 
-    // Polling to check for context availability if it's loading and prediction is not yet available
+    // Modified console logging to avoid repetitive messages
     useEffect(() => {
-        let pollingCount = 0;
-        const maxPollingAttempts = 5; // Maximum number of polling attempts
-
-        if (isLoadingContext && !prediction && incidentId) {
-            const interval = setInterval(async () => {
-                try {
-                    // Stop polling after reaching max attempts
-                    if (pollingCount >= maxPollingAttempts) {
-                        console.log(
-                            "Reached maximum polling attempts. Stopping."
-                        );
-                        setIsLoadingContext(false);
-                        clearInterval(interval);
-                        return;
-                    }
-
-                    pollingCount++;
-                    console.log(
-                        `Polling attempt ${pollingCount}/${maxPollingAttempts}`
-                    );
-
-                    const updatedPrediction = await fetchPredictionsByIncidentId(
-                        incidentId
-                    );
-
-                    console.log(
-                        "Polling fetch: Existing prediction:",
-                        updatedPrediction
-                    );
-
-                    const predictionExists =
-                        (Array.isArray(updatedPrediction) &&
-                            updatedPrediction.length > 0) ||
-                        (typeof updatedPrediction === "object" &&
-                            updatedPrediction !== null &&
-                            Object.keys(updatedPrediction).length > 0);
-
-                    if (predictionExists) {
-                        console.log("Prediction now exists.");
-
-                        // If updatedPrediction is an array, take the first element
-                        const validPrediction = Array.isArray(updatedPrediction)
-                            ? updatedPrediction[0]
-                            : updatedPrediction;
-                        setPrediction(validPrediction);
-                        setIsLoadingContext(false);
-                        clearInterval(interval); // Stop polling once context is available
-                    }
-                } catch (error) {
-                    console.error("Error fetching updated prediction:", error);
-                }
-            }, 5000); // Poll every 5 seconds
-
-            return () => clearInterval(interval); // Cleanup on unmount or dependencies change
+        if (prediction) {
+            if (prediction.ndvi_heatmap) {
+                console.log("NDVI Heatmap URL:", prediction.ndvi_heatmap);
+            } else {
+                // Log only once
+                console.log(
+                    "Prediction found but ndvi_heatmap is not available."
+                );
+            }
         }
-    }, [isLoadingContext, prediction, incidentId]);
-
-    if (prediction) {
-        console.log(prediction.ndvi_heatmap);
-    } else {
-        console.log(
-            "Prediction data is not available or does not contain ndvi_heatmap."
-        );
-    }
+        // No else case to avoid repetitive logs
+    }, [prediction]);
 
     // Create a custom marker icon based on the incident state
     const iconHTML = ReactDOMServer.renderToString(
