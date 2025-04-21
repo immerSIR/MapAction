@@ -484,7 +484,7 @@ export const IncidentData = () => {
             console.log("Payload being sent:", payload);
 
             // Envoi vers FastAPI
-            await axios.post(fastapiUrl, payload);
+            await axios.post(fastapiUrl, payload, { timeout: 120000 });
         } catch (error) {
             console.error(
                 "Error sending prediction (Axios error):",
