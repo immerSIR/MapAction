@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { config } from "config";
 import { useParams, useHistory, useLocation } from "react-router-dom";
 import "video-react/dist/video-react.css";
@@ -318,11 +318,12 @@ export const IncidentData = () => {
     };
 
     // Récupérer les structures sensibles à proximité via Overpass
-    const fetchNearbySensitiveStructures = async (latitude, longitude) => {
-        try {
-            const radius = 250;
-            const overpassUrl = "https://overpass-api.de/api/interpreter";
-            const overpassQuery = `
+    const fetchNearbySensitiveStructures = useCallback(
+        async (latitude, longitude) => {
+            try {
+                const radius = 250;
+                const overpassUrl = "https://overpass-api.de/api/interpreter";
+                const overpassQuery = `
         [out:json];
         (
           // Infrastructures urbaines et autres
@@ -387,78 +388,86 @@ export const IncidentData = () => {
         out center;
       `;
 
-            const response = await axios.post(
-                overpassUrl,
-                `data=${encodeURIComponent(overpassQuery)}`
-            );
-            const nearbyElements = response.data.elements;
+                const response = await axios.post(
+                    overpassUrl,
+                    `data=${encodeURIComponent(overpassQuery)}`
+                );
+                const nearbyElements = response.data.elements;
 
-            // Traduction en français
-            const translatedElements = nearbyElements.map((element) => {
-                const tags = element.tags;
-                if (tags.highway) return "Route";
-                if (tags.amenity === "hospital") return "Hôpital";
-                if (tags.amenity === "school") return "École";
-                if (tags.amenity === "public_building")
-                    return "Bâtiment public";
-                if (tags.man_made === "sewer") return "Égout";
-                if (tags.man_made === "drain") return "Drain";
-                if (tags.waterway === "river") return "Rivière";
-                if (tags.waterway === "stream") return "Ruisseau";
-                if (tags.waterway === "canal") return "Canal";
-                if (tags.waterway === "drain") return "Drain";
-                if (tags.waterway === "ditch") return "Fossé";
-                if (tags.natural === "water") return "Plan d'eau";
-                if (tags.natural === "wetland") return "Zone humide";
-                if (tags.waterway === "riverbank") return "Berge de rivière";
-                if (tags.landuse === "reservoir") return "Réservoir";
-                if (tags.landuse === "basin") return "Bassin";
-                if (tags.man_made === "reservoir_covered")
-                    return "Réservoir couvert";
-                if (tags.landuse === "forest") return "Forêt";
-                if (tags.leisure === "park") return "Parc";
-                if (tags.landuse === "residential") return "Zone résidentielle";
-                if (tags.building === "residential")
-                    return "Bâtiment résidentiel";
-                if (tags.amenity === "marketplace") return "Marché";
-                if (tags.landuse === "farmland") return "Terre agricole";
-                if (tags.landuse === "orchard") return "Verger";
-                if (tags.boundary === "protected_area") return "Zone protégée";
-                if (tags.landuse === "industrial") return "Zone industrielle";
-                if (tags.landuse === "commercial") return "Zone commerciale";
-                if (tags.amenity === "waste_disposal")
-                    return "Site de gestion des déchets";
-                if (tags.amenity === "recycling") return "Site de recyclage";
-                if (tags.amenity === "drinking_water")
-                    return "Point d'eau potable";
-                if (tags.man_made === "water_well") return "Puits";
-                if (tags.man_made === "wastewater_plant")
-                    return "Station d'épuration";
-                if (tags.power === "plant") return "Centrale électrique";
-                if (tags.power === "substation")
-                    return "Sous-station électrique";
-                if (tags.power === "line") return "Ligne électrique";
-                if (tags.highway === "bus_stop") return "Arrêt de bus";
-                if (tags.railway === "station") return "Gare";
-                if (tags.hazard === "flood") return "Zone inondable";
-                return "Autre";
-            });
+                // Traduction en français
+                const translatedElements = nearbyElements.map((element) => {
+                    const tags = element.tags;
+                    if (tags.highway) return "Route";
+                    if (tags.amenity === "hospital") return "Hôpital";
+                    if (tags.amenity === "school") return "École";
+                    if (tags.amenity === "public_building")
+                        return "Bâtiment public";
+                    if (tags.man_made === "sewer") return "Égout";
+                    if (tags.man_made === "drain") return "Drain";
+                    if (tags.waterway === "river") return "Rivière";
+                    if (tags.waterway === "stream") return "Ruisseau";
+                    if (tags.waterway === "canal") return "Canal";
+                    if (tags.waterway === "drain") return "Drain";
+                    if (tags.waterway === "ditch") return "Fossé";
+                    if (tags.natural === "water") return "Plan d'eau";
+                    if (tags.natural === "wetland") return "Zone humide";
+                    if (tags.waterway === "riverbank")
+                        return "Berge de rivière";
+                    if (tags.landuse === "reservoir") return "Réservoir";
+                    if (tags.landuse === "basin") return "Bassin";
+                    if (tags.man_made === "reservoir_covered")
+                        return "Réservoir couvert";
+                    if (tags.landuse === "forest") return "Forêt";
+                    if (tags.leisure === "park") return "Parc";
+                    if (tags.landuse === "residential")
+                        return "Zone résidentielle";
+                    if (tags.building === "residential")
+                        return "Bâtiment résidentiel";
+                    if (tags.amenity === "marketplace") return "Marché";
+                    if (tags.landuse === "farmland") return "Terre agricole";
+                    if (tags.landuse === "orchard") return "Verger";
+                    if (tags.boundary === "protected_area")
+                        return "Zone protégée";
+                    if (tags.landuse === "industrial")
+                        return "Zone industrielle";
+                    if (tags.landuse === "commercial")
+                        return "Zone commerciale";
+                    if (tags.amenity === "waste_disposal")
+                        return "Site de gestion des déchets";
+                    if (tags.amenity === "recycling")
+                        return "Site de recyclage";
+                    if (tags.amenity === "drinking_water")
+                        return "Point d'eau potable";
+                    if (tags.man_made === "water_well") return "Puits";
+                    if (tags.man_made === "wastewater_plant")
+                        return "Station d'épuration";
+                    if (tags.power === "plant") return "Centrale électrique";
+                    if (tags.power === "substation")
+                        return "Sous-station électrique";
+                    if (tags.power === "line") return "Ligne électrique";
+                    if (tags.highway === "bus_stop") return "Arrêt de bus";
+                    if (tags.railway === "station") return "Gare";
+                    if (tags.hazard === "flood") return "Zone inondable";
+                    return "Autre";
+                });
 
-            return translatedElements;
-        } catch (error) {
-            console.error(
-                "Error fetching structures and natural resources from Overpass API:",
-                error
-            );
-            return [];
-        }
-    };
+                return translatedElements;
+            } catch (error) {
+                console.error(
+                    "Error fetching structures and natural resources from Overpass API:",
+                    error
+                );
+                return [];
+            }
+        },
+        [latitude, longitude]
+    );
 
     // Envoi des prédictions vers FastAPI
-    const sendPrediction = async () => {
+    const sendPrediction = useCallback(async () => {
         try {
             const fastapiUrl = config.url2;
-            if (!incident.photo) {
+            if (!incident?.photo) {
                 console.error(
                     "Incident photo is undefined, skipping prediction."
                 );
@@ -476,7 +485,7 @@ export const IncidentData = () => {
                 sensitive_structures: sensitiveStructures,
                 incident_id: incidentId,
                 user_id: userId,
-                zone: incident.zone,
+                zone: incident?.zone || "",
                 latitude: latitude,
                 longitude: longitude,
             };
@@ -484,7 +493,7 @@ export const IncidentData = () => {
             console.log("Payload being sent:", payload);
 
             // Envoi vers FastAPI
-            await axios.post(fastapiUrl, payload);
+            await axios.post(fastapiUrl, payload, { timeout: 120000 });
         } catch (error) {
             console.error(
                 "Error sending prediction (Axios error):",
@@ -494,7 +503,14 @@ export const IncidentData = () => {
                 error.response?.data?.detail || "Error during API call"
             );
         }
-    };
+    }, [
+        incident,
+        latitude,
+        longitude,
+        incidentId,
+        userId,
+        fetchNearbySensitiveStructures,
+    ]);
 
     return {
         handleChangeStatus,
