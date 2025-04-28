@@ -1,6 +1,6 @@
 // Analyze.jsx
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
     Box,
     Button,
@@ -66,7 +66,8 @@ export default function Analyze() {
     const [isLoadingContext, setIsLoadingContext] = useState(true); // State to track context loading
     const [predictionError, setPredictionError] = useState(null); // State to track prediction errors
     const predictionSentRef = useRef(false); // Ref to track if prediction has been sent
-    const refreshTimerRef = useRef(null); // Ref to store the refresh timer
+    const [isPolling, setIsPolling] = useState(false); // Add state for polling status
+    const pollingIntervalRef = useRef(null); // Ref to store polling interval ID
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -74,159 +75,233 @@ export default function Analyze() {
         setExpanded(!expanded);
     };
 
-    // Function to handle page refresh
-    const refreshPage = () => {
-        console.log("Auto-refreshing page to check for prediction data...");
-        window.location.reload();
-    };
-
-    // Function to fetch predictions by incident ID
-    const fetchPredictionsByIncidentId = async (incidentId) => {
+    // Function to fetch predictions by incident ID (useCallback for stability)
+    const fetchPredictionsByIncidentId = useCallback(async (id) => {
         try {
             const response = await fetch(
-                `${config.url}/MapApi/Incidentprediction/${incidentId}`
+                `${config.url}/MapApi/Incidentprediction/${id}`
             );
 
             if (!response.ok) {
-                throw new Error("Failed to fetch predictions");
+                if (response.status === 404) {
+                    console.log(
+                        `Prediction for incident ${id} not found (404). Still polling.`
+                    );
+                    return null;
+                }
+                throw new Error(
+                    `Failed to fetch predictions (status: ${response.status})`
+                );
             }
 
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
-                const data = await response.json(); // Parse the JSON response
-                return data; // Return the prediction data
+                const data = await response.json();
+                const predictionExists =
+                    (Array.isArray(data) && data.length > 0) ||
+                    (typeof data === "object" &&
+                        data !== null &&
+                        Object.keys(data).length > 0);
+                if (predictionExists) {
+                    console.log(`Prediction found for incident ${id}:`, data);
+                    return Array.isArray(data) ? data[0] : data;
+                } else {
+                    console.log(
+                        `Prediction for incident ${id} exists but is empty. Still polling.`
+                    );
+                    return null;
+                }
             } else {
-                throw new Error("Received non-JSON response");
+                console.warn(
+                    `Received non-JSON response when fetching prediction for incident ${id}`
+                );
+                return null;
             }
         } catch (error) {
-            console.error("Error fetching predictions:", error);
-            return null; // Return null if there is an error
+            console.error(
+                `Error fetching prediction for incident ${id}:`,
+                error
+            );
+            return null;
         }
-    };
+    }, []);
 
     // Add this function to determine if we should show the report
     const shouldShowReport = () => {
         return type_incident !== "Aucun problème environnemental";
     };
 
-    // Modify the useEffect for fetching predictions
+    // Modify the useEffect for fetching/sending predictions
     useEffect(() => {
+        let isMounted = true;
+
         const fetchData = async () => {
+            if (!incidentId || !shouldShowReport()) {
+                if (isMounted) setIsLoadingContext(false);
+                return;
+            }
+
             try {
-                // Only fetch prediction if we should show the report
-                if (shouldShowReport()) {
-                    const existingPrediction = await fetchPredictionsByIncidentId(
-                        incidentId
+                console.log(`Checking prediction for incident: ${incidentId}`);
+                const existingPrediction = await fetchPredictionsByIncidentId(
+                    incidentId
+                );
+
+                if (existingPrediction && isMounted) {
+                    console.log(
+                        "Setting existing prediction:",
+                        existingPrediction
                     );
+                    setPrediction(existingPrediction);
+                    setPredictionError(null);
+                    setIsLoadingContext(false);
+                    setIsPolling(false);
+                    predictionSentRef.current = true;
+                } else if (imgUrl && !predictionSentRef.current && isMounted) {
+                    console.log(
+                        `No prediction found for ${incidentId}, attempting to send.`
+                    );
+                    predictionSentRef.current = true;
 
-                    console.log("Existing prediction:", existingPrediction);
-
-                    const predictionExists =
-                        (Array.isArray(existingPrediction) &&
-                            existingPrediction.length > 0) ||
-                        (typeof existingPrediction === "object" &&
-                            existingPrediction !== null &&
-                            Object.keys(existingPrediction).length > 0);
-
-                    if (predictionExists) {
-                        const validPrediction = Array.isArray(
-                            existingPrediction
-                        )
-                            ? existingPrediction[0]
-                            : existingPrediction;
-                        setPrediction(validPrediction);
-                        setPredictionError(null); // Clear any previous errors
-
-                        // Clear any pending refresh timer
-                        if (refreshTimerRef.current) {
-                            clearTimeout(refreshTimerRef.current);
-                            refreshTimerRef.current = null;
-                        }
-                    } else if (
-                        imgUrl &&
-                        !predictionSentRef.current &&
-                        incidentId
-                    ) {
-                        // Only try to send prediction once and only if we have both an image URL and an incident ID
-                        try {
-                            await sendPrediction();
-                            predictionSentRef.current = true;
-
-                            // Set a refresh timer to check for new prediction data after 30 seconds
-                            refreshTimerRef.current = setTimeout(
-                                refreshPage,
-                                30000
-                            );
-                        } catch (error) {
-                            console.error("Failed to send prediction:", error);
-                            // Set error state with meaningful message
+                    try {
+                        await sendPrediction();
+                        console.log(
+                            `Prediction request sent for incident ${incidentId}. Starting polling.`
+                        );
+                        if (isMounted) setIsPolling(true);
+                    } catch (error) {
+                        console.error("Failed to send prediction:", error);
+                        if (isMounted) {
                             setPredictionError(
                                 "Échec de l'envoi de la prédiction. Problème de connexion au serveur d'analyse."
                             );
-                            // Mark as sent even on error to prevent retries
-                            predictionSentRef.current = true;
-                        }
-                    } else if (
-                        Array.isArray(existingPrediction) &&
-                        existingPrediction.length === 0
-                    ) {
-                        // If the API returned an empty array and we're not in the process of sending a prediction,
-                        // set a refresh timer to check again after 30 seconds
-                        if (
-                            !refreshTimerRef.current &&
-                            !predictionSentRef.current
-                        ) {
-                            console.log(
-                                "No predictions found, setting refresh timer..."
-                            );
-                            refreshTimerRef.current = setTimeout(
-                                refreshPage,
-                                30000
-                            );
+                            setIsLoadingContext(false);
                         }
                     }
+                } else if (
+                    !existingPrediction &&
+                    predictionSentRef.current &&
+                    isMounted
+                ) {
+                    console.log(
+                        `Prediction sent for ${incidentId}, but no data yet. Ensuring polling is active.`
+                    );
+                    if (!isPolling) setIsPolling(true);
+                } else if (!imgUrl && isMounted) {
+                    console.log("Image URL not available yet.");
+                } else {
+                    if (isMounted) setIsLoadingContext(false);
                 }
-                setIsLoadingContext(false);
             } catch (error) {
-                console.error("Error fetching or sending prediction:", error);
-                setPredictionError(
-                    "Erreur lors de la récupération des données d'analyse."
-                );
-                setIsLoadingContext(false);
-                // Mark as sent on error to prevent infinite retries
-                predictionSentRef.current = true;
+                console.error("Error in main fetchData effect:", error);
+                if (isMounted) {
+                    setPredictionError(
+                        "Erreur lors de la récupération des données d'analyse."
+                    );
+                    setIsLoadingContext(false);
+                }
             }
         };
 
-        // Only run fetchData if predictionSentRef is false
-        if (!predictionSentRef.current) {
-            fetchData();
+        fetchData();
+
+        return () => {
+            isMounted = false;
+            console.log(
+                "Unmounting analyze component or dependencies changed."
+            );
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+            }
+        };
+    }, [incidentId, imgUrl, sendPrediction, fetchPredictionsByIncidentId]);
+
+    useEffect(() => {
+        let isMounted = true;
+        const maxPollingTime = 5 * 60 * 1000;
+        const pollingStartTime = Date.now();
+
+        const poll = async () => {
+            if (!incidentId) return;
+
+            console.log(`Polling check for incident ${incidentId}...`);
+
+            if (Date.now() - pollingStartTime > maxPollingTime) {
+                console.error(
+                    `Polling timed out for incident ${incidentId} after 5 minutes.`
+                );
+                if (isMounted) {
+                    setPredictionError(
+                        "L'analyse prend plus de temps que prévu. Veuillez vérifier à nouveau plus tard."
+                    );
+                    setIsLoadingContext(false);
+                    setIsPolling(false);
+                }
+                return;
+            }
+
+            const fetchedPrediction = await fetchPredictionsByIncidentId(
+                incidentId
+            );
+
+            if (fetchedPrediction && isMounted) {
+                console.log(`Polling successful for incident ${incidentId}.`);
+                setPrediction(fetchedPrediction);
+                setPredictionError(null);
+                setIsLoadingContext(false);
+                setIsPolling(false);
+            } else {
+                console.log(
+                    `Prediction still not available for ${incidentId}. Will poll again.`
+                );
+            }
+        };
+
+        if (isPolling && incidentId) {
+            console.log(
+                `Starting polling interval for incident ${incidentId}.`
+            );
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+            }
+            pollingIntervalRef.current = setInterval(poll, 15000);
+
+            poll();
+        } else {
+            if (pollingIntervalRef.current) {
+                console.log(
+                    `Stopping polling interval for incident ${incidentId}.`
+                );
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+            }
         }
 
-        // Cleanup function to clear timer on unmount
         return () => {
-            if (refreshTimerRef.current) {
-                clearTimeout(refreshTimerRef.current);
+            isMounted = false;
+            if (pollingIntervalRef.current) {
+                console.log(
+                    `Clearing polling interval on effect cleanup for incident ${incidentId}.`
+                );
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
             }
         };
-    }, [incident, incidentId, imgUrl]);
+    }, [isPolling, incidentId, fetchPredictionsByIncidentId]);
 
-    // Modified console logging to avoid repetitive messages
     useEffect(() => {
         if (prediction) {
             if (prediction.ndvi_heatmap) {
                 console.log("NDVI Heatmap URL:", prediction.ndvi_heatmap);
             } else {
-                // Log only once
                 console.log(
                     "Prediction found but ndvi_heatmap is not available."
                 );
             }
         }
-        // No else case to avoid repetitive logs
     }, [prediction]);
 
-    // Create a custom marker icon based on the incident state
     const iconHTML = ReactDOMServer.renderToString(
         <FaMapMarkerAlt
             color={
@@ -242,7 +317,6 @@ export default function Analyze() {
 
     const customMarkerIcon = new L.DivIcon({ html: iconHTML });
 
-    // Component to recenter the map when latitude or longitude changes
     function RecenterMap({ lat, lon }) {
         const map = useMap();
         useEffect(() => {
@@ -258,10 +332,8 @@ export default function Analyze() {
         h2: (props) => <Heading as="h2" size="lg" my={4} {...props} />,
         h3: (props) => <Heading as="h3" size="md" my={3} {...props} />,
         p: (props) => <Text my={2} {...props} />,
-        // Add more custom components as needed
     };
 
-    // Settings for the carousel
     const sliderSettings = {
         dots: true,
         infinite: true,
@@ -277,7 +349,6 @@ export default function Analyze() {
                 templateRows={{ lg: "repeat(2, auto)" }}
                 gap="20px"
             >
-                {/* Card for the Incident Report */}
                 <Card p="0px" maxW={{ sm: "320px", md: "100%" }}>
                     <Flex direction="column">
                         <Box
@@ -288,20 +359,27 @@ export default function Analyze() {
                             {isLoadingContext ? (
                                 <Box textAlign="center">
                                     <Heading size="md" mb="4">
-                                        L'analyse est en cours et le rapport
-                                        sera fourni dans quelques instants...
+                                        {predictionError
+                                            ? "Erreur d'Analyse"
+                                            : "L'analyse est en cours et le rapport sera fourni dans quelques instants..."}
                                     </Heading>
-                                    <Flex
-                                        justify="center"
-                                        align="center"
-                                        mb="4"
-                                    >
-                                        <Spinner
-                                            data-testid="loading-indicator"
-                                            size="lg"
-                                        />
-                                    </Flex>
-                                    <QuotesCarousel />
+                                    {predictionError ? (
+                                        <Text color="red.500" mb={4}>
+                                            {predictionError}
+                                        </Text>
+                                    ) : (
+                                        <Flex
+                                            justify="center"
+                                            align="center"
+                                            mb="4"
+                                        >
+                                            <Spinner
+                                                data-testid="loading-indicator"
+                                                size="lg"
+                                            />
+                                        </Flex>
+                                    )}
+                                    {!predictionError && <QuotesCarousel />}
                                 </Box>
                             ) : type_incident ===
                               "Aucun problème environnemental" ? (
@@ -338,7 +416,6 @@ export default function Analyze() {
                                     </Flex>
                                 </Box>
                             ) : (
-                                // Existing report display code
                                 <Box mb="4" minH="200px">
                                     <Heading as="h6" size="md" mb="4">
                                         Rapport d'Analyse
@@ -367,11 +444,6 @@ export default function Analyze() {
                                                     Erreur d'analyse
                                                 </Heading>
                                                 <Text>{predictionError}</Text>
-                                                <Text mt={2}>
-                                                    Veuillez réessayer plus tard
-                                                    ou contacter le support
-                                                    technique.
-                                                </Text>
                                             </Box>
                                         ) : expanded ? (
                                             <>
@@ -393,7 +465,6 @@ export default function Analyze() {
                                                 </ReactMarkdown>
                                             </>
                                         ) : (
-                                            // Show a snippet of the context with an option to expand
                                             <ReactMarkdown
                                                 components={MarkdownComponents}
                                             >
@@ -500,7 +571,6 @@ export default function Analyze() {
                     </Flex>
                 </Card>
 
-                {/* Card for Interactive Map */}
                 <Card p="0px" maxW={{ sm: "320px", md: "100%" }}>
                     <Flex direction="column" mb="40px" p="28px 0px 0px 22px">
                         <Text
@@ -549,7 +619,6 @@ export default function Analyze() {
                     </Box>
                 </Card>
 
-                {/* Card for Incident Image */}
                 <Card p="0px" maxW={{ sm: "320px", md: "100%" }}>
                     <Flex direction="column" mb="40px" p="28px 0px 0px 22px">
                         <Text fontSize="lg" color={textColor} fontWeight="bold">
