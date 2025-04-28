@@ -54,18 +54,30 @@ export default function CitizenTable(){
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const fetchUserData = async () => {
+    let allUsers = [];
+    let url = `${config.url}/MapApi/user/`;
+  
     try {
-      const response = await axios.get(`${config.url}/MapApi/user/`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.token}`,
-        },
-      });
-      let donne = response.data.results.filter(user => user.user_type === "citizen")
-      console.log("citizen data", donne)
-      setData(donne);
+      while (url) {
+        if (url.startsWith('http://')) {
+          url = url.replace('http://', 'https://');
+        }
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.token}`,
+          },
+        });
+  
+        const filtered = response.data.results.filter(user => user.user_type === "citizen");
+        allUsers = [...allUsers, ...filtered];
+  
+        url = response.data.next; 
+      }
+  
+      setData(allUsers);
       setDataReady(true);
     } catch (error) {
-      console.error('Erreur lors de la récupération des informations utilisateur :', error.message);
+      console.error('Erreur lors de la récupération des utilisateurs paginés :', error.message);
     }
   };
 
@@ -232,18 +244,11 @@ export default function CitizenTable(){
           <FormControl>
             <FormLabel>Type Utilisateur</FormLabel>
             <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
-              <option value="elu">Organisation</option>
+              {/* <option value="elu">Organisation</option> */}
               <option value="citizen">Utilisateur de l'application mobile</option>
             </Select>
           </FormControl>
-          <FormControl>
-            <FormLabel>Organisation</FormLabel>
-            <Input name="organisation" value={newUser.organisation} onChange={handleInputChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Logo de l'organisation</FormLabel>
-            <Input type="file" name="avatar" accept="image/*" onChange={handleFileChange} />
-          </FormControl>
+          
 
         </ModalBody>
         <ModalFooter>

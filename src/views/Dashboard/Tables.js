@@ -37,6 +37,7 @@ export default function Tables(){
   const [dataReady, setDataReady] = useState(false);
   const [inProgress, setInProgress] = useState(false);
   const [editUser, setEditUser] = useState(null);
+  
   const [newUser, setNewUser] = useState({
     first_name: "",
     last_name: "",
@@ -54,7 +55,7 @@ export default function Tables(){
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`${config.url}/MapApi/user/`, {
+      const response = await axios.get(`${config.url}/MapApi/user/?limit=1000`, {
         headers: {
           Authorization: `Bearer ${sessionStorage.token}`,
         },
@@ -102,7 +103,7 @@ export default function Tables(){
     formData.append("address", newUser.address);
     formData.append("user_type", newUser.user_type);
     formData.append("organisation", newUser.organisation);
-    formData.append("password", "mapaction2020");
+    formData.append("password", "mapaction2025");
     if (newUser.avatar) {
       formData.append("avatar", newUser.avatar);
     }
@@ -111,8 +112,11 @@ export default function Tables(){
       const response = await axios.post(`${config.url}/MapApi/user/`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${sessionStorage.token}`
         },
       });
+      console.log("Réponse création:", response.data);
+
       setData([...data, response.data]);
       setInProgress(false);
       onNewUserModalClose();
@@ -127,9 +131,18 @@ export default function Tables(){
         organisation: "",
         avatar: null,
       });
+      console.log("Nouvel utilisateur à créer:", newUser);
+
       Swal.fire("Succès", "Utilisateur ajouté avec succès", "success");
     } catch (error) {
       setInProgress(false);
+      console.error("Erreur création utilisateur:", error);
+      if (error.response) {
+        console.log("Response status:", error.response.status);
+        console.log("Response data:", error.response.data);
+      } else {
+        console.log("Erreur inconnue:", error.message);
+      }
       handleError(error);
     }
   };
@@ -229,7 +242,7 @@ export default function Tables(){
             <FormLabel>Type Utilisateur</FormLabel>
             <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
               <option value="elu">Organisation</option>
-              <option value="citizen">Utilisateur de l'application mobile</option>
+              {/* <option value="citizen">Utilisateur de l'application mobile</option> */}
             </Select>
           </FormControl>
           <FormControl>
