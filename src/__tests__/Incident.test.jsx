@@ -45,15 +45,35 @@ describe('Incident Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock de sessionStorage
+  
     Object.defineProperty(window, 'sessionStorage', {
       value: {
-        getItem: jest.fn((key) => key === 'user_type' ? 'admin' : 'fake-token'),
+        getItem: jest.fn((key) =>
+          key === 'user_type' ? 'admin' : 'fake-token'
+        ),
         setItem: jest.fn()
-      }
+      },
+      writable: true
     });
-    axios.get.mockResolvedValue({ data: mockIncidents });
+  
+    axios.get.mockImplementation((url) => {
+      if (url.includes('/MapApi/incident')) {
+        return Promise.resolve({ data: mockIncidents });
+      }
+      if (url.includes('/MapApi/prediction')) {
+        return Promise.resolve({
+          data: [
+            {
+              incident_id: 1,
+              incident_type: "tag1, tag2"
+            }
+          ]
+        });
+      }
+      return Promise.reject(new Error('URL non mockée'));
+    });
   });
+  ;
 
   it('charge et affiche la liste des incidents', async () => {
     renderWithProviders(<Incident />);
@@ -122,4 +142,48 @@ describe('Incident Component', () => {
       );
     });
   });
+  it('supprime plusieurs incidents sélectionnés', async () => {
+    axios.delete.mockResolvedValue({});
+    renderWithProviders(<Incident />);
+    await waitFor(() => screen.getByText('Test Incident'));
+  
+    const checkbox = screen.getByRole('checkbox');
+    fireEvent.click(checkbox); // sélectionne tout
+  
+    const deleteAllButton = screen.getByText(/Supprimer incidents sélectionnés/i);
+    fireEvent.click(deleteAllButton);
+  
+    await waitFor(() => {
+      expect(Swal.fire).toHaveBeenCalledWith(
+        expect.stringContaining('Êtes-vous sûr'),
+        expect.anything(),
+        'warning'
+      );
+    });
+  });
+
+  it('filtre les incidents par tags', async () => {
+    renderWithProviders(<Incident />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Test Incident')).toBeInTheDocument();
+    });
+  
+    const tagButton = screen.getByText('tag1');
+    fireEvent.click(tagButton);
+  
+    await waitFor(() => {
+      expect(screen.getByText('Test Incident')).toBeInTheDocument(); // visible car tag match
+    });
+  
+    const tagButton2 = screen.getByText('tag2');
+    fireEvent.click(tagButton2); // maintenant deux tags sélectionnés
+  
+    await waitFor(() => {
+      expect(screen.queryByText('Test Incident')).toBeInTheDocument(); // toujours visible
+    });
+  });
+  
+  
+  
 }); 

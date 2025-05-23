@@ -3,41 +3,80 @@ import axios from "axios";
 import { config } from "../../config";
 import Swal from "sweetalert2";
 import {
-    Box,
-    Button,
-    Flex,
-    FormControl,
-    FormLabel,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    Select,
-    Spinner,
-    Table,
-    Tbody,
-    Td,
-    Th,
-    Thead,
-    Tr,
-    useDisclosure,
-    useColorModeValue,
+  HStack,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spinner,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
+  useColorModeValue,
+  Tooltip, 
+  // Select
 } from "@chakra-ui/react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import CardHeader from "components/Card/CardHeader.js";
-
+import Select from "react-select";
 export default function Tables(){
   const [data, setData] = useState([]);
   const [dataReady, setDataReady] = useState(false);
   const [inProgress, setInProgress] = useState(false);
   const [editUser, setEditUser] = useState(null);
-  
+  const incidentOptions = [
+    "Puits abîmé",
+    "Fosse pleine",
+    "Latrines bouchées",
+    "Eaux stagnantes",
+    "Décharge illégale",
+    "Déchets biomédicaux",
+    "Plastiques épars",
+    "Feu déchets",
+    "Ordures non collectées",
+    "Déchets électroniques",
+    "Arbres coupés",
+    "Feux de brousse",
+    "Sol Nu",
+    "Sol érodé",
+    "Fumées industrielles",
+    "Eaux sales",
+    "Pollution plastique",
+    "Pollution visuelle",
+    "Inondation",
+    "Sécheresse",
+    "Glissement de terrain",
+    "Animal mort",
+    "Zone humide agréssée",
+    "Espèces invasives",
+    "Surpâturage",
+    "Caniveaux bouchés",
+    "Équipement HS",
+    "Déversement illégal"
+  ].map((type) => ({ label: type, value: type }));
+
+const [selectedIncidents, setSelectedIncidents] = useState([]);
+
+const userTypeOptions = [
+  { value: 'elu', label: 'Organisation' },
+  { value: 'citizen', label: "Utilisateur de l'application mobile" },
+];
+
+
   const [newUser, setNewUser] = useState({
     first_name: "",
     last_name: "",
@@ -173,44 +212,46 @@ export default function Tables(){
   const onUpdateUser = async (e) => {
     e.preventDefault();
     setInProgress(true);
-
-    const new_data = {
-      first_name: newUser.first_name,
-      last_name: newUser.last_name,
-      email: newUser.email,
-      phone: newUser.phone,
-      address: newUser.address,
-      user_type: newUser.user_type,
-      organisation: newUser.organisation,
-      avatar:newUser.avatar,
-      password: "mapaction2020",
-    };
-
-    const url = `${config.url}/MapApi/user/${newUser.id}/`;
-
+  
+    const formData = new FormData();
+    formData.append("first_name", newUser.first_name);
+    formData.append("last_name", newUser.last_name);
+    formData.append("email", newUser.email);
+    formData.append("phone", newUser.phone);
+    formData.append("address", newUser.address);
+    formData.append("user_type", newUser.user_type);
+    formData.append("organisation", newUser.organisation);
+    formData.append("password", "mapaction2020");
+  
+    if (newUser.avatar) {
+      formData.append("avatar", newUser.avatar);
+    }
+  
     try {
-      const response = await axios.put(url, new_data);
+      const response = await axios.put(
+        `${config.url}/MapApi/user/${newUser.id}/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${sessionStorage.token}`,
+          },
+        }
+      );
+  
       setData((prevData) =>
         prevData.map((user) => (user.id === newUser.id ? response.data : user))
       );
       setInProgress(false);
-      setNewUser({
-        id: "",
-        first_name: "",
-        last_name: "",
-        email: "",
-        phone: "",
-        address: "",
-        user_type: "",
-        password: "",
-      });
-      Swal.fire("Succès", "Utilisateur mis à jour avec succès", "success");
+      onEditUserModalClose();
       fetchUserData();
+      Swal.fire("Succès", "Utilisateur mis à jour avec succès", "success");
     } catch (error) {
       setInProgress(false);
       handleError(error);
     }
   };
+  
   const renderNewUserModal = () => (
     <Modal isOpen={isNewUserModalOpen} onClose={onNewUserModalClose}>
       <ModalOverlay />
@@ -240,15 +281,35 @@ export default function Tables(){
           </FormControl>
           <FormControl>
             <FormLabel>Type Utilisateur</FormLabel>
-            <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
-              <option value="elu">Organisation</option>
-              {/* <option value="citizen">Utilisateur de l'application mobile</option> */}
-            </Select>
+           
+            <Select
+              name="user_type"
+              options={userTypeOptions}
+              value={userTypeOptions.find(opt => opt.value === newUser.user_type)}
+              onChange={(option) =>
+                handleSelectChange({ target: { name: 'user_type', value: option.value } })
+              }
+              placeholder="Choisissez un type d'utilisateur"
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Organisation</FormLabel>
             <Input name="organisation" value={newUser.organisation} onChange={handleInputChange} />
           </FormControl>
+          <FormControl>
+            <FormLabel>Types d'incidents</FormLabel>
+            <Select
+              isMulti
+              name="incident_preferences"
+              options={incidentOptions}
+              value={incidentOptions.filter((opt) =>
+                selectedIncidents.includes(opt.value)
+              )}
+              onChange={(selectedOptions) =>
+                setSelectedIncidents(selectedOptions.map((opt) => opt.value))
+              }
+            />
+          </FormControl> 
           <FormControl>
             <FormLabel>Logo de l'organisation</FormLabel>
             <Input type="file" name="avatar" accept="image/*" onChange={handleFileChange} />
@@ -296,10 +357,15 @@ export default function Tables(){
           </FormControl>
           <FormControl>
             <FormLabel>Type Utilisateur</FormLabel>
-            <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
-              <option value="elu">Organisation</option>
-              <option value="citizen">Utilisateur de l'application mobile</option>
-            </Select>
+            <Select
+              name="user_type"
+              options={userTypeOptions}
+              value={userTypeOptions.find(opt => opt.value === newUser.user_type)}
+              onChange={(option) =>
+                handleSelectChange({ target: { name: 'user_type', value: option.value } })
+              }
+              placeholder="Choisissez un type d'utilisateur"
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Organisation</FormLabel>
@@ -371,19 +437,32 @@ export default function Tables(){
                     <Tbody>
                     {data.map((item) => (
                         <Tr key={item.id}>
-                        <Td borderColor={borderColor} color="gray.400">{item.first_name}</Td>
-                        <Td borderColor={borderColor} color="gray.400">{item.last_name}</Td>
-                        <Td borderColor={borderColor} color="gray.400">{item.email}</Td>
-                        <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
-                        <Td borderColor={borderColor} color="gray.400">{item.organisation}</Td>
-                        <Td borderColor={borderColor} >
-                            <Button size="sm" onClick={() => handleEditUser(item)} data-testid='edit'>
-                                <FaEdit />
-                            </Button>
-                            <Button size="sm"  ml="2" onClick={() => onDeleteUser(item)}>
-                                <FaTrash />
-                            </Button>
-                        </Td>
+                          <Td borderColor={borderColor} color="gray.400">{item.first_name}</Td>
+                          <Td borderColor={borderColor} color="gray.400">{item.last_name}</Td>
+                          <Td borderColor={borderColor} color="gray.400">{item.email}</Td>
+                          <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
+                          <Td borderColor={borderColor} color="gray.400">{item.organisation}</Td>
+                          <Td borderColor={borderColor}>
+                            <HStack spacing={2} justify="center">
+                              <Tooltip label="Modifier l'organisation" hasArrow>
+                                <Button size="sm" onClick={() => handleEditUser(item)} data-testid="edit" variant="outline" colorScheme="blue">
+                                  <FaEdit />
+                                </Button>
+                              </Tooltip>
+
+                              <Tooltip label="Supprimer l'organisation" hasArrow>
+                                <Button
+                                  size="sm"
+                                  data-testid={`delete-icon-${item.id}`}
+                                  onClick={() => onDeleteUser(item)}
+                                  variant="outline"
+                                  colorScheme="red"
+                                >
+                                  <FaTrash />
+                                </Button>
+                              </Tooltip>
+                            </HStack>
+                          </Td>
                         </Tr>
                     ))}
                     </Tbody>

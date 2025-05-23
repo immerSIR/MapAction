@@ -27,6 +27,8 @@ import {
   Tr,
   useDisclosure,
   useColorModeValue,
+  HStack,
+  Tooltip
 } from "@chakra-ui/react";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import Card from "components/Card/Card.js";
@@ -372,20 +374,26 @@ export default function CitizenTable(){
                         <Td borderColor={borderColor} color="gray.400">{item.last_name}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.email}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
-                        <Td borderColor={borderColor} >
-                            <Button size="sm" onClick={() => handleEditUser(item)} data-testid="edit">
+                        <Td borderColor={borderColor}>
+                          <HStack spacing={2} justify="center">
+                            <Tooltip label="Modifier l'utilisateur" hasArrow>
+                              <Button size="sm" onClick={() => handleEditUser(item)} data-testid="edit" variant="outline" colorScheme="blue">
                                 <FaEdit />
-                            </Button>
-                            <Button
-                              size="sm"
-                              // colorScheme="red"
-                              ml="2"
-                              data-testid={`delete-icon-${item.id}`}
-                              onClick={() => onDeleteUser(item)}
-                              // isLoading={inProgress}
-                            >
-                              <FaTrash />
-                            </Button>
+                              </Button>
+                            </Tooltip>
+
+                            <Tooltip label="Supprimer l'utilisateur" hasArrow>
+                              <Button
+                                size="sm"
+                                data-testid={`delete-icon-${item.id}`}
+                                onClick={() => onDeleteUser(item)}
+                                variant="outline"
+                                colorScheme="red"
+                              >
+                                <FaTrash />
+                              </Button>
+                            </Tooltip>
+                          </HStack>
                         </Td>
                         </Tr>
                     ))}

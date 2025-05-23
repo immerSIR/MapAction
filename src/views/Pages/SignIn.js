@@ -236,6 +236,17 @@ function SignIn() {
                                     }
                                 }}
                             />
+                            <Text
+                            fontSize="sm"
+                            color="blue.500"
+                            cursor="pointer"
+                            textAlign="right"
+                            mb="12px"
+                            onClick={() => window.location.href = "/auth/reset-password"}
+                            >
+                            Mot de passe oublié ?
+                            </Text>
+
                             <Button
                                 fontSize="10px"
                                 variant="dark"

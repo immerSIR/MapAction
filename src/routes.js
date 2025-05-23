@@ -38,6 +38,7 @@ import CitizenTable from 'views/Dashboard/CitizenTable';
 import DataExport from 'views/Dashboard/DataExport';
 import CollaborationChat from 'views/Dashboard/CollaborationChat';
 import CollaborationList from 'views/Dashboard/ListeCollab';
+import ResetPasswordPage from 'views/Pages/ResetPassWord';
 
 var dashRoutes = [
   {
@@ -177,11 +178,10 @@ var dashRoutes = [
         roles: ["admin", "elu"],
       },
       {
-        path: "/signup",
-        name: "Sign Up",
-        rtlName: "لوحة القيادة",
+        path: "/reset-password",
+        name: "Réinitialise le mot de passe",
         icon: <RocketIcon color='inherit' />,
-        component: SignUp,
+        component: ResetPasswordPage,
         layout: "/auth",
         roles: ["admin", "elu"],
       },

@@ -19,6 +19,7 @@
         "ajv-keywords": "^5.1.0",
         "apexcharts": "^3.27.3",
         "axios": "^1.7.2",
+        "chakra-react-select": "^6.1.0",
         "chart.js": "^4.4.4",
         "classnames": "2.3.1",
         "date-fns": "^3.6.0",
@@ -102,15 +103,14 @@
     },
     "proxy": "https://api.map-action.com",
     "jest": {
-        
         "testMatch": [
-          "<rootDir>/src/__tests__/**/*.{js,jsx,ts,tsx}"
+            "<rootDir>/src/__tests__/**/*.{js,jsx,ts,tsx}"
         ],
         "collectCoverageFrom": [
-          "src/**/*.{js,jsx,ts,tsx}",
-          "!src/**/*.d.ts",
-          "!src/index.js",
-          "!src/serviceWorker.js"
+            "src/**/*.{js,jsx,ts,tsx}",
+            "!src/**/*.d.ts",
+            "!src/index.js",
+            "!src/serviceWorker.js"
         ],
         "moduleNameMapper": {
             "^axios$": "<rootDir>/node_modules/axios/dist/axios.js",
@@ -121,12 +121,11 @@
             "^react-leaflet$": "<rootDir>/node_modules/react-leaflet/lib/index.js"
         },
         "transformIgnorePatterns": [
-         "node_modules/(?!(@?react-leaflet|leaflet|react-markdown|@react-leaflet|react-icons|@chakra-ui|@emotion|react-apexcharts|axios|@babel|@jest)/)"
+            "node_modules/(?!(@?react-leaflet|leaflet|react-markdown|@react-leaflet|react-icons|@chakra-ui|@emotion|react-apexcharts|axios|@babel|@jest)/)"
         ],
-
         "transform": {
-          "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
-          "node_modules/react-leaflet/.+\\.(js|jsx)$": "babel-jest"
+            "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+            "node_modules/react-leaflet/.+\\.(js|jsx)$": "babel-jest"
         },
         "clearMocks": true,
         "resetMocks": true,
@@ -137,22 +136,26 @@
             "html",
             "text-summary",
             "json-summary"
-
         ]
-        
     },
     "babel": {
-      "presets": [
-          "@babel/preset-env",
-          ["@babel/preset-react", { "runtime": "automatic" }]
-      ],
-      "ignore": [],
-      "overrides": [
-          {
-          "include": "./node_modules/react-leaflet",
-          "presets": ["@babel/preset-env"]
-          }
-      ]
+        "presets": [
+            "@babel/preset-env",
+            [
+                "@babel/preset-react",
+                {
+                    "runtime": "automatic"
+                }
+            ]
+        ],
+        "ignore": [],
+        "overrides": [
+            {
+                "include": "./node_modules/react-leaflet",
+                "presets": [
+                    "@babel/preset-env"
+                ]
+            }
+        ]
     }
-
 }

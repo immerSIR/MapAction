@@ -52,9 +52,6 @@ export default function Analyze() {
         heure,
         incident,
         handleNavigateLLM,
-        context,
-        piste_solution,
-        impact_potentiel,
         type_incident,
         zone,
         sendPrediction,
@@ -68,32 +65,23 @@ export default function Analyze() {
     const predictionSentRef = useRef(false); // Ref to track if prediction has been sent
     const [isPolling, setIsPolling] = useState(false); // Add state for polling status
     const pollingIntervalRef = useRef(null); // Ref to store polling interval ID
-
     const { isOpen, onOpen, onClose } = useDisclosure();
-
     const toggleExpanded = () => {
         setExpanded(!expanded);
     };
-
     // Function to fetch predictions by incident ID (useCallback for stability)
     const fetchPredictionsByIncidentId = useCallback(async (id) => {
         try {
             const response = await fetch(
                 `${config.url}/MapApi/Incidentprediction/${id}`
             );
-
             if (!response.ok) {
                 if (response.status === 404) {
-                    console.log(
-                        `Prediction for incident ${id} not found (404). Still polling.`
-                    );
+                    console.log(`Prediction for incident ${id} not found (404). Still polling.`);
                     return null;
                 }
-                throw new Error(
-                    `Failed to fetch predictions (status: ${response.status})`
-                );
+                throw new Error(`Failed to fetch predictions (status: ${response.status})`);
             }
-
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
                 const data = await response.json();
@@ -106,41 +94,28 @@ export default function Analyze() {
                     console.log(`Prediction found for incident ${id}:`, data);
                     return Array.isArray(data) ? data[0] : data;
                 } else {
-                    console.log(
-                        `Prediction for incident ${id} exists but is empty. Still polling.`
-                    );
+                    console.log(`Prediction for incident ${id} exists but is empty. Still polling.`);
                     return null;
                 }
             } else {
-                console.warn(
-                    `Received non-JSON response when fetching prediction for incident ${id}`
-                );
+                console.warn(`Received non-JSON response when fetching prediction for incident ${id}`);
                 return null;
             }
         } catch (error) {
-            console.error(
-                `Error fetching prediction for incident ${id}:`,
-                error
-            );
+            console.error(`Error fetching prediction for incident ${id}:`, error);
             return null;
         }
     }, []);
-
-    // Add this function to determine if we should show the report
     const shouldShowReport = () => {
         return type_incident !== "Aucun problème environnemental";
     };
-
-    // Modify the useEffect for fetching/sending predictions
     useEffect(() => {
         let isMounted = true;
-
         const fetchData = async () => {
             if (!incidentId || !shouldShowReport()) {
                 if (isMounted) setIsLoadingContext(false);
                 return;
             }
-
             try {
                 console.log(`Checking prediction for incident: ${incidentId}`);
                 const existingPrediction = await fetchPredictionsByIncidentId(
@@ -148,33 +123,24 @@ export default function Analyze() {
                 );
 
                 if (existingPrediction && isMounted) {
-                    console.log(
-                        "Setting existing prediction:",
-                        existingPrediction
-                    );
+                    console.log( "Setting existing prediction:", existingPrediction);
                     setPrediction(existingPrediction);
                     setPredictionError(null);
                     setIsLoadingContext(false);
                     setIsPolling(false);
                     predictionSentRef.current = true;
                 } else if (imgUrl && !predictionSentRef.current && isMounted) {
-                    console.log(
-                        `No prediction found for ${incidentId}, attempting to send.`
-                    );
+                    console.log(`No prediction found for ${incidentId}, attempting to send.`);
                     predictionSentRef.current = true;
 
                     try {
                         await sendPrediction();
-                        console.log(
-                            `Prediction request sent for incident ${incidentId}. Starting polling.`
-                        );
+                        console.log(`Prediction request sent for incident ${incidentId}. Starting polling.`);
                         if (isMounted) setIsPolling(true);
                     } catch (error) {
                         console.error("Failed to send prediction:", error);
                         if (isMounted) {
-                            setPredictionError(
-                                "Échec de l'envoi de la prédiction. Problème de connexion au serveur d'analyse."
-                            );
+                            setPredictionError("Échec de l'envoi de la prédiction. Problème de connexion au serveur d'analyse.");
                             setIsLoadingContext(false);
                         }
                     }
@@ -232,15 +198,12 @@ export default function Analyze() {
                     `Polling timed out for incident ${incidentId} after 5 minutes.`
                 );
                 if (isMounted) {
-                    setPredictionError(
-                        "L'analyse prend plus de temps que prévu. Veuillez vérifier à nouveau plus tard."
-                    );
+                    setPredictionError("L'analyse prend plus de temps que prévu. Veuillez vérifier à nouveau plus tard.");
                     setIsLoadingContext(false);
                     setIsPolling(false);
                 }
                 return;
             }
-
             const fetchedPrediction = await fetchPredictionsByIncidentId(
                 incidentId
             );
@@ -252,21 +215,16 @@ export default function Analyze() {
                 setIsLoadingContext(false);
                 setIsPolling(false);
             } else {
-                console.log(
-                    `Prediction still not available for ${incidentId}. Will poll again.`
-                );
+                console.log(`Prediction still not available for ${incidentId}. Will poll again.`);
             }
         };
 
         if (isPolling && incidentId) {
-            console.log(
-                `Starting polling interval for incident ${incidentId}.`
-            );
+            console.log(`Starting polling interval for incident ${incidentId}.`);
             if (pollingIntervalRef.current) {
                 clearInterval(pollingIntervalRef.current);
             }
             pollingIntervalRef.current = setInterval(poll, 15000);
-
             poll();
         } else {
             if (pollingIntervalRef.current) {
@@ -281,9 +239,7 @@ export default function Analyze() {
         return () => {
             isMounted = false;
             if (pollingIntervalRef.current) {
-                console.log(
-                    `Clearing polling interval on effect cleanup for incident ${incidentId}.`
-                );
+                console.log(`Clearing polling interval on effect cleanup for incident ${incidentId}.`);
                 clearInterval(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
             }
@@ -314,9 +270,7 @@ export default function Analyze() {
             size={20}
         />
     );
-
     const customMarkerIcon = new L.DivIcon({ html: iconHTML });
-
     function RecenterMap({ lat, lon }) {
         const map = useMap();
         useEffect(() => {

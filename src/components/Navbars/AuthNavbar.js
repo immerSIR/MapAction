@@ -147,30 +147,12 @@ export default function AuthNavbar(props) {
       zIndex="3"
     >
       <Flex w="100%" justifyContent={{ sm: "start", lg: "space-between" }}>
-        {/* {brand} */}
         <Box
           ms={{ base: "auto", lg: "0px" }}
           display={{ base: "flex", lg: "none" }}
         >
-          {/* <SidebarResponsive
-            hamburgerColor={hamburgerColor}
-            logoText={props.logoText}
-            secondary={props.secondary}
-            routes={routes}
-            logo={
-              <Stack
-                direction="row"
-                spacing="12px"
-                align="center"
-                justify="center"
-              >
-                <appLogoLight w="82px" h="21px" />
-              </Stack>
-            }
-            {...rest}
-          /> */}
+         
         </Box>
-        {/* {linksAuth} */}
         
       </Flex>
     </Flex>
