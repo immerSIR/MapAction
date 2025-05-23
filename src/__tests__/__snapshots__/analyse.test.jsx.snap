@@ -1,0 +1,154 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Analyze Component correspond au rendu attendu 1`] = `
+<div>
+  <div
+    class="css-3o9w3u"
+  >
+    <div
+      class="css-1uwlt3s"
+    >
+      <div
+        class="css-1kb7y7y"
+      >
+        <div
+          class="css-j7qwjs"
+        >
+          <div
+            class="css-297qs2"
+            justify="space-between"
+          >
+            <div
+              class="css-1etlxwl"
+            >
+              <h6
+                class="chakra-heading css-1hcl92i"
+              >
+                Rapport d'Analyse
+              </h6>
+              <p
+                class="chakra-text css-0"
+              >
+                <strong>
+                  Zone:
+                </strong>
+                 
+                Test zone
+              </p>
+              <p
+                class="chakra-text css-0"
+              >
+                <strong>
+                  Coordonnées:
+                </strong>
+                 
+                48.8566
+                , 
+                2.3522
+              </p>
+              <p
+                class="chakra-text css-0"
+              >
+                <strong>
+                  Type d'incident:
+                </strong>
+                 
+                Test type
+              </p>
+              <p
+                class="chakra-text css-rltemf"
+              >
+                <div
+                  data-testid="markdown"
+                >
+                  Analyse en cours ou non disponible. Si cette situation persiste, veuillez réessayer plus tard ou contacter le support.
+                </div>
+              </p>
+              <br />
+              <div
+                class="css-1azotaz"
+              >
+                <button
+                  class="chakra-button css-f6n2t5"
+                  type="button"
+                >
+                  MapChat
+                </button>
+                <button
+                  class="chakra-button css-f6n2t5"
+                  type="button"
+                >
+                  Visualiser
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="css-1kb7y7y"
+      >
+        <div
+          class="css-iv54l"
+        >
+          <p
+            class="chakra-text css-biz5fo"
+          >
+            Carte interactive
+          </p>
+        </div>
+        <div
+          class="css-wbvail"
+        >
+          <div
+            class="css-i2ca0c"
+          >
+            <div
+              data-testid="map-container"
+            >
+              Map Container
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="css-1kb7y7y"
+      >
+        <div
+          class="css-iv54l"
+        >
+          <p
+            class="chakra-text css-1os1ja9"
+          >
+            Image de l'incident
+          </p>
+        </div>
+        <div
+          class="css-123bhdm"
+        >
+          <img
+            alt="Incident"
+            src="test-image.jpg"
+          />
+        </div>
+        <div
+          class="css-1rs549c"
+        >
+          <p
+            class="chakra-text css-zzj1zy"
+          >
+            Date : 
+            2024-03-21
+          </p>
+          <p
+            class="chakra-text css-vpe4zj"
+          >
+            Heure : 
+            14:30
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -4,7 +4,7 @@ import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
 const DateFilterContext = createContext();
 
 export const DateFilterProvider = ({ children }) => {
-    const [filterType, setFilterType] = useState('today');
+    const [filterType, setFilterType] = useState('all');
     const [customRange, setCustomRange] = useState([{
         startDate: new Date(),
         endDate: new Date(),
@@ -42,6 +42,10 @@ export const DateFilterProvider = ({ children }) => {
         }
 
         switch (type) {
+            case 'all':
+            setCustomRange([]); // Vide car pas de date
+            break;
+
             case 'today':
                 setCustomRange([{
                     startDate: new Date(),
@@ -87,6 +91,7 @@ export const DateFilterProvider = ({ children }) => {
                     endDate: endDate || new Date(),
                 }]);
                 break;
+            
             default:
                 console.error('Unknown filter type:', type);
         }

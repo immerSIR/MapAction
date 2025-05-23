@@ -146,6 +146,7 @@ describe('HeaderLinks Component', () => {
     expect(bellIcon).toHaveStyle({ color: 'white' });
 
   });
+  
 });
 
 

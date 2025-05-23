@@ -1,3 +1,4 @@
+
 // Chakra Icons
 import { BellIcon } from "@chakra-ui/icons";
 // Chakra Imports
@@ -325,12 +326,11 @@ export default function HeaderLinks(props) {
           onChange={(e) => handleFilterChange(e.target.value)}
           background="white"
         >
+          <option value="all">Tous les incidents</option>
           <option value="today">Aujourd'hui</option>
           <option value="yesterday">Hier</option>
           <option value="last_7_days">Les 7 derniers jours</option>
           <option value="last_30_days">Les 30 derniers jours</option>
-          <option value="this_month">Ce mois</option>
-          <option value="last_month">Le mois dernier</option>
           <option value="custom_range">Choix personnalisé</option>
         </Select>
         {filterType === 'custom_range' && showDatePicker && customRange.length > 0 && (

@@ -34,7 +34,7 @@ export const IncidentData = () => {
     });
 
     const optionstype = [
-        { label: "En attente", value: "declared" },
+        // { label: "En attente", value: "declared" },
         { label: "Prendre en compte", value: "taken_into_account" },
         { label: "Résolu", value: "resolved" },
     ];

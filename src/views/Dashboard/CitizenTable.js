@@ -27,6 +27,8 @@ import {
   Tr,
   useDisclosure,
   useColorModeValue,
+  HStack,
+  Tooltip
 } from "@chakra-ui/react";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import Card from "components/Card/Card.js";
@@ -54,18 +56,30 @@ export default function CitizenTable(){
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const fetchUserData = async () => {
+    let allUsers = [];
+    let url = `${config.url}/MapApi/user/`;
+  
     try {
-      const response = await axios.get(`${config.url}/MapApi/user/`, {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.token}`,
-        },
-      });
-      let donne = response.data.results.filter(user => user.user_type === "citizen")
-      console.log("citizen data", donne)
-      setData(donne);
+      while (url) {
+        if (url.startsWith('http://')) {
+          url = url.replace('http://', 'https://');
+        }
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.token}`,
+          },
+        });
+  
+        const filtered = response.data.results.filter(user => user.user_type === "citizen");
+        allUsers = [...allUsers, ...filtered];
+  
+        url = response.data.next; 
+      }
+  
+      setData(allUsers);
       setDataReady(true);
     } catch (error) {
-      console.error('Erreur lors de la récupération des informations utilisateur :', error.message);
+      console.error('Erreur lors de la récupération des utilisateurs paginés :', error.message);
     }
   };
 
@@ -232,18 +246,11 @@ export default function CitizenTable(){
           <FormControl>
             <FormLabel>Type Utilisateur</FormLabel>
             <Select name="user_type" value={newUser.user_type} onChange={handleSelectChange} placeholder="Choisissez un type d'utilisateur">
-              <option value="elu">Organisation</option>
+              {/* <option value="elu">Organisation</option> */}
               <option value="citizen">Utilisateur de l'application mobile</option>
             </Select>
           </FormControl>
-          <FormControl>
-            <FormLabel>Organisation</FormLabel>
-            <Input name="organisation" value={newUser.organisation} onChange={handleInputChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Logo de l'organisation</FormLabel>
-            <Input type="file" name="avatar" accept="image/*" onChange={handleFileChange} />
-          </FormControl>
+          
 
         </ModalBody>
         <ModalFooter>
@@ -367,20 +374,26 @@ export default function CitizenTable(){
                         <Td borderColor={borderColor} color="gray.400">{item.last_name}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.email}</Td>
                         <Td borderColor={borderColor} color="gray.400">{item.phone}</Td>
-                        <Td borderColor={borderColor} >
-                            <Button size="sm" onClick={() => handleEditUser(item)} data-testid="edit">
+                        <Td borderColor={borderColor}>
+                          <HStack spacing={2} justify="center">
+                            <Tooltip label="Modifier l'utilisateur" hasArrow>
+                              <Button size="sm" onClick={() => handleEditUser(item)} data-testid="edit" variant="outline" colorScheme="blue">
                                 <FaEdit />
-                            </Button>
-                            <Button
-                              size="sm"
-                              // colorScheme="red"
-                              ml="2"
-                              data-testid={`delete-icon-${item.id}`}
-                              onClick={() => onDeleteUser(item)}
-                              // isLoading={inProgress}
-                            >
-                              <FaTrash />
-                            </Button>
+                              </Button>
+                            </Tooltip>
+
+                            <Tooltip label="Supprimer l'utilisateur" hasArrow>
+                              <Button
+                                size="sm"
+                                data-testid={`delete-icon-${item.id}`}
+                                onClick={() => onDeleteUser(item)}
+                                variant="outline"
+                                colorScheme="red"
+                              >
+                                <FaTrash />
+                              </Button>
+                            </Tooltip>
+                          </HStack>
                         </Td>
                         </Tr>
                     ))}

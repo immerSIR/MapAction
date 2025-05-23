@@ -136,8 +136,8 @@ const Carte = ({ onShowIncident, showOnlyTakenIntoAccount, showOnlyResolved, sho
                         <p>Voir l'incident</p>
                       </div>
                       <div className="col-md-6">
-                        <img src={mark.img} alt="image" style={{ maxWidth: '100px', maxHeight: '100px' }} />
-                        <img src={mark.orgPhoto} alt="image" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+                        <img src={mark.img} alt="" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+                        <img src={mark.orgPhoto} alt="" style={{ maxWidth: '100px', maxHeight: '100px' }} />
                         <div>
                           <button
                             className="boutton button--round-l"

@@ -300,7 +300,7 @@ export default function GlobalViewCollaboration() {
                 <Avatar src={avatar} size="xl" mr="4" />
                 <Box>
                   <Text fontWeight="bold" fontSize="xl">{userDetails?.organisation}</Text>
-                  <Text fontSize="sm">A pris en charge l'incident</Text>
+                  <Text fontSize="sm">A pris en compte l'incident</Text>
                 </Box>
               </Flex>
               <Box p={4} borderWidth="1px" borderRadius="lg" boxShadow="md" bg={colorMode === 'dark' ? 'gray.700' : 'gray.100'}>

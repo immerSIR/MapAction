@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
+  Tooltip,
   Button,
   Checkbox,
   Flex,
@@ -13,6 +14,12 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  HStack,
+  Tag,
+  TagLabel,
+  Wrap,
+  WrapItem
+
 } from "@chakra-ui/react";
 import axios from "axios";
 import { config } from '../../config';
@@ -32,38 +39,24 @@ const Incident = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const highlightId = queryParams.get('highlight');
-  // État pour gérer la sélection des incidents
   const [selectedIncidents, setSelectedIncidents] = useState([]);
-  const [newIncident, setNewIncident] = useState({
-    title: "",
-    zone: "",
-    description: "",
-    photo: "",
-    video: "",
-    audio: "",
-    latitude: "",
-    longitude: "",
-    user_id: "",
-    indicateur_id: "",
-    category_ids: [],
-    etat: "",
-  });
+  const [predictions, setPredictions] = useState([]);
+  const [tagFilter, setTagFilter] = useState(null);
+  const [selectedTags, setSelectedTags] = useState([]);
   const textColor = useColorModeValue("gray.700", "white");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+
   const etatMapping = {
     declared: "Déclaré",
     taken_into_account: "Pris en compte",
     resolved: "Résolu",
   };
-  const getEtatLabel = (etat) => {
-    return etatMapping[etat] || "Indéfini"; 
-  };
 
-  // Récupération des incidents
+  const getEtatLabel = (etat) => etatMapping[etat] || "Indéfini";
+
   const fetchIncidents = async () => {
-    const url = `${config.url}/MapApi/incident/`;
     try {
-      const res = await axios.get(url, {
+      const res = await axios.get(`${config.url}/MapApi/incident/`, {
         headers: {
           Authorization: `Bearer ${sessionStorage.token}`,
           "Content-Type": "application/json",
@@ -76,16 +69,106 @@ const Incident = () => {
     }
   };
 
+  const fetchPredictions = async () => {
+    try {
+      const res = await axios.get(`${config.url}/MapApi/prediction/`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("les prredictions", res.data)
+      setPredictions(res.data); // Pas .results
+    } catch (error) {
+      console.log("Erreur lors de la récupération des prédictions", error.message);
+    }
+  };
+  const [allTags, setAllTags] = useState([]);
+
+  useEffect(() => {
+    if (predictions.length > 0) {
+      const tagSet = new Set();
+      predictions.forEach(pred => {
+        const tags = typeof pred.incident_type === 'string'
+          ? pred.incident_type.split(',').map(t => t.trim())
+          : [];
+        tags.forEach(tag => tagSet.add(tag));
+      });
+      setAllTags(Array.from(tagSet));
+    }
+  }, [predictions]);
+  const toggleTagFilter = (tag) => {
+    setSelectedTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+  
   useEffect(() => {
     fetchIncidents();
+    fetchPredictions();
   }, []);
 
-  // Suppression d'un incident après confirmation
+
+  const getTagsForIncident = (incidentId) => {
+    const prediction = predictions.find(p => Number(p.incident_id) === Number(incidentId));
+    const tags = prediction?.incident_type;
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags;
+    if (typeof tags === 'string') {
+      return tags.split(',').map(tag => tag.trim());
+    }
+    return [];
+  };
+  
+  
+
+  // const allTags = Array.from(new Set(predictions.flatMap(p => p.incident_type)));
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return [d.getDate().toString().padStart(2, '0'), (d.getMonth()+1).toString().padStart(2, '0'), d.getFullYear()].join("-");
+  };
+
+  const onShowIncident = (id) => {
+    const item = getIncidentById(id);
+    navigate.push(`/admin/incident_view/${id}`, { state: { incident: item } });
+  };
+
+  const getIncidentById = (id) => data.find(incident => incident.id === id);
+
+  const handleSelectIncident = (id) => {
+    setSelectedIncidents(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIncidents.length === data.length) {
+      setSelectedIncidents([]);
+    } else {
+      setSelectedIncidents(data.map(item => item.id));
+    }
+  };
+
+  const confirmDeleteIncident = (incidentId) => {
+    Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: "Cette action est définitive. Voulez-vous supprimer cet incident ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Oui, supprimer",
+      cancelButtonText: "Annuler",
+    }).then((result) => {
+      if (result.isConfirmed) deleteIncident(incidentId);
+    });
+  };
+
   const deleteIncident = async (incidentId) => {
     setInProgress(true);
-    const url = `${config.url}/MapApi/incident/${incidentId}`;
     try {
-      await axios.delete(url);
+      await axios.delete(`${config.url}/MapApi/incident/${incidentId}`);
       setInProgress(false);
       Swal.fire("Succès", "Incident supprimé", "success");
       fetchIncidents();
@@ -96,59 +179,54 @@ const Incident = () => {
     }
   };
 
-  // Confirmation pour suppression d'un incident
-  const confirmDeleteIncident = (incidentId) => {
+  const confirmDeleteSelectedIncidents = () => {
+    if (selectedIncidents.length === 0) return;
     Swal.fire({
       title: "Êtes-vous sûr ?",
-      text: "Cette action est définitive. Voulez-vous supprimer cet incident ?",
+      text: "Voulez-vous supprimer les incidents sélectionnés ?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Oui, supprimer",
       cancelButtonText: "Annuler",
     }).then((result) => {
-      if (result.isConfirmed) {
-        deleteIncident(incidentId);
-      }
+      if (result.isConfirmed) deleteSelectedIncidents();
     });
   };
 
-  // Suppression des incidents sélectionnés après confirmation
   const deleteSelectedIncidents = async () => {
     if (selectedIncidents.length === 0) return;
     setInProgress(true);
     try {
       await Promise.all(
-        selectedIncidents.map(id => axios.delete(`${config.url}/MapApi/incident/${id}`))
+        selectedIncidents.map(id =>
+          axios.delete(`${config.url}/MapApi/incident/${id}`)
+        )
       );
       setInProgress(false);
-      Swal.fire("Succès", "Incidents sélectionnés supprimés", "success");
-      setSelectedIncidents([]); // Réinitialisation des sélections
+      Swal.fire("Succès", "Incidents supprimés", "success");
+      setSelectedIncidents([]);
       fetchIncidents();
     } catch (error) {
       setInProgress(false);
-      Swal.fire("Erreur", "Veuillez réessayer", "error");
+      Swal.fire("Erreur", "Échec suppression", "error");
       console.log(error.message);
     }
   };
 
-  // Confirmation pour suppression des incidents sélectionnés
-  const confirmDeleteSelectedIncidents = () => {
-    if (selectedIncidents.length === 0) return;
+  const confirmDeleteAllIncidents = () => {
+    if (data.length === 0) return;
     Swal.fire({
-      title: "Êtes-vous sûr ?",
-      text: "Cette action est définitive. Voulez-vous supprimer les incidents sélectionnés ?",
+      title: "Tout supprimer ?",
+      text: "Cette action est irréversible.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Oui, supprimer",
       cancelButtonText: "Annuler",
     }).then((result) => {
-      if (result.isConfirmed) {
-        deleteSelectedIncidents();
-      }
+      if (result.isConfirmed) deleteAllIncidents();
     });
   };
 
-  // Suppression de tous les incidents affichés après confirmation
   const deleteAllIncidents = async () => {
     if (data.length === 0) return;
     setInProgress(true);
@@ -162,62 +240,8 @@ const Incident = () => {
       fetchIncidents();
     } catch (error) {
       setInProgress(false);
-      Swal.fire("Erreur", "Veuillez réessayer", "error");
+      Swal.fire("Erreur", "Échec suppression", "error");
       console.log(error.message);
-    }
-  };
-
-  // Confirmation pour suppression de tous les incidents
-  const confirmDeleteAllIncidents = () => {
-    if (data.length === 0) return;
-    Swal.fire({
-      title: "Êtes-vous sûr ?",
-      text: "Êtes-vous sûr de supprimer tous les incidents reportés ? Cette action est définitive.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Oui, supprimer",
-      cancelButtonText: "Annuler",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteAllIncidents();
-      }
-    });
-  };
-
-  const onShowIncident = (id) => {
-    const item = getIncidentById(id);
-    navigate.push(`/admin/incident_view/${id}`, { state: { incident: item } });
-  };
-
-  const getIncidentById = (id) => {
-    return data.find((incident) => incident.id === id);
-  };
-
-  const formatDate = (date) => {
-    var d = new Date(date),
-      month = "" + (d.getMonth() + 1),
-      day = "" + d.getDate(),
-      year = d.getFullYear();
-    if (month.length < 2) month = "0" + month;
-    if (day.length < 2) day = "0" + day;
-    return [day, month, year].join("-");
-  };
-
-  // Gestion de la sélection individuelle d'un incident
-  const handleSelectIncident = (id) => {
-    if (selectedIncidents.includes(id)) {
-      setSelectedIncidents(selectedIncidents.filter(item => item !== id));
-    } else {
-      setSelectedIncidents([...selectedIncidents, id]);
-    }
-  };
-
-  // Gestion de la sélection/désélection de tous les incidents
-  const handleSelectAll = () => {
-    if (selectedIncidents.length === data.length) {
-      setSelectedIncidents([]);
-    } else {
-      setSelectedIncidents(data.map(item => item.id));
     }
   };
 
@@ -252,11 +276,31 @@ const Incident = () => {
               </Button>
             </Flex>
           )}
+
+        
+          <Wrap mb={4}>
+            {allTags.map((tag, idx) => {
+              const isSelected = selectedTags.includes(tag);
+              return (
+                <WrapItem key={idx}>
+                  <Tag
+                    size="md"
+                    variant={isSelected ? "solid" : "subtle"}
+                    colorScheme={isSelected ? "teal" : "gray"}
+                    cursor="pointer"
+                    onClick={() => toggleTagFilter(tag)}
+                  >
+                    <TagLabel>{tag}</TagLabel>
+                  </Tag>
+                </WrapItem>
+              );
+            })}
+          </Wrap>
+
           {dataReady ? (
             <Table variant="simple" color={textColor}>
               <Thead>
                 <Tr>
-                  {/* Case à cocher pour sélectionner/désélectionner tous les incidents */}
                   <Th borderColor={borderColor}>
                     <Checkbox
                       isChecked={selectedIncidents.length === data.length && data.length > 0}
@@ -266,55 +310,71 @@ const Incident = () => {
                   <Th borderColor={borderColor}>Titre</Th>
                   <Th borderColor={borderColor}>Zone</Th>
                   <Th borderColor={borderColor}>Description</Th>
+                  <Th borderColor={borderColor}>Tags</Th>
                   <Th borderColor={borderColor}>Utilisateur</Th>
-                  <Th borderColor={borderColor}>Etat</Th>
+                  <Th borderColor={borderColor}>État</Th>
                   <Th borderColor={borderColor}>Date Création</Th>
                   <Th borderColor={borderColor}>Actions</Th>
                 </Tr>
               </Thead>
               <Tbody>
                 {data
-                  .filter((item) => !highlightId || item.id === Number(highlightId))
-                  .map((item) => {
-                  let userName = item.user_id ? `${item.user_id.first_name} ${item.user_id.last_name}` : "indéfini";
-                  return (
-                    <Tr key={item.id}>
-                      <Td borderColor={borderColor}>
-                        {/* Case à cocher pour sélectionner l'incident */}
-                        <Checkbox
-                          isChecked={selectedIncidents.includes(item.id)}
-                          onChange={() => handleSelectIncident(item.id)}
-                        />
-                      </Td>
-                      <Td borderColor={borderColor} color="gray.400">{item.title}</Td>
-                      <Td borderColor={borderColor} color="gray.400">{item.zone}</Td>
-                      <Td borderColor={borderColor} color="gray.400">{item.description}</Td>
-                      <Td borderColor={borderColor} color="gray.400">{userName}</Td>
-                      <Td borderColor={borderColor} color="gray.400">{getEtatLabel(item.etat)}</Td>
-                      <Td borderColor={borderColor} color="gray.400">{formatDate(item.created_at)}</Td>
-                      <Td borderColor={borderColor}>
-                        <Button
-                          size="sm"
-                          onClick={() => onShowIncident(item.id)}
-                          colorScheme="blue"
-                        >
-                          <FaEye />
-                        </Button>
-                        {userType === 'admin' && (
-                          <Button
-                            size="sm"
-                            colorScheme="red"
-                            ml="2"
-                            onClick={() => confirmDeleteIncident(item.id)}
-                            isLoading={inProgress}
-                          >
-                            <FaTrash />
-                          </Button>
-                        )}
-                      </Td>
-                    </Tr>
-                  );
-                })}
+                  .filter(item => {
+                    if (!highlightId && selectedTags.length === 0) return true;
+                    const itemTags = getTagsForIncident(item.id);
+                    const hasAllTags = selectedTags.every(tag => itemTags.includes(tag));
+                    return (!highlightId || item.id === Number(highlightId)) && hasAllTags;
+                  })
+                  .map(item => {
+                    const userName = item.user_id
+                      ? `${item.user_id.first_name} ${item.user_id.last_name}`
+                      : "indéfini";
+                    return (
+                      <Tr key={item.id}>
+                        <Td borderColor={borderColor}>
+                          <Checkbox
+                            isChecked={selectedIncidents.includes(item.id)}
+                            onChange={() => handleSelectIncident(item.id)}
+                          />
+                        </Td>
+                        <Td borderColor={borderColor} color="gray.400">{item.title}</Td>
+                        <Td borderColor={borderColor} color="gray.400">{item.zone}</Td>
+                        <Td borderColor={borderColor} color="gray.400">{item.description}</Td>
+                        <Td borderColor={borderColor} color="gray.400">{getTagsForIncident(item.id).join(", ")}</Td>
+                        <Td borderColor={borderColor} color="gray.400">{userName}</Td>
+                        <Td borderColor={borderColor} color="gray.400">{getEtatLabel(item.etat)}</Td>
+                        <Td borderColor={borderColor} color="gray.400">{formatDate(item.created_at)}</Td>
+
+                        <Td borderColor={borderColor}>
+                          <HStack spacing={2} justify="center">
+                            <Tooltip label="Voir l'incident" hasArrow>
+                              <Button
+                                size="sm"
+                                onClick={() => onShowIncident(item.id)}
+                                colorScheme="blue"
+                              >
+                                <FaEye />
+                              </Button>
+                            </Tooltip>
+
+                            {userType === 'admin' && (
+                              <Tooltip label="Supprimer l'incident" hasArrow>
+                                <Button
+                                  size="sm"
+                                  colorScheme="red"
+                                  onClick={() => confirmDeleteIncident(item.id)}
+                                  isLoading={inProgress}
+                                >
+                                  <FaTrash />
+                                </Button>
+                              </Tooltip>
+                            )}
+                          </HStack>
+                        </Td>
+
+                      </Tr>
+                    );
+                  })}
               </Tbody>
             </Table>
           ) : (
