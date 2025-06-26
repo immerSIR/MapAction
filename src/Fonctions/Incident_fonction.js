@@ -497,27 +497,62 @@ export const IncidentData = () => {
             }
 
             const payload = {
-                image_name: imageUrl,
+                image_url: imageUrl, // Changed from image_name to image_url to be more explicit
+                image_name: imageUrl, // Keep both for backward compatibility
                 sensitive_structures: sensitiveStructures,
                 incident_id: incidentId,
                 user_id: userId,
                 zone: incident?.zone || "",
                 latitude: latitude,
                 longitude: longitude,
+                storage_type: "supabase", // Add flag to indicate this is a Supabase URL
             };
             console.log("Les sites voisins:", sensitiveStructures);
             console.log("Payload being sent:", payload);
 
-            // Envoi vers FastAPI
-            await axios.post(fastapiUrl, payload, { timeout: 120000 });
+            // Envoi vers FastAPI avec headers appropriés
+            await axios.post(fastapiUrl, payload, {
+                timeout: 120000,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+            });
         } catch (error) {
             console.error(
                 "Error sending prediction (Axios error):",
                 error.response || error.message || error
             );
-            throw new Error(
-                error.response?.data?.detail || "Error during API call"
-            );
+
+            // More specific error handling
+            if (error.response?.status === 500) {
+                throw new Error(
+                    `Server error: ${
+                        error.response?.data?.detail ||
+                        "ML API server error - likely issue with Supabase URL handling"
+                    }`
+                );
+            } else if (error.response?.status === 422) {
+                throw new Error(
+                    `Invalid data format: ${
+                        error.response?.data?.detail ||
+                        "Check payload structure"
+                    }`
+                );
+            } else if (error.response?.status === 404) {
+                throw new Error(
+                    `Image not found: ${
+                        error.response?.data?.detail ||
+                        "Supabase URL may not be accessible by ML API"
+                    }`
+                );
+            } else {
+                throw new Error(
+                    error.response?.data?.detail ||
+                        error.message ||
+                        "Error during API call"
+                );
+            }
         }
     }, [
         incident,
